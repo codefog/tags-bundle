@@ -1,0 +1,32 @@
+{
+    "name": "codefog/tags-bundle",
+    "description": "Tags bundle for Contao Open Source CMS",
+    "keywords": ["contao", "tag", "tags", "tagging"],
+    "type": "contao-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Codefog",
+            "homepage": "https://codefog.pl"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "contao/core-bundle": "^4.3",
+        "codefog/contao-haste": "^4.16"
+    },
+    "require-dev": {
+        "contao/manager-plugin": "^2.0"
+    },
+    "conflict": {
+        "contao/manager-plugin": "<2.0 || >=3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Codefog\\TagsBundle\\": "src"
+        }
+    },
+    "extra": {
+        "contao-manager-plugin": "Codefog\\TagsBundle\\ContaoManager\\Plugin"
+    }
+}

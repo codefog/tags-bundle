@@ -1,0 +1,23 @@
+<?php
+$GLOBALS['TL_CSS'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/selectize.min.css');
+$GLOBALS['TL_CSS'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/backend.min.css');
+$GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('assets/jquery/js/jquery.min.js');
+$GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/selectize.min.js');
+$GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/widget.min.js');
+$GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/backend.min.js');
+?>
+
+<div class="cfg-tags" data-cfg-tags>
+    <?php if ($this->allTags): ?>
+        <div class="cfg-tags-all">
+            <?php foreach ($this->allTags as $tag): ?>
+                <span data-cfg-tags-tag="<?= $tag['value'] ?>"><?= $tag['text'] ?></span>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <input type="text" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" data-cfg-tags-input>
+
+    <script type="application/json" data-cfg-tags-all><?= json_encode($this->allTags) ?></script>
+    <script type="application/json" data-cfg-tags-value><?= json_encode($this->valueTags) ?></script>
+</div>

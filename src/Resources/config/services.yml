@@ -1,0 +1,3 @@
+services:
+    cfg_tags.manager_registry:
+        class: Codefog\TagsBundle\ManagerRegistry

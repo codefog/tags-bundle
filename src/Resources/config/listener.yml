@@ -1,0 +1,10 @@
+services:
+    cfg_tags.listener.tag_manager:
+        class: Codefog\TagsBundle\EventListener\TagManagerListener
+        arguments:
+            - "@cfg_tags.manager_registry"
+
+    cfg_tags.listener.data_container.tag:
+        class: Codefog\TagsBundle\EventListener\DataContainer\TagContainer
+        arguments:
+            - "@cfg_tags.manager_registry"

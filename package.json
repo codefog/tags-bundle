@@ -1,0 +1,25 @@
+{
+    "config": {
+        "targetFolder": "src/Resources/public",
+        "styles": [
+            "src/Resources/public/backend.css",
+            "src/Resources/public/selectize.css"
+        ],
+        "scripts": [
+            "src/Resources/public/backend.js",
+            "src/Resources/public/widget.js"
+        ],
+        "vendors": [
+            "node_modules/selectize/dist/css/selectize.css",
+            "node_modules/selectize/dist/js/standalone/selectize.js",
+            "node_modules/selectize/dist/js/standalone/selectize.min.js"
+        ]
+    },
+    "dependencies": {
+        "gulp": "^3.9.1",
+        "gulp-clean-css": "^3.0.3",
+        "gulp-rename": "^1.2.2",
+        "gulp-uglify": "^2.1.0",
+        "selectize": "^0.12.4"
+    }
+}
