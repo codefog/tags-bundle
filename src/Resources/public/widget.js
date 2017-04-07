@@ -6,6 +6,7 @@
 
     // Defaults
     var defaults = {
+        allowCreate: true,
         delimiter: ','
     };
 
@@ -18,7 +19,12 @@
      */
     function Plugin(element, options) {
         this.element = $(element);
-        this.settings = $.extend({}, defaults, options);
+        this.settings = $.extend(
+            {},
+            defaults,
+            this.parseJson(this.element.find('[data-cfg-tags-config]').eq(0)),
+            options
+        );
         this.init();
     }
 
@@ -35,7 +41,7 @@
         /**
          * Bind the events
          */
-        bindEvents: function() {
+        bindEvents: function () {
             // Add the tags to Selectize on click
             this.element.find('[data-cfg-tags-tag]').on('click', function (e) {
                 this.selectize.addItem($(e.currentTarget).data('cfg-tags-tag'));
@@ -52,20 +58,25 @@
          * Initialize the Selectize
          * @param {Element} el
          */
-        initSelectize: function(el) {
-            el.selectize({
+        initSelectize: function (el) {
+            var options = {
                 delimiter: this.settings.delimiter,
                 options: this.parseJson(this.element.find('[data-cfg-tags-all]').eq(0)),
                 items: this.parseJson(this.element.find('[data-cfg-tags-value]').eq(0)),
-                persist: false,
-                create: function (input) {
+                persist: false
+            };
+
+            // Allow to create the tags
+            if (this.settings.allowCreate) {
+                options.create = function (input) {
                     return {
                         value: input,
                         text: input
                     }
-                }
-            });
+                };
+            }
 
+            el.selectize(options);
             this.selectize = el[0].selectize;
         },
 

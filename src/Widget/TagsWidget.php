@@ -59,20 +59,6 @@ class TagsWidget extends Widget
     /**
      * @inheritDoc
      */
-    public function __set($key, $value)
-    {
-        switch ($key) {
-            case 'options':
-                $this->arrOptions = StringUtil::deserialize($value);
-                break;
-        }
-
-        parent::__set($key, $value);
-    }
-
-    /**
-     * @inheritDoc
-     */
     protected function getPost($key)
     {
         return array_filter(trimsplit(',', parent::getPost($key)));
@@ -92,8 +78,21 @@ class TagsWidget extends Widget
         $template->id        = $this->strId;
         $template->valueTags = $this->generateValueTags($this->getValueTags());
         $template->allTags   = $this->generateAllTags($this->getAllTags());
+        $template->config    = $this->generateConfig();
 
         return $template->parse();
+    }
+
+    /**
+     * Generate the widget configuration
+     *
+     * @return array
+     */
+    protected function generateConfig(): array
+    {
+        return [
+            'allowCreate' => isset($this->tagsCreate) ? (bool)$this->tagsCreate : true,
+        ];
     }
 
     /**

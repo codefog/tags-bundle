@@ -36,7 +36,11 @@ sure that you register it with the *alias* of the service and not the service *n
     'label'     => &$GLOBALS['TL_LANG']['tl_app_article']['tags'],
     'exclude'   => true,
     'inputType' => 'cfgTags',
-    'eval'      => ['tagsManager' => 'app.article', 'tl_class' => 'clr'],
+    'eval'      => [
+        'tagsManager' => 'app.article', // Manager, required
+        'tagsCreate'  => false, // Allow to create tags, optional (true by default)
+        'tl_class'    => 'clr'
+    ],
 ],
 ````
 

@@ -18,6 +18,7 @@ $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codef
 
     <input type="text" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" data-cfg-tags-input>
 
+    <script type="application/json" data-cfg-tags-config><?= json_encode($this->config) ?></script>
     <script type="application/json" data-cfg-tags-all><?= json_encode($this->allTags) ?></script>
     <script type="application/json" data-cfg-tags-value><?= json_encode($this->valueTags) ?></script>
 </div>
