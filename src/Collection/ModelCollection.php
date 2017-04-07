@@ -8,14 +8,8 @@ use Codefog\TagsBundle\Tag;
 use Contao\Model;
 use Contao\Model\Collection;
 
-class ModelCollection implements CollectionInterface
+class ModelCollection extends ArrayCollection
 {
-    /**
-     * Tags
-     * @var array
-     */
-    private $tags = [];
-
     /**
      * ModelCollection constructor.
      *
@@ -24,7 +18,7 @@ class ModelCollection implements CollectionInterface
     public function __construct(Collection $models = null)
     {
         if ($models !== null) {
-            $this->tags = $this->createTags($models);
+            parent::__construct($this->createTags($models));
         }
     }
 
@@ -57,21 +51,5 @@ class ModelCollection implements CollectionInterface
     public static function createTagFromModel(Model $model)
     {
         return new Tag((string)$model->id, $model->name, $model->row());
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function count(): int
-    {
-        return count($this->tags);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getIterator(): \Iterator
-    {
-        return new \ArrayIterator($this->tags);
     }
 }
