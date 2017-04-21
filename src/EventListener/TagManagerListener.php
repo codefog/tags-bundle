@@ -1,6 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
 
 namespace Codefog\TagsBundle\EventListener;
 
@@ -26,7 +34,7 @@ class TagManagerListener
     }
 
     /**
-     * On load the data container
+     * On load the data container.
      *
      * @param string $table
      *
@@ -52,7 +60,7 @@ class TagManagerListener
     }
 
     /**
-     * On the field save
+     * On the field save.
      *
      * @param string        $value
      * @param DataContainer $dc

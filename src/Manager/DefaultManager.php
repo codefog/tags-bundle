@@ -1,6 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
 
 namespace Codefog\TagsBundle\Manager;
 
@@ -42,7 +50,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function setAlias(string $alias): void
     {
@@ -50,7 +58,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function find(string $value, array $criteria = []): ?Tag
     {
@@ -69,7 +77,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function findMultiple(array $criteria = []): CollectionInterface
     {
@@ -77,7 +85,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function countSourceRecords(Tag $tag): int
     {
@@ -85,7 +93,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getSourceRecords(Tag $tag): array
     {
@@ -97,7 +105,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function updateDcaField(array &$config): void
     {
@@ -111,11 +119,11 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function saveDcaField(string $value, DataContainer $dc): string
     {
-        $value    = StringUtil::deserialize($value, true);
+        $value = StringUtil::deserialize($value, true);
         $criteria = $this->getCriteria();
 
         /** @var array $value */
@@ -131,7 +139,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
-     * Create the tag
+     * Create the tag.
      *
      * @param string $value
      *
@@ -139,9 +147,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     private function createTag(string $value): Tag
     {
-        $model         = new TagModel();
+        $model = new TagModel();
         $model->tstamp = time();
-        $model->name   = $value;
+        $model->name = $value;
         $model->source = $this->alias;
         $model->save();
 
@@ -149,7 +157,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
-     * Get the criteria with necessary data
+     * Get the criteria with necessary data.
      *
      * @param array $criteria
      *
@@ -157,7 +165,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     private function getCriteria(array $criteria = []): array
     {
-        $criteria['source']      = $this->alias;
+        $criteria['source'] = $this->alias;
         $criteria['sourceTable'] = $this->sourceTable;
         $criteria['sourceField'] = $this->sourceField;
 

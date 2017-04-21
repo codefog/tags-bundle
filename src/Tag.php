@@ -1,25 +1,36 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
 
 namespace Codefog\TagsBundle;
 
 class Tag
 {
     /**
-     * Tag ID
+     * Tag ID.
+     *
      * @var string
      */
     private $value;
 
     /**
-     * Tag name
+     * Tag name.
+     *
      * @var string
      */
     private $name;
 
     /**
-     * Data
+     * Data.
+     *
      * @var array
      */
     private $data;
@@ -34,8 +45,8 @@ class Tag
     public function __construct(string $value, string $name, array $data = [])
     {
         $this->value = $value;
-        $this->name  = $name;
-        $this->data  = $data;
+        $this->name = $name;
+        $this->data = $data;
     }
 
     /**
