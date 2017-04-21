@@ -34,6 +34,10 @@ class TagManagerListener
      */
     public function onLoadDataContainer(string $table): void
     {
+        if (!is_array($GLOBALS['TL_DCA'][$table]['fields'])) {
+            return;
+        }
+
         foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $name => &$field) {
             if ($field['inputType'] !== 'cfgTags') {
                 continue;
