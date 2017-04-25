@@ -1,23 +1,28 @@
 <?php
 
-/**
- * Backend modules
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
  */
+
 $GLOBALS['BE_MOD']['content']['cfg_tags'] = [
     'tables' => ['tl_cfg_tag'],
 ];
 
-/**
+/*
  * Backend widgets
  */
 $GLOBALS['BE_FFL']['cfgTags'] = Codefog\TagsBundle\Widget\TagsWidget::class;
 
-/**
+/*
  * Models
  */
 $GLOBALS['TL_MODELS']['tl_cfg_tag'] = \Codefog\TagsBundle\Model\TagModel::class;
 
-/**
+/*
  * Hooks
  */
 if (is_array($GLOBALS['TL_HOOKS']['loadDataContainer'])) {

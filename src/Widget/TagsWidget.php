@@ -1,6 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
 
 namespace Codefog\TagsBundle\Widget;
 
@@ -8,38 +16,41 @@ use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
 use Contao\BackendTemplate;
-use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
 
 class TagsWidget extends Widget
 {
     /**
-     * Submit user input
-     * @var boolean
+     * Submit user input.
+     *
+     * @var bool
      */
     protected $blnSubmitInput = true;
 
     /**
-     * Add a for attribute
-     * @var boolean
+     * Add a for attribute.
+     *
+     * @var bool
      */
     protected $blnForAttribute = true;
 
     /**
-     * Template
+     * Template.
+     *
      * @var string
      */
     protected $strTemplate = 'be_widget';
 
     /**
-     * Tags manager
+     * Tags manager.
+     *
      * @var ManagerInterface
      */
     protected $tagsManager;
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function addAttributes($attributes = null)
     {
@@ -57,14 +68,6 @@ class TagsWidget extends Widget
     }
 
     /**
-     * @inheritDoc
-     */
-    protected function getPost($key)
-    {
-        return array_filter(trimsplit(',', parent::getPost($key)));
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function generate()
@@ -73,40 +76,48 @@ class TagsWidget extends Widget
             return '';
         }
 
-        $template            = new BackendTemplate('be_cfg_tags_widget');
-        $template->name      = $this->strName;
-        $template->id        = $this->strId;
+        $template = new BackendTemplate('be_cfg_tags_widget');
+        $template->name = $this->strName;
+        $template->id = $this->strId;
         $template->valueTags = $this->generateValueTags($this->getValueTags());
-        $template->allTags   = $this->generateAllTags($this->getAllTags());
-        $template->config    = $this->generateConfig();
+        $template->allTags = $this->generateAllTags($this->getAllTags());
+        $template->config = $this->generateConfig();
 
         return $template->parse();
     }
 
     /**
-     * Generate the widget configuration
+     * {@inheritdoc}
+     */
+    protected function getPost($key)
+    {
+        return array_filter(trimsplit(',', parent::getPost($key)));
+    }
+
+    /**
+     * Generate the widget configuration.
      *
      * @return array
      */
     protected function generateConfig(): array
     {
         return [
-            'allowCreate' => isset($this->tagsCreate) ? (bool)$this->tagsCreate : true,
+            'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
         ];
     }
 
     /**
-     * Get the value tags
+     * Get the value tags.
      *
      * @return CollectionInterface
      */
     protected function getValueTags(): CollectionInterface
     {
-        return $this->tagsManager->findMultiple(['values' => $this->varValue]);
+        return $this->tagsManager->findMultiple(['values' => is_array($this->varValue) ? $this->varValue : []]);
     }
 
     /**
-     * Get all tags
+     * Get all tags.
      *
      * @return CollectionInterface
      */
@@ -116,7 +127,7 @@ class TagsWidget extends Widget
     }
 
     /**
-     * Generate the value tags
+     * Generate the value tags.
      *
      * @param CollectionInterface $tags
      *
@@ -135,7 +146,7 @@ class TagsWidget extends Widget
     }
 
     /**
-     * Generate all tags
+     * Generate all tags.
      *
      * @param CollectionInterface $tags
      *

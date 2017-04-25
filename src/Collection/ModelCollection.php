@@ -1,6 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
 
 namespace Codefog\TagsBundle\Collection;
 
@@ -23,7 +31,19 @@ class ModelCollection extends ArrayCollection
     }
 
     /**
-     * Create the tags
+     * Create the tag from model.
+     *
+     * @param Model $model
+     *
+     * @return Tag
+     */
+    public static function createTagFromModel(Model $model)
+    {
+        return new Tag((string) $model->id, $model->name, $model->row());
+    }
+
+    /**
+     * Create the tags.
      *
      * @param Collection $models
      *
@@ -39,17 +59,5 @@ class ModelCollection extends ArrayCollection
         }
 
         return $tags;
-    }
-
-    /**
-     * Create the tag from model
-     *
-     * @param Model $model
-     *
-     * @return Tag
-     */
-    public static function createTagFromModel(Model $model)
-    {
-        return new Tag((string)$model->id, $model->name, $model->row());
     }
 }

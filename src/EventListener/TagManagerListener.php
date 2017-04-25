@@ -1,6 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
 
 namespace Codefog\TagsBundle\EventListener;
 
@@ -26,7 +34,7 @@ class TagManagerListener
     }
 
     /**
-     * On load the data container
+     * On load the data container.
      *
      * @param string $table
      *
@@ -34,6 +42,10 @@ class TagManagerListener
      */
     public function onLoadDataContainer(string $table): void
     {
+        if (!is_array($GLOBALS['TL_DCA'][$table]['fields'])) {
+            return;
+        }
+
         foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $name => &$field) {
             if ($field['inputType'] !== 'cfgTags') {
                 continue;
@@ -48,7 +60,7 @@ class TagManagerListener
     }
 
     /**
-     * On the field save
+     * On the field save.
      *
      * @param string        $value
      * @param DataContainer $dc

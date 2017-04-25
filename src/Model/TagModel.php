@@ -1,6 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
 
 namespace Codefog\TagsBundle\Model;
 
@@ -10,13 +18,14 @@ use Contao\Model;
 class TagModel extends Model
 {
     /**
-     * Table name
+     * Table name.
+     *
      * @var string
      */
     protected static $strTable = 'tl_cfg_tag';
 
     /**
-     * Find the records by criteria
+     * Find the records by criteria.
      *
      * @param array $criteria
      *
@@ -38,24 +47,24 @@ class TagModel extends Model
     }
 
     /**
-     * Parse the criteria
+     * Parse the criteria.
      *
      * @param array $criteria
      *
-     * @return array
-     *
      * @throws NoTagsException
+     *
+     * @return array
      */
-    private static function parseCriteria(array $criteria):array
+    private static function parseCriteria(array $criteria): array
     {
         $columns = [];
-        $values  = [];
+        $values = [];
         $options = ['order' => 'name'];
 
         // Find by source
         if ($criteria['source']) {
             $columns[] = 'source=?';
-            $values[]  = $criteria['source'];
+            $values[] = $criteria['source'];
         }
 
         // Find only the used tags
@@ -63,7 +72,7 @@ class TagModel extends Model
             $ids = \Haste\Model\Model::getRelatedValues($criteria['sourceTable'], $criteria['sourceField']);
 
             if (count($ids) < 1) {
-                throw new NoTagsException;
+                throw new NoTagsException();
             }
 
             $columns[] = 'id IN ('.implode(',', array_map('intval', array_unique($ids))).')';
@@ -72,7 +81,7 @@ class TagModel extends Model
         // Find the tags by values/IDs
         if (is_array($criteria['values'])) {
             if (count($criteria['values']) < 1) {
-                throw new NoTagsException;
+                throw new NoTagsException();
             }
 
             $columns[] = 'id IN ('.implode(',', array_map('intval', $criteria['values'])).')';

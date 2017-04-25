@@ -1,6 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
 
 namespace Codefog\TagsBundle\EventListener\DataContainer;
 
@@ -26,7 +34,7 @@ class TagContainer
     }
 
     /**
-     * Generate the label
+     * Generate the label.
      *
      * @param array         $row
      * @param string        $label
@@ -47,7 +55,7 @@ class TagContainer
     }
 
     /**
-     * Get the sources
+     * Get the sources.
      *
      * @return array
      */
@@ -57,7 +65,7 @@ class TagContainer
     }
 
     /**
-     * Get the manager
+     * Get the manager.
      *
      * @param string $alias
      *

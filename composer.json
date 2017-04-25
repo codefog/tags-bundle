@@ -16,7 +16,8 @@
         "codefog/contao-haste": "^4.16"
     },
     "require-dev": {
-        "contao/manager-plugin": "^2.0"
+        "contao/manager-plugin": "^2.0",
+        "friendsofphp/php-cs-fixer": "^2.2"
     },
     "conflict": {
         "contao/manager-plugin": "<2.0 || >=3.0"
