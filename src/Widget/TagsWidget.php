@@ -113,7 +113,7 @@ class TagsWidget extends Widget
      */
     protected function getValueTags(): CollectionInterface
     {
-        return $this->tagsManager->findMultiple(['values' => $this->varValue]);
+        return $this->tagsManager->findMultiple(['values' => is_array($this->varValue) ? $this->varValue : []]);
     }
 
     /**
