@@ -20,3 +20,5 @@ Minimum requirements:
 Execute the following command in your Contao 4 project folder:
 
     $ composer require codefog/tags-bundle
+
+Then run the Contao install tool to update the database.
