@@ -46,7 +46,7 @@ class ManagerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         if (!$container->hasDefinition($this->registryName)) {
-            return;
+            throw new \RuntimeException(sprintf('The registry service "%s" does not exist', $this->registryName));
         }
 
         $definition = $container->getDefinition($this->registryName);

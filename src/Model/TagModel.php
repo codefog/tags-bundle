@@ -15,6 +15,9 @@ namespace Codefog\TagsBundle\Model;
 use Codefog\TagsBundle\Exception\NoTagsException;
 use Contao\Model;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TagModel extends Model
 {
     /**

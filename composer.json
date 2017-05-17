@@ -26,7 +26,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Codefog\\TagsBundle\\": "src"
+            "Codefog\\TagsBundle\\": "src",
+            "Codefog\\TagsBundle\\Test\\": "tests"
         }
     },
     "extra": {

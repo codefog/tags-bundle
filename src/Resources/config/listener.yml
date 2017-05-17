@@ -5,6 +5,6 @@ services:
             - "@cfg_tags.manager_registry"
 
     cfg_tags.listener.data_container.tag:
-        class: Codefog\TagsBundle\EventListener\DataContainer\TagContainer
+        class: Codefog\TagsBundle\EventListener\DataContainer\TagListener
         arguments:
             - "@cfg_tags.manager_registry"

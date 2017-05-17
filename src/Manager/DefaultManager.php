@@ -16,6 +16,7 @@ use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Collection\ModelCollection;
 use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
+use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
 use Contao\StringUtil;
 use Haste\Model\Model;
@@ -26,6 +27,11 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      * @var string
      */
     private $alias;
+
+    /**
+     * @var ContaoFrameworkInterface
+     */
+    private $framework;
 
     /**
      * @var string
@@ -40,11 +46,13 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     /**
      * DefaultManager constructor.
      *
-     * @param string $sourceTable
-     * @param string $sourceField
+     * @param ContaoFrameworkInterface $framework
+     * @param string                   $sourceTable
+     * @param string                   $sourceField
      */
-    public function __construct(string $sourceTable, string $sourceField)
+    public function __construct(ContaoFrameworkInterface $framework, string $sourceTable, string $sourceField)
     {
+        $this->framework   = $framework;
         $this->sourceTable = $sourceTable;
         $this->sourceField = $sourceField;
     }
@@ -62,7 +70,10 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     public function find(string $value, array $criteria = []): ?Tag
     {
-        if (($model = TagModel::findByPk($value)) === null) {
+        /** @var TagModel $adapter */
+        $adapter = $this->framework->getAdapter(TagModel::class);
+
+        if (($model = $adapter->findByPk($value)) === null) {
             return null;
         }
 
@@ -81,7 +92,10 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     public function findMultiple(array $criteria = []): CollectionInterface
     {
-        return new ModelCollection(TagModel::findByCriteria($this->getCriteria($criteria)));
+        /** @var TagModel $adapter */
+        $adapter = $this->framework->getAdapter(TagModel::class);
+
+        return new ModelCollection($adapter->findByCriteria($this->getCriteria($criteria)));
     }
 
     /**
@@ -89,7 +103,10 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     public function countSourceRecords(Tag $tag): int
     {
-        return count(Model::getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue()));
+        /** @var Model $adapter */
+        $adapter = $this->framework->getAdapter(Model::class);
+
+        return count($adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue()));
     }
 
     /**
@@ -97,8 +114,11 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     public function getSourceRecords(Tag $tag): array
     {
-        $values = Model::getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue());
-        $values = array_unique($values);
+        /** @var Model $adapter */
+        $adapter = $this->framework->getAdapter(Model::class);
+
+        $values = $adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue());
+        $values = array_values(array_unique($values));
         $values = array_map('intval', $values);
 
         return $values;
@@ -109,9 +129,12 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     public function updateDcaField(array &$config): void
     {
-        $config['relation'] = ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => TagModel::getTable()];
+        /** @var TagModel $adapter */
+        $adapter = $this->framework->getAdapter(TagModel::class);
 
-        if (is_array($config['save_callback'])) {
+        $config['relation'] = ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => $adapter->getTable()];
+
+        if (isset($config['save_callback']) && is_array($config['save_callback'])) {
             array_unshift($config['save_callback'], ['cfg_tags.listener.tag_manager', 'onFieldSave']);
         } else {
             $config['save_callback'][] = ['cfg_tags.listener.tag_manager', 'onFieldSave'];
@@ -147,7 +170,8 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     private function createTag(string $value): Tag
     {
-        $model = new TagModel();
+        /** @var TagModel $model */
+        $model = $this->framework->createInstance(TagModel::class);
         $model->tstamp = time();
         $model->name = $value;
         $model->source = $this->alias;

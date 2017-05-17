@@ -19,6 +19,9 @@ use Contao\BackendTemplate;
 use Contao\System;
 use Contao\Widget;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TagsWidget extends Widget
 {
     /**
