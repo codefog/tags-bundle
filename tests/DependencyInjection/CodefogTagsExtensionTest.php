@@ -16,10 +16,10 @@ class CodefogTagsExtensionTest extends TestCase
         $extension->load([], $container);
 
         // Listeners
-        $this->assertTrue($container->hasDefinition('cfg_tags.listener.tag_manager'));
-        $this->assertTrue($container->hasDefinition('cfg_tags.listener.data_container.tag'));
+        $this->assertTrue($container->hasDefinition('codefog_tags.listener.tag_manager'));
+        $this->assertTrue($container->hasDefinition('codefog_tags.listener.data_container.tag'));
 
         // Services
-        $this->assertTrue($container->hasDefinition('cfg_tags.manager_registry'));
+        $this->assertTrue($container->hasDefinition('codefog_tags.manager_registry'));
     }
 }

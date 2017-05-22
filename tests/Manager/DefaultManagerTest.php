@@ -105,7 +105,7 @@ class DefaultManagerTest extends TestCase
                     'table' => 'tl_cfg_tag',
                 ],
                 'save_callback' => [
-                    ['cfg_tags.listener.tag_manager', 'onFieldSave']
+                    ['codefog_tags.listener.tag_manager', 'onFieldSave']
                 ],
             ],
             $config
@@ -128,7 +128,7 @@ class DefaultManagerTest extends TestCase
                     'table' => 'tl_cfg_tag',
                 ],
                 'save_callback' => [
-                    ['cfg_tags.listener.tag_manager', 'onFieldSave'],
+                    ['codefog_tags.listener.tag_manager', 'onFieldSave'],
                     ['foo', 'bar'],
                 ],
             ],

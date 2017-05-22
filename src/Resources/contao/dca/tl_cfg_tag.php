@@ -33,7 +33,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
         'label' => [
             'fields' => ['name', 'source', 'total'],
             'showColumns' => true,
-            'label_callback' => ['cfg_tags.listener.data_container.tag', 'generateLabel'],
+            'label_callback' => ['codefog_tags.listener.data_container.tag', 'generateLabel'],
         ],
         'global_operations' => [
             'all' => [
@@ -97,7 +97,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
             'exclude' => true,
             'filter' => true,
             'inputType' => 'select',
-            'options_callback' => ['cfg_tags.listener.data_container.tag', 'getSources'],
+            'options_callback' => ['codefog_tags.listener.data_container.tag', 'getSources'],
             'reference' => &$GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef'],
             'eval' => ['mandatory' => true, 'includeBlankOption' => true, 'tl_class' => 'w50'],
             'sql' => ['type' => 'string', 'length' => 64],

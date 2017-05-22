@@ -135,9 +135,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         $config['relation'] = ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => $adapter->getTable()];
 
         if (isset($config['save_callback']) && is_array($config['save_callback'])) {
-            array_unshift($config['save_callback'], ['cfg_tags.listener.tag_manager', 'onFieldSave']);
+            array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
         } else {
-            $config['save_callback'][] = ['cfg_tags.listener.tag_manager', 'onFieldSave'];
+            $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSave'];
         }
     }
 

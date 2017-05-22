@@ -59,7 +59,7 @@ class TagsWidget extends Widget
     {
         if (is_array($attributes)) {
             if ($attributes['tagsManager']) {
-                $this->tagsManager = System::getContainer()->get('cfg_tags.manager_registry')->get(
+                $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get(
                     $attributes['tagsManager']
                 );
             }
