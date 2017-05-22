@@ -3,6 +3,8 @@
 ![](https://img.shields.io/packagist/v/codefog/tags-bundle.svg)
 ![](https://img.shields.io/packagist/l/codefog/tags-bundle.svg)
 ![](https://img.shields.io/packagist/dt/codefog/tags-bundle.svg)
+[![](https://img.shields.io/travis/codefog/tags-bundle/master.svg)](https://travis-ci.org/codefog/tags-bundle/)
+[![](https://img.shields.io/coveralls/codefog/tags-bundle/master.svg)](https://coveralls.io/github/codefog/tags-bundle)
 
 Tags Bundle is an extension for the [Contao Open Source CMS](https://contao.org).
 

@@ -21,7 +21,7 @@ services:
             - "tl_app_article"
             - "tags"
         tags:
-            - { name: cfg_tags.manager, alias: app.article }
+            - { name: codefog_tags.manager, alias: app.article }
 ```
 
 

@@ -16,7 +16,7 @@ use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Contao\DataContainer;
 
-class TagContainer
+class TagListener
 {
     /**
      * @var ManagerRegistry

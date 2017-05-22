@@ -37,12 +37,10 @@ class TagManagerListener
      * On load the data container.
      *
      * @param string $table
-     *
-     * @throws \RuntimeException
      */
     public function onLoadDataContainer(string $table): void
     {
-        if (!is_array($GLOBALS['TL_DCA'][$table]['fields'])) {
+        if (!isset($GLOBALS['TL_DCA'][$table]['fields']) || !is_array($GLOBALS['TL_DCA'][$table]['fields'])) {
             return;
         }
 

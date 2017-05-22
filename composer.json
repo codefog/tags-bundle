@@ -17,14 +17,17 @@
     },
     "require-dev": {
         "contao/manager-plugin": "^2.0",
-        "friendsofphp/php-cs-fixer": "^2.2"
+        "friendsofphp/php-cs-fixer": "^2.2",
+        "phpunit/phpunit": "^6.0",
+        "satooshi/php-coveralls": "2.*@dev"
     },
     "conflict": {
         "contao/manager-plugin": "<2.0 || >=3.0"
     },
     "autoload": {
         "psr-4": {
-            "Codefog\\TagsBundle\\": "src"
+            "Codefog\\TagsBundle\\": "src",
+            "Codefog\\TagsBundle\\Test\\": "tests"
         }
     },
     "extra": {
