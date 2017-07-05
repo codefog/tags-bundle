@@ -30,6 +30,10 @@ class TagManagerListenerTest extends TestCase
         $registry = $this->createMock(ManagerRegistry::class);
         $registry->method('get')->willReturn(new DummyManager());
 
+        define('TL_MODE', 'BE');
+        $GLOBALS['TL_CSS'] = [];
+        $GLOBALS['TL_JAVASCRIPT'] = [];
+
         $listener = new TagManagerListener($registry);
         $listener->onLoadDataContainer('tl_table');
 
@@ -43,6 +47,13 @@ class TagManagerListenerTest extends TestCase
                 'inputType' => 'text',
             ],
         ], $GLOBALS['TL_DCA']['tl_table']['fields']);
+
+        static::assertContains('bundles/codefogtags/selectize.min.css', $GLOBALS['TL_CSS']);
+        static::assertContains('bundles/codefogtags/backend.min.css', $GLOBALS['TL_CSS']);
+        static::assertContains('assets/jquery/js/jquery.min.js', $GLOBALS['TL_JAVASCRIPT']);
+        static::assertContains('bundles/codefogtags/selectize.min.js', $GLOBALS['TL_JAVASCRIPT']);
+        static::assertContains('bundles/codefogtags/widget.min.js', $GLOBALS['TL_JAVASCRIPT']);
+        static::assertContains('bundles/codefogtags/backend.min.js', $GLOBALS['TL_JAVASCRIPT']);
     }
 
     public function testOnLoadDataContainerNoFields()
