@@ -14,17 +14,16 @@
      * Plugin constructor
      *
      * @param element
+     * @param allTags
+     * @param valueTags
      * @param options
      * @constructor
      */
-    function Plugin(element, options) {
+    function Plugin(element, allTags, valueTags, options) {
         this.element = $(element);
-        this.settings = $.extend(
-            {},
-            defaults,
-            this.parseJson(this.element.find('[data-cfg-tags-config]').eq(0)),
-            options
-        );
+        this.settings = $.extend({}, defaults, options);
+        this.allTags = allTags;
+        this.valueTags = valueTags;
         this.init();
     }
 
@@ -61,8 +60,8 @@
         initSelectize: function (el) {
             var options = {
                 delimiter: this.settings.delimiter,
-                options: this.parseJson(this.element.find('[data-cfg-tags-all]').eq(0)),
-                items: this.parseJson(this.element.find('[data-cfg-tags-value]').eq(0)),
+                options: this.allTags,
+                items: this.valueTags,
                 persist: false
             };
 
@@ -78,31 +77,14 @@
 
             el.selectize(options);
             this.selectize = el[0].selectize;
-        },
-
-        /**
-         * Parse the JSON data
-         * @param {Element} el
-         * @return {Array}
-         */
-        parseJson: function (el) {
-            var data = [];
-
-            try {
-                data = JSON.parse(el.text());
-            } catch (err) {
-                return [];
-            }
-
-            return data;
         }
     });
 
     // Plugin wrapper around the constructor preventing against multiple instantiations
-    $.fn[pluginName] = function (options) {
+    $.fn[pluginName] = function (allTags, valueTags, options) {
         return this.each(function () {
             if (!$.data(this, 'plugin_' + pluginName)) {
-                $.data(this, 'plugin_' + pluginName, new Plugin(this, options));
+                $.data(this, 'plugin_' + pluginName, new Plugin(this, allTags, valueTags, options));
             }
         });
     };

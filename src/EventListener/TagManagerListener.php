@@ -44,17 +44,38 @@ class TagManagerListener
             return;
         }
 
+        $hasTagsFields = false;
+
         foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $name => &$field) {
             if ($field['inputType'] !== 'cfgTags') {
                 continue;
             }
 
+            $hasTagsFields = true;
             $manager = $this->registry->get($field['eval']['tagsManager']);
 
             if ($manager instanceof DcaAwareInterface) {
                 $manager->updateDcaField($field);
             }
         }
+
+        // Add assets for backend
+        if (TL_MODE === 'BE' && $hasTagsFields) {
+            $this->addAssets();
+        }
+    }
+
+    /**
+     * Add the widget assets
+     */
+    private function addAssets()
+    {
+        $GLOBALS['TL_CSS'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/selectize.min.css');
+        $GLOBALS['TL_CSS'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/backend.min.css');
+        $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('assets/jquery/js/jquery.min.js');
+        $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/selectize.min.js');
+        $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/widget.min.js');
+        $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/backend.min.js');
     }
 
     /**
