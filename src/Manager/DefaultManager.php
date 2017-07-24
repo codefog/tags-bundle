@@ -52,7 +52,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     public function __construct(ContaoFrameworkInterface $framework, string $sourceTable, string $sourceField)
     {
-        $this->framework   = $framework;
+        $this->framework = $framework;
         $this->sourceTable = $sourceTable;
         $this->sourceField = $sourceField;
     }
@@ -132,7 +132,10 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         /** @var TagModel $adapter */
         $adapter = $this->framework->getAdapter(TagModel::class);
 
-        $config['relation'] = ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => $adapter->getTable()];
+        $config['relation'] = array_merge(
+            (isset($config['relation']) && is_array($config['relation'])) ? $config['relation'] : [],
+            ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => $adapter->getTable()]
+        );
 
         if (isset($config['save_callback']) && is_array($config['save_callback'])) {
             array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
