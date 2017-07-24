@@ -90,7 +90,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
                 'maxlength' => 255,
                 'tl_class' => 'w50',
             ],
-            'sql' => ['type' => 'string', 'length' => 64],
+            'sql' => ['type' => 'string', 'length' => 64, 'default' => ''],
         ],
         'source' => [
             'label' => &$GLOBALS['TL_LANG']['tl_cfg_tag']['source'],
@@ -100,7 +100,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
             'options_callback' => ['codefog_tags.listener.data_container.tag', 'getSources'],
             'reference' => &$GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef'],
             'eval' => ['mandatory' => true, 'includeBlankOption' => true, 'tl_class' => 'w50'],
-            'sql' => ['type' => 'string', 'length' => 64],
+            'sql' => ['type' => 'string', 'length' => 64, 'default' => 'NULL'],
         ],
     ],
 ];
