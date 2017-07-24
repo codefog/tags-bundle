@@ -52,7 +52,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     public function __construct(ContaoFrameworkInterface $framework, string $sourceTable, string $sourceField)
     {
-        $this->framework   = $framework;
+        $this->framework = $framework;
         $this->sourceTable = $sourceTable;
         $this->sourceField = $sourceField;
     }
@@ -73,16 +73,14 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         /** @var TagModel $adapter */
         $adapter = $this->framework->getAdapter(TagModel::class);
 
-        if (($model = $adapter->findByPk($value)) === null)
-        {
+        if (($model = $adapter->findByPk($value)) === null) {
             return null;
         }
 
         $criteria = $this->getCriteria($criteria);
 
         // Check the source
-        if ($model->source !== $criteria['source'])
-        {
+        if ($model->source !== $criteria['source']) {
             return null;
         }
 
@@ -135,16 +133,13 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         $adapter = $this->framework->getAdapter(TagModel::class);
 
         $config['relation'] = array_merge(
-            is_array($config['relation']) ? $config['relation'] : [],
+            (isset($config['relation']) && is_array($config['relation'])) ? $config['relation'] : [],
             ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => $adapter->getTable()]
         );
 
-        if (isset($config['save_callback']) && is_array($config['save_callback']))
-        {
+        if (isset($config['save_callback']) && is_array($config['save_callback'])) {
             array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
-        }
-        else
-        {
+        } else {
             $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSave'];
         }
     }
@@ -154,14 +149,12 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     public function saveDcaField(string $value, DataContainer $dc): string
     {
-        $value    = StringUtil::deserialize($value, true);
+        $value = StringUtil::deserialize($value, true);
         $criteria = $this->getCriteria();
 
         /** @var array $value */
-        foreach ($value as $k => $v)
-        {
-            if ($this->find($v, $criteria) !== null)
-            {
+        foreach ($value as $k => $v) {
+            if ($this->find($v, $criteria) !== null) {
                 continue;
             }
 
@@ -181,9 +174,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     private function createTag(string $value): Tag
     {
         /** @var TagModel $model */
-        $model         = $this->framework->createInstance(TagModel::class);
+        $model = $this->framework->createInstance(TagModel::class);
         $model->tstamp = time();
-        $model->name   = $value;
+        $model->name = $value;
         $model->source = $this->alias;
         $model->save();
 
@@ -199,7 +192,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      */
     private function getCriteria(array $criteria = []): array
     {
-        $criteria['source']      = $this->alias;
+        $criteria['source'] = $this->alias;
         $criteria['sourceTable'] = $this->sourceTable;
         $criteria['sourceField'] = $this->sourceField;
 
