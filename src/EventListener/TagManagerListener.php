@@ -91,7 +91,13 @@ class TagManagerListener
     {
         $GLOBALS['TL_CSS'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/selectize.min.css');
         $GLOBALS['TL_CSS'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/backend.min.css');
-        $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('assets/jquery/js/jquery.min.js');
+
+        if (!in_array('assets/jquery/js/jquery.min.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
+            && !in_array('assets/jquery/js/jquery.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
+        ) {
+            $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('assets/jquery/js/jquery.min.js');
+        }
+
         $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/selectize.min.js');
         $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/widget.min.js');
         $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/backend.min.js');
