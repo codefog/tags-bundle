@@ -26,22 +26,22 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     /**
      * @var string
      */
-    private $alias;
+    protected $alias;
 
     /**
      * @var ContaoFrameworkInterface
      */
-    private $framework;
+    protected $framework;
 
     /**
      * @var string
      */
-    private $sourceTable;
+    protected $sourceTable;
 
     /**
      * @var string
      */
-    private $sourceField;
+    protected $sourceField;
 
     /**
      * DefaultManager constructor.
@@ -190,7 +190,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      *
      * @return array
      */
-    private function getCriteria(array $criteria = []): array
+    protected function getCriteria(array $criteria = []): array
     {
         $criteria['source'] = $this->alias;
         $criteria['sourceTable'] = $this->sourceTable;
