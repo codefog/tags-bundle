@@ -1,5 +1,5 @@
 {
-    "name": "codefog/tags-bundle",
+    "name": "heimrichhannot/tags-bundle",
     "description": "Tags bundle for Contao Open Source CMS",
     "keywords": ["contao", "tag", "tags", "tagging"],
     "type": "contao-bundle",
