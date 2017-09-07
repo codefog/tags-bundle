@@ -106,7 +106,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
             'inputType' => 'text',
             'eval' => ['rgxp' => 'alias', 'unique' => true, 'maxlength' => 128, 'tl_class' => 'w50'],
             'save_callback' => [['codefog_tags.listener.data_container.tag', 'generateAlias']],
-            'sql' => "varchar(128) COLLATE utf8_bin NOT NULL default ''",
+            'sql' => ['type' => 'string', 'length' => 128, 'default' => ''],
         ],
         'source' => [
             'label' => &$GLOBALS['TL_LANG']['tl_cfg_tag']['source'],

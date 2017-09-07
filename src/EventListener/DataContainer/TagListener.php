@@ -15,7 +15,13 @@ namespace Codefog\TagsBundle\EventListener\DataContainer;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Model\TagModel;
+use Contao\Database\Result;
+use Contao\Database\Statement;
 use Contao\DataContainer;
+use Contao\Input;
+use Contao\StringUtil;
+use Contao\System;
+use Contao\Versions;
 
 class TagListener
 {
@@ -23,6 +29,11 @@ class TagListener
      * @var ManagerRegistry
      */
     private $registry;
+
+    /**
+     * @var Result
+     */
+    private $existingAliases;
 
     /**
      * TagContainer constructor.
@@ -37,10 +48,10 @@ class TagListener
     /**
      * Generate the label.
      *
-     * @param array         $row
-     * @param string        $label
+     * @param array $row
+     * @param string $label
      * @param DataContainer $dc
-     * @param array         $args
+     * @param array $args
      *
      * @return array
      */
@@ -66,14 +77,45 @@ class TagListener
     }
 
     /**
+     * Set the existing aliases
+     * @param $value
+     * @param DataContainer $dc
+     */
+    public function setExistingAliases(Result $existingAliases)
+    {
+        $this->existingAliases = $existingAliases;
+    }
+
+    /**
+     * Retrieve existing aliases from db.
+     *
+     * @codeCoverageIgnore
+     *
+     * @param $value
+     * @param DataContainer $dc
+     * @return Result
+     */
+    public function getExistingAliases($value, DataContainer $dc): Result
+    {
+        if ($this->existingAliases) {
+            return $this->existingAliases;
+        }
+
+        $statement = new Statement(System::getContainer()->get('database_connection'), false);
+
+        $this->existingAliases = $statement->prepare('SELECT id FROM tl_cfg_tag WHERE alias=? AND source=?')
+            ->execute($value, $dc->activeRecord->source);
+
+        return $this->existingAliases;
+    }
+
+    /**
      * Auto-generate the tag alias if it has not been set yet.
      *
-     * @param mixed         $value
+     * @param $value
      * @param DataContainer $dc
-     *
+     * @return null|string
      * @throws \Exception
-     *
-     * @return mixed
      */
     public function generateAlias($value, DataContainer $dc): ?string
     {
@@ -82,23 +124,22 @@ class TagListener
         // Generate alias if there is none
         if ($value === '') {
             $autoAlias = true;
-            $value = \StringUtil::generateAlias($dc->activeRecord->name);
+            $value     = StringUtil::generateAlias($dc->activeRecord->name);
         }
 
-        $statement = new \Database\Statement(\System::getContainer()->get('database_connection'), false);
-
-        $alias = $statement->prepare('SELECT id FROM tl_cfg_tag WHERE alias=? AND source=?')
-            ->execute($value, $dc->activeRecord->source);
+        $existingAliases = $this->getExistingAliases($value, $dc);
 
         // Check whether the alias exists
-        if ($alias->numRows > 1 && !$autoAlias) {
+        if ($existingAliases->numRows > 1 && !$autoAlias) {
             throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
         }
 
         // Add ID to alias
-        if ($alias->numRows && $autoAlias) {
-            $value .= '-'.$dc->id;
+        if ($existingAliases->numRows && $autoAlias) {
+            $value .= '-' . $dc->id;
         }
+
+        $this->existingAliases = null;
 
         return $value;
     }
@@ -106,30 +147,30 @@ class TagListener
     /**
      * Automatically generate the folder URL aliases.
      *
-     * @param array          $buttons
+     * @param array $buttons
      * @param \DataContainer $dc
      *
      * @return array
      */
-    public function addAliasButton($buttons, \DataContainer $dc): array
+    public function addAliasButton($buttons, DataContainer $dc): array
     {
         // Generate the aliases
-        if (\Input::post('FORM_SUBMIT') === 'tl_select' && isset($_POST['alias'])) {
+        if (Input::post('FORM_SUBMIT') === 'tl_select' && isset($_POST['alias'])) {
             /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
-            $session = \System::getContainer()->get('session');
+            $session = System::getContainer()->get('session');
 
             $session = $session->all();
-            $ids = $session['CURRENT']['IDS'];
+            $ids     = $session['CURRENT']['IDS'];
 
             foreach ($ids as $id) {
                 /** @var TagModel $adapter */
-                $adapter = \System::getContainer()->get('contao.framework')->getAdapter(TagModel::class);
+                $adapter = System::getContainer()->get('contao.framework')->getAdapter(TagModel::class);
 
                 if (($tag = $adapter->findByCriteria(['values' => [$id]])) === null) {
                     continue;
                 }
 
-                $dc->id = $id;
+                $dc->id           = $id;
                 $dc->activeRecord = $tag;
 
                 $alias = '';
@@ -137,7 +178,7 @@ class TagListener
                 // Generate new alias through save callbacks
                 foreach ($GLOBALS['TL_DCA'][$dc->table]['fields']['alias']['save_callback'] as $callback) {
                     if (is_array($callback)) {
-                        $alias = \System::importStatic($callback[0])->{$callback[1]}($alias, $dc);
+                        $alias = System::importStatic($callback[0])->{$callback[1]}($alias, $dc);
                     } elseif (is_callable($callback)) {
                         $alias = $callback($alias, $dc);
                     }
@@ -149,7 +190,7 @@ class TagListener
                 }
 
                 // Initialize the version manager
-                $versions = new \Versions('tl_cfg_tag', $id);
+                $versions = new Versions('tl_cfg_tag', $id);
                 $versions->initialize();
 
                 // Store the new alias
@@ -164,7 +205,7 @@ class TagListener
         }
 
         // Add the button
-        $buttons['alias'] = '<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">'.$GLOBALS['TL_LANG']['MSC']['aliasSelected'].'</button> ';
+        $buttons['alias'] = '<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">' . $GLOBALS['TL_LANG']['MSC']['aliasSelected'] . '</button>';
 
         return $buttons;
     }

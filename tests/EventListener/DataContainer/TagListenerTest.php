@@ -14,8 +14,12 @@ use Codefog\TagsBundle\EventListener\DataContainer\TagListener;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Tag;
+use Codefog\TagsBundle\Test\Fixtures\DummyModel;
+use Contao\CoreBundle\Tests\TestCase;
+use Contao\Database\Result;
 use Contao\DataContainer;
-use PHPUnit\Framework\TestCase;
+use Contao\Model;
+use Contao\System;
 
 class TagListenerTest extends TestCase
 {
@@ -44,7 +48,7 @@ class TagListenerTest extends TestCase
 
     public function testGenerateLabel()
     {
-        require_once __DIR__.'/../../Fixtures/Backend.php';
+        require_once __DIR__ . '/../../Fixtures/Backend.php';
 
         static::assertNotEmpty(
             $this->listener->generateLabel(
@@ -63,14 +67,52 @@ class TagListenerTest extends TestCase
 
     public function testGenerateAlias()
     {
-        require_once __DIR__.'/../../Fixtures/Backend.php';
-
         $dc = $this->createMock(DataContainer::class);
-        $dc->name = 'My example Alias';
+        $dc->method('__get')->willReturnCallback(function ($key) {
+            switch ($key) {
+                case 'activeRecord':
+                    $activeRecord = $this->createMock(Model::class);
+                    $activeRecord->method('__get')->willReturnCallback(function ($key) {
+                        switch ($key) {
+                            case 'name':
+                                return 'My example Alias';
+                            default:
+                                return null;
+                        }
+                    });
+
+                    return $activeRecord;
+                default:
+                    return null;
+            }
+        });
+
+        $existingAliases = $this->createMock(Result::class);
+
+        $existingAliases->method('__get')->willReturnCallback(function ($key) {
+            switch ($key) {
+                case 'numRows':
+                    return 0;
+                default:
+                    return null;
+            }
+        });
+
+        $this->listener->setExistingAliases($existingAliases);
 
         static::assertEquals(
             'my-example-alias',
-            $this->listener->generateAlias('', $this->createMock(DataContainer::class))
+            $this->listener->generateAlias('', $dc)
+        );
+    }
+
+    public function testAddAliasButton()
+    {
+        $dc = $this->createMock(DataContainer::class);
+
+        static::assertEquals(
+            ['alias' => '<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a"></button>'],
+            $this->listener->addAliasButton([], $dc)
         );
     }
 }

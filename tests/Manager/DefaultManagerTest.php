@@ -1,11 +1,17 @@
 <?php
 
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
+
 namespace Codefog\TagsBundle\Test\Manager;
 
 use Codefog\TagsBundle\Collection\CollectionInterface;
-use Codefog\TagsBundle\Collection\ModelCollection;
 use Codefog\TagsBundle\Manager\DefaultManager;
-use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
 use Codefog\TagsBundle\Test\Fixtures\DummyModel;
 use Codefog\TagsBundle\Test\Fixtures\ExtraDummyModel;
@@ -105,7 +111,7 @@ class DefaultManagerTest extends TestCase
                     'table' => 'tl_cfg_tag',
                 ],
                 'save_callback' => [
-                    ['codefog_tags.listener.tag_manager', 'onFieldSave']
+                    ['codefog_tags.listener.tag_manager', 'onFieldSave'],
                 ],
             ],
             $config
