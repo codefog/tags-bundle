@@ -80,6 +80,8 @@ class TagListenerTest extends TestCase
                     });
 
                     return $activeRecord;
+                case 'id':
+                    return 1;
                 default:
                     return null;
             }
@@ -104,7 +106,7 @@ class TagListenerTest extends TestCase
             $this->listener->generateAlias('', $dc)
         );
 
-        // alias already existing
+        // alias already existing, none given
         $existingAliases = $this->createMock(Result::class);
 
         $existingAliases->method('__get')->willReturnCallback(function ($key) {
@@ -118,8 +120,16 @@ class TagListenerTest extends TestCase
 
         $this->listener->setExistingAliases($existingAliases);
 
-        // alias already existing, none given
-        $this->listener->generateAlias('', $dc);
+        static::assertEquals(
+            'my-example-alias-1',
+            $this->listener->generateAlias('', $dc)
+        );
+
+        // alias already existing
+        $this->listener->setExistingAliases($existingAliases);
+
+        $this->expectException('Exception');
+        $this->listener->generateAlias('my-example-alias', $dc);
     }
 
     public function testAddAliasButton()
