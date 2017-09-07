@@ -85,6 +85,7 @@ class TagListenerTest extends TestCase
             }
         });
 
+        // no existing alias
         $existingAliases = $this->createMock(Result::class);
 
         $existingAliases->method('__get')->willReturnCallback(function ($key) {
@@ -96,7 +97,6 @@ class TagListenerTest extends TestCase
             }
         });
 
-        // no existing alias
         $this->listener->setExistingAliases($existingAliases);
 
         static::assertEquals(
@@ -105,10 +105,12 @@ class TagListenerTest extends TestCase
         );
 
         // alias already existing
+        $existingAliases = $this->createMock(Result::class);
+
         $existingAliases->method('__get')->willReturnCallback(function ($key) {
             switch ($key) {
                 case 'numRows':
-                    return 1;
+                    return 2;
                 default:
                     return null;
             }
@@ -116,10 +118,8 @@ class TagListenerTest extends TestCase
 
         $this->listener->setExistingAliases($existingAliases);
 
-        static::assertEquals(
-            'my-example-alias',
-            $this->listener->generateAlias('', $dc)
-        );
+        // alias already existing, none given
+        $this->listener->generateAlias('', $dc);
     }
 
     public function testAddAliasButton()
