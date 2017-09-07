@@ -31,4 +31,4 @@ if (is_array($GLOBALS['TL_HOOKS']['loadDataContainer'])) {
     $GLOBALS['TL_HOOKS']['loadDataContainer'][] = ['codefog_tags.listener.tag_manager', 'onLoadDataContainer'];
 }
 
-$GLOBALS['TL_HOOKS']['replaceInsertTags']['codefog_tags.listener.insert_tags']  = ['codefog_tags.listener.insert_tags', 'onReplaceInsertTags'];
+$GLOBALS['TL_HOOKS']['replaceInsertTags']['codefog_tags.listener.insert_tags'] = ['codefog_tags.listener.insert_tags', 'onReplaceInsertTags'];

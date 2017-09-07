@@ -96,9 +96,7 @@ class TagModel extends Model
                 throw new NoTagsException();
             }
 
-            $columns[] = 'alias IN ('.implode(',', array_map(function($alias) {
-                return '"' . $alias . '"';
-                }, $criteria['aliases'])).')';
+            $columns[] = "alias IN ('".implode("','", $criteria['aliases'])."')";
         }
 
         return [$columns, $values, $options];

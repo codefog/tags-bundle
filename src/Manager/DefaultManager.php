@@ -165,6 +165,22 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
+     * Get the criteria with necessary data.
+     *
+     * @param array $criteria
+     *
+     * @return array
+     */
+    protected function getCriteria(array $criteria = []): array
+    {
+        $criteria['source'] = $this->alias;
+        $criteria['sourceTable'] = $this->sourceTable;
+        $criteria['sourceField'] = $this->sourceField;
+
+        return $criteria;
+    }
+
+    /**
      * Create the tag.
      *
      * @param string $value
@@ -181,21 +197,5 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         $model->save();
 
         return ModelCollection::createTagFromModel($model);
-    }
-
-    /**
-     * Get the criteria with necessary data.
-     *
-     * @param array $criteria
-     *
-     * @return array
-     */
-    protected function getCriteria(array $criteria = []): array
-    {
-        $criteria['source'] = $this->alias;
-        $criteria['sourceTable'] = $this->sourceTable;
-        $criteria['sourceField'] = $this->sourceField;
-
-        return $criteria;
     }
 }

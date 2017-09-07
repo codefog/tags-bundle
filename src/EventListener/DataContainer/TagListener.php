@@ -66,73 +66,60 @@ class TagListener
     }
 
     /**
-     * Get the manager.
-     *
-     * @param string $alias
-     *
-     * @return ManagerInterface
-     */
-    private function getManager(string $alias): ManagerInterface
-    {
-        return $this->registry->get($alias);
-    }
-
-    /**
-     * Auto-generate the tag alias if it has not been set yet
+     * Auto-generate the tag alias if it has not been set yet.
      *
      * @param mixed         $value
      * @param DataContainer $dc
      *
-     * @return mixed
-     *
      * @throws \Exception
+     *
+     * @return mixed
      */
-    public function generateAlias($value, DataContainer $dc)
+    public function generateAlias($value, DataContainer $dc): ?string
     {
         $autoAlias = false;
 
         // Generate alias if there is none
-        if ($value == '')
-        {
+        if ($value === '') {
             $autoAlias = true;
-            $value     = \StringUtil::generateAlias($dc->activeRecord->name);
+            $value = \StringUtil::generateAlias($dc->activeRecord->name);
         }
 
-        $alias = \Database::getInstance()->prepare("SELECT id FROM tl_cfg_tag WHERE alias=? AND source=?")
+        $statement = new \Database\Statement(\System::getContainer()->get('database_connection'), false);
+
+        $alias = $statement->prepare('SELECT id FROM tl_cfg_tag WHERE alias=? AND source=?')
             ->execute($value, $dc->activeRecord->source);
 
         // Check whether the alias exists
-        if ($alias->numRows > 1 && !$autoAlias)
-        {
+        if ($alias->numRows > 1 && !$autoAlias) {
             throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
         }
 
         // Add ID to alias
-        if ($alias->numRows && $autoAlias)
-        {
-            $value .= '-' . $dc->id;
+        if ($alias->numRows && $autoAlias) {
+            $value .= '-'.$dc->id;
         }
 
         return $value;
     }
 
     /**
-     * Automatically generate the folder URL aliases
+     * Automatically generate the folder URL aliases.
      *
-     * @param array $buttons
+     * @param array          $buttons
      * @param \DataContainer $dc
      *
      * @return array
      */
-    public function addAliasButton($buttons, \DataContainer $dc)
+    public function addAliasButton($buttons, \DataContainer $dc): array
     {
         // Generate the aliases
-        if (\Input::post('FORM_SUBMIT') == 'tl_select' && isset($_POST['alias'])) {
+        if (\Input::post('FORM_SUBMIT') === 'tl_select' && isset($_POST['alias'])) {
             /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
             $session = \System::getContainer()->get('session');
 
             $session = $session->all();
-            $ids     = $session['CURRENT']['IDS'];
+            $ids = $session['CURRENT']['IDS'];
 
             foreach ($ids as $id) {
                 /** @var TagModel $adapter */
@@ -142,7 +129,7 @@ class TagListener
                     continue;
                 }
 
-                $dc->id           = $id;
+                $dc->id = $id;
                 $dc->activeRecord = $tag;
 
                 $alias = '';
@@ -157,7 +144,7 @@ class TagListener
                 }
 
                 // The alias has not changed
-                if ($alias == $tag->alias) {
+                if ($alias === $tag->alias) {
                     continue;
                 }
 
@@ -166,7 +153,8 @@ class TagListener
                 $versions->initialize();
 
                 // Store the new alias
-                \Database::getInstance()->prepare("UPDATE tl_cfg_tag SET alias=? WHERE id=?")->execute($alias, $id);
+                $statement = new \Database\Statement(\System::getContainer()->get('database_connection'), false);
+                $statement->prepare('UPDATE tl_cfg_tag SET alias=? WHERE id=?')->execute($alias, $id);
 
                 // Create a new version
                 $versions->create();
@@ -176,8 +164,20 @@ class TagListener
         }
 
         // Add the button
-        $buttons['alias'] = '<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">' . $GLOBALS['TL_LANG']['MSC']['aliasSelected'] . '</button> ';
+        $buttons['alias'] = '<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">'.$GLOBALS['TL_LANG']['MSC']['aliasSelected'].'</button> ';
 
         return $buttons;
+    }
+
+    /**
+     * Get the manager.
+     *
+     * @param string $alias
+     *
+     * @return ManagerInterface
+     */
+    private function getManager(string $alias): ManagerInterface
+    {
+        return $this->registry->get($alias);
     }
 }

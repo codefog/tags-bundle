@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
+
 namespace Codefog\TagsBundle\EventListener;
 
 use Codefog\TagsBundle\Model\TagModel;
@@ -17,7 +25,7 @@ class InsertTagsListener
      * @var array
      */
     private $supportedTags = [
-        'tags_title'
+        'tags_title',
     ];
 
     /**
@@ -40,7 +48,7 @@ class InsertTagsListener
     public function onReplaceInsertTags($tag)
     {
         $elements = explode('::', $tag);
-        $key      = strtolower($elements[0]);
+        $key = strtolower($elements[0]);
 
         if (in_array($key, $this->supportedTags, true)) {
             return $this->replaceInsertTag($key, $elements);
@@ -49,12 +57,11 @@ class InsertTagsListener
         return false;
     }
 
-
     /**
      * Replaces a tags-related insert tag.
      *
      * @param string $insertTag
-     * @param array $elements
+     * @param array  $elements
      *
      * @return string
      */
@@ -63,18 +70,18 @@ class InsertTagsListener
         $this->framework->initialize();
 
         $criteria['source'] = $elements[1];
-        $idOrAlias          = $elements[2];
+        $idOrAlias = $elements[2];
 
         /** @var TagModel $adapter */
         $adapter = $this->framework->getAdapter(TagModel::class);
 
         if (is_numeric($idOrAlias)) {
             $criteria = [
-                'values' => [$idOrAlias]
+                'values' => [$idOrAlias],
             ];
         } else {
             $criteria = [
-                'aliases' => [$idOrAlias]
+                'aliases' => [$idOrAlias],
             ];
         }
 
@@ -89,7 +96,7 @@ class InsertTagsListener
      * Generates the replacement string.
      *
      * @param Collection $tags
-     * @param string $insertTag
+     * @param string     $insertTag
      *
      * @return string
      */
@@ -98,7 +105,6 @@ class InsertTagsListener
         switch ($insertTag) {
             case 'tags_title':
                 return $tags->first()->name;
-                break;
         }
 
         return '';

@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
+
 namespace Codefog\TagsBundle\Test\EventListener\DataContainer;
 
 use Codefog\TagsBundle\EventListener\DataContainer\TagListener;
@@ -51,5 +59,18 @@ class TagListenerTest extends TestCase
     public function testGetSources()
     {
         static::assertEquals(['foo', 'bar'], $this->listener->getSources());
+    }
+
+    public function testGenerateAlias()
+    {
+        require_once __DIR__.'/../../Fixtures/Backend.php';
+
+        $dc = $this->createMock(DataContainer::class);
+        $dc->name = 'My example Alias';
+
+        static::assertEquals(
+            'my-example-alias',
+            $this->listener->generateAlias('', $this->createMock(DataContainer::class))
+        );
     }
 }
