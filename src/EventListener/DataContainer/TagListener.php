@@ -147,6 +147,8 @@ class TagListener
     /**
      * Automatically generate the folder URL aliases.
      *
+     * @codeCoverageIgnore
+     *
      * @param array $buttons
      * @param \DataContainer $dc
      *

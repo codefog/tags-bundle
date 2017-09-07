@@ -131,14 +131,4 @@ class TagListenerTest extends TestCase
         $this->expectException('Exception');
         $this->listener->generateAlias('my-example-alias', $dc);
     }
-
-    public function testAddAliasButton()
-    {
-        $dc = $this->createMock(DataContainer::class);
-
-        static::assertEquals(
-            ['alias' => '<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a"></button>'],
-            $this->listener->addAliasButton([], $dc)
-        );
-    }
 }
