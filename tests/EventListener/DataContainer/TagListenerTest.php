@@ -14,12 +14,10 @@ use Codefog\TagsBundle\EventListener\DataContainer\TagListener;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Tag;
-use Codefog\TagsBundle\Test\Fixtures\DummyModel;
-use Contao\CoreBundle\Tests\TestCase;
 use Contao\Database\Result;
 use Contao\DataContainer;
 use Contao\Model;
-use Contao\System;
+use PHPUnit\Framework\TestCase;
 
 class TagListenerTest extends TestCase
 {
