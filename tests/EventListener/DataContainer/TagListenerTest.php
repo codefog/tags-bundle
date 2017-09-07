@@ -96,6 +96,24 @@ class TagListenerTest extends TestCase
             }
         });
 
+        // no existing alias
+        $this->listener->setExistingAliases($existingAliases);
+
+        static::assertEquals(
+            'my-example-alias',
+            $this->listener->generateAlias('', $dc)
+        );
+
+        // alias already existing
+        $existingAliases->method('__get')->willReturnCallback(function ($key) {
+            switch ($key) {
+                case 'numRows':
+                    return 1;
+                default:
+                    return null;
+            }
+        });
+
         $this->listener->setExistingAliases($existingAliases);
 
         static::assertEquals(
