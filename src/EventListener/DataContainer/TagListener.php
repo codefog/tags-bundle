@@ -48,10 +48,10 @@ class TagListener
     /**
      * Generate the label.
      *
-     * @param array $row
-     * @param string $label
+     * @param array         $row
+     * @param string        $label
      * @param DataContainer $dc
-     * @param array $args
+     * @param array         $args
      *
      * @return array
      */
@@ -77,7 +77,8 @@ class TagListener
     }
 
     /**
-     * Set the existing aliases
+     * Set the existing aliases.
+     *
      * @param $value
      * @param DataContainer $dc
      */
@@ -93,6 +94,7 @@ class TagListener
      *
      * @param $value
      * @param DataContainer $dc
+     *
      * @return Result
      */
     public function getExistingAliases($value, DataContainer $dc): Result
@@ -114,8 +116,10 @@ class TagListener
      *
      * @param $value
      * @param DataContainer $dc
-     * @return null|string
+     *
      * @throws \Exception
+     *
+     * @return null|string
      */
     public function generateAlias($value, DataContainer $dc): ?string
     {
@@ -124,7 +128,7 @@ class TagListener
         // Generate alias if there is none
         if ($value === '') {
             $autoAlias = true;
-            $value     = StringUtil::generateAlias($dc->activeRecord->name);
+            $value = StringUtil::generateAlias($dc->activeRecord->name);
         }
 
         $existingAliases = $this->getExistingAliases($value, $dc);
@@ -136,7 +140,7 @@ class TagListener
 
         // Add ID to alias
         if ($existingAliases->numRows && $autoAlias) {
-            $value .= '-' . $dc->id;
+            $value .= '-'.$dc->id;
         }
 
         $this->existingAliases = null;
@@ -149,7 +153,7 @@ class TagListener
      *
      * @codeCoverageIgnore
      *
-     * @param array $buttons
+     * @param array          $buttons
      * @param \DataContainer $dc
      *
      * @return array
@@ -162,7 +166,7 @@ class TagListener
             $session = System::getContainer()->get('session');
 
             $session = $session->all();
-            $ids     = $session['CURRENT']['IDS'];
+            $ids = $session['CURRENT']['IDS'];
 
             foreach ($ids as $id) {
                 /** @var TagModel $adapter */
@@ -172,7 +176,7 @@ class TagListener
                     continue;
                 }
 
-                $dc->id           = $id;
+                $dc->id = $id;
                 $dc->activeRecord = $tag;
 
                 $alias = '';
@@ -207,7 +211,7 @@ class TagListener
         }
 
         // Add the button
-        $buttons['alias'] = '<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">' . $GLOBALS['TL_LANG']['MSC']['aliasSelected'] . '</button>';
+        $buttons['alias'] = '<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">'.$GLOBALS['TL_LANG']['MSC']['aliasSelected'].'</button>';
 
         return $buttons;
     }

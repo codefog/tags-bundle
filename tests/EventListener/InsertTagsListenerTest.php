@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 
 class InsertTagsListenerTest extends TestCase
 {
-    /** @var  InsertTagsListener */
+    /** @var InsertTagsListener */
     protected $listener;
 
     protected function setUp()
@@ -34,9 +34,22 @@ class InsertTagsListenerTest extends TestCase
 
     public function testOnReplaceInsertTags()
     {
+        // id
         $this->assertSame(
             'The "foobar" tag',
-            $this->listener->onReplaceInsertTags('tags_title::2::1')
+            $this->listener->onReplaceInsertTags('tags_title::my-source::1')
+        );
+
+        // non-existing id
+        $this->assertSame(
+            'The "foobar" tag',
+            $this->listener->onReplaceInsertTags('tags_title::my-source::2')
+        );
+
+        // alias
+        $this->assertSame(
+            'The "foobar" tag',
+            $this->listener->onReplaceInsertTags('tags_title::my-source::my-alias')
         );
     }
 
@@ -72,6 +85,7 @@ class InsertTagsListenerTest extends TestCase
                         return null;
                 }
             });
+
             return $instance;
         });
 
@@ -83,7 +97,13 @@ class InsertTagsListenerTest extends TestCase
 
         $tagModelAdapter
             ->method('findByCriteria')
-            ->willReturn($noModels ? null : $tagModel);
+            ->willReturnCallback(function ($key) use ($tagModel) {
+                if ($key === ['values' => [2]]) {
+                    return null;
+                }
+
+                return $tagModel;
+            });
 
         $framework = $this->createMock(ContaoFrameworkInterface::class);
 

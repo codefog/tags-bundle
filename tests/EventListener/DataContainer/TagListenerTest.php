@@ -19,7 +19,7 @@ use Contao\DataContainer;
 use Contao\Model;
 use PHPUnit\Framework\TestCase;
 
-class InsertTagsListenerTest extends TestCase
+class TagListenerTest extends TestCase
 {
     /**
      * @var TagListener
@@ -46,7 +46,7 @@ class InsertTagsListenerTest extends TestCase
 
     public function testGenerateLabel()
     {
-        require_once __DIR__ . '/../../Fixtures/Backend.php';
+        require_once __DIR__.'/../../Fixtures/Backend.php';
 
         static::assertNotEmpty(
             $this->listener->generateLabel(

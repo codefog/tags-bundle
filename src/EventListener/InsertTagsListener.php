@@ -106,7 +106,5 @@ class InsertTagsListener
             case 'tags_title':
                 return $tags->first()->name;
         }
-
-        return '';
     }
 }
