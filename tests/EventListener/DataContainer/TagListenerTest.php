@@ -1,12 +1,22 @@
 <?php
 
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2017, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
+
 namespace Codefog\TagsBundle\Test\EventListener\DataContainer;
 
 use Codefog\TagsBundle\EventListener\DataContainer\TagListener;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Tag;
+use Contao\Database\Result;
 use Contao\DataContainer;
+use Contao\Model;
 use PHPUnit\Framework\TestCase;
 
 class TagListenerTest extends TestCase
@@ -51,5 +61,74 @@ class TagListenerTest extends TestCase
     public function testGetSources()
     {
         static::assertEquals(['foo', 'bar'], $this->listener->getSources());
+    }
+
+    public function testGenerateAlias()
+    {
+        $dc = $this->createMock(DataContainer::class);
+        $dc->method('__get')->willReturnCallback(function ($key) {
+            switch ($key) {
+                case 'activeRecord':
+                    $activeRecord = $this->createMock(Model::class);
+                    $activeRecord->method('__get')->willReturnCallback(function ($key) {
+                        switch ($key) {
+                            case 'name':
+                                return 'My example Alias';
+                            default:
+                                return null;
+                        }
+                    });
+
+                    return $activeRecord;
+                case 'id':
+                    return 1;
+                default:
+                    return null;
+            }
+        });
+
+        // no existing alias
+        $existingAliases = $this->createMock(Result::class);
+
+        $existingAliases->method('__get')->willReturnCallback(function ($key) {
+            switch ($key) {
+                case 'numRows':
+                    return 0;
+                default:
+                    return null;
+            }
+        });
+
+        $this->listener->setExistingAliases($existingAliases);
+
+        static::assertEquals(
+            'my-example-alias',
+            $this->listener->generateAlias('', $dc)
+        );
+
+        // alias already existing, none given
+        $existingAliases = $this->createMock(Result::class);
+
+        $existingAliases->method('__get')->willReturnCallback(function ($key) {
+            switch ($key) {
+                case 'numRows':
+                    return 2;
+                default:
+                    return null;
+            }
+        });
+
+        $this->listener->setExistingAliases($existingAliases);
+
+        static::assertEquals(
+            'my-example-alias-1',
+            $this->listener->generateAlias('', $dc)
+        );
+
+        // alias already existing
+        $this->listener->setExistingAliases($existingAliases);
+
+        $this->expectException('Exception');
+        $this->listener->generateAlias('my-example-alias', $dc);
     }
 }

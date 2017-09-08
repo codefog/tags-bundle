@@ -8,6 +8,4 @@
  * @license    MIT
  */
 
-class Backend
-{
-}
+$GLOBALS['TL_LANG']['MOD']['cfg_tags'] = ['Schlagworte'];

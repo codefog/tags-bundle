@@ -26,22 +26,22 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     /**
      * @var string
      */
-    private $alias;
+    protected $alias;
 
     /**
      * @var ContaoFrameworkInterface
      */
-    private $framework;
+    protected $framework;
 
     /**
      * @var string
      */
-    private $sourceTable;
+    protected $sourceTable;
 
     /**
      * @var string
      */
-    private $sourceField;
+    protected $sourceField;
 
     /**
      * DefaultManager constructor.
@@ -165,6 +165,22 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
+     * Get the criteria with necessary data.
+     *
+     * @param array $criteria
+     *
+     * @return array
+     */
+    protected function getCriteria(array $criteria = []): array
+    {
+        $criteria['source'] = $this->alias;
+        $criteria['sourceTable'] = $this->sourceTable;
+        $criteria['sourceField'] = $this->sourceField;
+
+        return $criteria;
+    }
+
+    /**
      * Create the tag.
      *
      * @param string $value
@@ -181,21 +197,5 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         $model->save();
 
         return ModelCollection::createTagFromModel($model);
-    }
-
-    /**
-     * Get the criteria with necessary data.
-     *
-     * @param array $criteria
-     *
-     * @return array
-     */
-    private function getCriteria(array $criteria = []): array
-    {
-        $criteria['source'] = $this->alias;
-        $criteria['sourceTable'] = $this->sourceTable;
-        $criteria['sourceField'] = $this->sourceField;
-
-        return $criteria;
     }
 }

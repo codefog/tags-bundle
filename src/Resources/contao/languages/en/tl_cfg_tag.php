@@ -9,6 +9,7 @@
  */
 
 $GLOBALS['TL_LANG']['tl_cfg_tag']['name'] = ['Name', 'Please enter the tag name.'];
+$GLOBALS['TL_LANG']['tl_cfg_tag']['alias'] = ['Alias', 'The alias is a unique reference to the news item which can be called instead of its numeric ID.'];
 $GLOBALS['TL_LANG']['tl_cfg_tag']['source'] = ['Source', 'Please choose the tag source.'];
 $GLOBALS['TL_LANG']['tl_cfg_tag']['count'] = ['Total occurrences'];
 

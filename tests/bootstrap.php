@@ -8,6 +8,11 @@
  * @license    MIT
  */
 
-class Backend
+$loader = include_once __DIR__.'/../../../autoload.php';
+
+abstract class System extends \Contao\System
+{
+}
+abstract class Config extends \Contao\Config
 {
 }
