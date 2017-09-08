@@ -12,7 +12,7 @@ namespace Codefog\TagsBundle\EventListener;
 
 use Codefog\TagsBundle\Model\TagModel;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
-use Model\Collection;
+use Contao\Model\Collection;
 
 class InsertTagsListener
 {

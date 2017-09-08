@@ -19,7 +19,7 @@ use Contao\DataContainer;
 use Contao\Model;
 use PHPUnit\Framework\TestCase;
 
-class TagListenerTest extends TestCase
+class InsertTagsListenerTest extends TestCase
 {
     /**
      * @var TagListener
