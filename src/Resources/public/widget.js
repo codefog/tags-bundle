@@ -9,7 +9,8 @@
         addLabel: 'Add',
         allowCreate: true,
         delimiter: ',',
-        maxItems: null
+        maxItems: null,
+        selectizeConfig: {}
     };
 
     /**
@@ -87,7 +88,8 @@
                 options.maxItems = this.settings.maxItems;
             }
 
-            el.selectize(options);
+            el.selectize($.extend(options, this.settings.selectizeConfig));
+
             this.selectize = el[0].selectize;
         }
     });

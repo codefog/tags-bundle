@@ -58,3 +58,23 @@ $GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef']['app.article'] = 'Article';
 Each manager takes care of loading and saving the data from the widget itself. The default manager
 internally uses `Haste-ManyToMany` field relation to store the data, so you need to update the datbaase
 before using it.
+
+
+## Overriding Selectize.js settings
+
+In case you would like to override the [Selectize.js settings](https://github.com/selectize/selectize.js/blob/master/docs/usage.md) 
+directly you can always do that by passing the `selectizeConfig` property of the widget configuration, as shown on example:
+
+```php
+<script>
+    $('#cfg-tags-<?= $this->id ?>').cfgTags(
+        <?= json_encode($this->allTags) ?>, 
+        <?= json_encode($this->valueTags) ?>, 
+        $.extend(<?= json_encode($this->config) ?>, { 
+            selectizeConfig: {
+                hideSelected: true
+            }
+        })
+    );
+</script>
+```
