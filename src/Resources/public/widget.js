@@ -7,7 +7,8 @@
     // Defaults
     var defaults = {
         allowCreate: true,
-        delimiter: ','
+        delimiter: ',',
+        maxItems: null
     };
 
     /**
@@ -73,6 +74,11 @@
                         text: input
                     }
                 };
+            }
+
+            // Set the maximum number of items
+            if (typeof this.settings.maxItems === 'number') {
+                options.maxItems = this.settings.maxItems;
             }
 
             el.selectize(options);

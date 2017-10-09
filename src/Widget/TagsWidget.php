@@ -71,6 +71,21 @@ class TagsWidget extends Widget
     }
 
     /**
+     * @inheritDoc
+     */
+    public function validate()
+    {
+        $value = $this->validator($this->getPost($this->strName));
+
+        // Validate the maximum number of items
+        if (is_array($value) && isset($this->maxItems) && count($value) > $this->maxItems) {
+            $this->addError(sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
+        }
+
+        parent::validate();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function generate()
@@ -104,9 +119,16 @@ class TagsWidget extends Widget
      */
     protected function generateConfig(): array
     {
-        return [
+        $config = [
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
         ];
+
+        // Maximum number of items
+        if (isset($this->maxItems)) {
+            $config['maxItems'] = (int) $this->maxItems;
+        }
+
+        return $config;
     }
 
     /**
