@@ -7,4 +7,8 @@ services:
     codefog_tags.listener.data_container.tag:
         class: Codefog\TagsBundle\EventListener\DataContainer\TagListener
         arguments:
+            - "@database_connection"
+            - "@contao.framework"
             - "@codefog_tags.manager_registry"
+            - "@request_stack"
+            - "@session"

@@ -9,6 +9,7 @@
  */
 
 $GLOBALS['TL_LANG']['tl_cfg_tag']['name'] = ['Name', 'Geben Sie hier einen Namen ein.'];
+$GLOBALS['TL_LANG']['tl_cfg_tag']['alias'] = ['Alias', 'Der Alias ist eine eindeutige Referenz, die anstelle der numerischen ID aufgerufen werden kann.'];
 $GLOBALS['TL_LANG']['tl_cfg_tag']['source'] = ['Quelle', 'Wählen Sie hier eine Quelle aus.'];
 $GLOBALS['TL_LANG']['tl_cfg_tag']['count'] = ['Globales Auftreten'];
 

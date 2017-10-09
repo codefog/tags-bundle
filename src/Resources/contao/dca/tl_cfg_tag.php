@@ -17,6 +17,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
         'sql' => [
             'keys' => [
                 'id' => 'primary',
+                'alias' => 'index',
                 'name,source' => 'unique',
             ],
         ],
@@ -63,9 +64,16 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
         ],
     ],
 
+    // Select
+    'select' => [
+        'buttons_callback' => [
+            ['codefog_tags.listener.data_container.tag', 'addAliasButton'],
+        ],
+    ],
+
     // Palettes
     'palettes' => [
-        'default' => '{name_legend},name,source',
+        'default' => '{name_legend},name,source,alias',
     ],
 
     // Fields
@@ -101,6 +109,17 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
             'reference' => &$GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef'],
             'eval' => ['mandatory' => true, 'includeBlankOption' => true, 'tl_class' => 'w50'],
             'sql' => ['type' => 'string', 'length' => 64, 'default' => 'NULL'],
+        ],
+        'alias' => [
+            'label' => &$GLOBALS['TL_LANG']['tl_cfg_tag']['alias'],
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'text',
+            'eval' => ['rgxp' => 'alias', 'maxlength' => 128, 'tl_class' => 'w50'],
+            'save_callback' => [
+                ['codefog_tags.listener.data_container.tag', 'generateAlias'],
+            ],
+            'sql' => ['type' => 'string', 'length' => 128],
         ],
     ],
 ];
