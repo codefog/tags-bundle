@@ -6,6 +6,7 @@
 
     // Defaults
     var defaults = {
+        addLabel: 'Add',
         allowCreate: true,
         delimiter: ',',
         maxItems: null
@@ -63,7 +64,12 @@
                 delimiter: this.settings.delimiter,
                 options: this.allTags,
                 items: this.valueTags,
-                persist: false
+                persist: false,
+                render: {
+                    option_create: function(data, escape) {
+                        return '<div class="create">' + this.settings.addLabel + ' <strong>' + escape(data.input) + '</strong>&hellip;</div>';
+                    }.bind(this)
+                }
             };
 
             // Allow to create the tags

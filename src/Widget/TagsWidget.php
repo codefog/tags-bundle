@@ -120,6 +120,7 @@ class TagsWidget extends Widget
     protected function generateConfig(): array
     {
         $config = [
+            'addLabel' => $GLOBALS['TL_LANG']['MSC']['cfg_tags.add'],
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
         ];
 
