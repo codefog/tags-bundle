@@ -58,7 +58,7 @@ class TagModel extends Model
      *
      * @return array
      */
-    private static function parseCriteria(array $criteria): array
+    protected static function parseCriteria(array $criteria): array
     {
         $columns = [];
         $values = [];

@@ -171,7 +171,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      *
      * @return Tag
      */
-    private function createTag(string $value): Tag
+    protected function createTag(string $value): Tag
     {
         /** @var TagModel $model */
         $model = $this->framework->createInstance(TagModel::class);
@@ -190,7 +190,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      *
      * @return array
      */
-    private function getCriteria(array $criteria = []): array
+    protected function getCriteria(array $criteria = []): array
     {
         $criteria['source'] = $this->alias;
         $criteria['sourceTable'] = $this->sourceTable;
