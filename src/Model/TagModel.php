@@ -90,6 +90,15 @@ class TagModel extends Model
             $columns[] = 'id IN ('.implode(',', array_map('intval', $criteria['values'])).')';
         }
 
+        // Find the tags by aliases
+        if (is_array($criteria['aliases'])) {
+            if (count($criteria['aliases']) < 1) {
+                throw new NoTagsException();
+            }
+
+            $columns[] = "alias IN ('".implode("','", $criteria['values'])."')'";
+        }
+
         return [$columns, $values, $options];
     }
 }
