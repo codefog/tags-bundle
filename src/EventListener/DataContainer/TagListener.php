@@ -192,7 +192,7 @@ class TagListener
         // Generate alias if there is none
         if (!$value) {
             $autoAlias = true;
-            $value = standardize(StringUtil::restoreBasicEntities($dc->activeRecord->name));
+            $value = StringUtil::generateAlias($dc->activeRecord->name);
         }
 
         $exists = $this->db->fetchAll("SELECT id FROM {$dc->table} WHERE alias=? AND source=?", [$value, $dc->activeRecord->source]);
