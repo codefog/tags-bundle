@@ -5,17 +5,26 @@ namespace Codefog\TagsBundle\Test\EventListener\DataContainer;
 use Codefog\TagsBundle\EventListener\DataContainer\TagListener;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
+use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
+use Contao\Controller;
+use Contao\CoreBundle\Exception\RedirectResponseException;
+use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
+use Contao\System;
+use Contao\Versions;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 require_once __DIR__.'/../../Fixtures/Backend.php';
 require_once __DIR__.'/../../Fixtures/Config.php';
+require_once __DIR__.'/../../Fixtures/Controller.php';
 
 class TagListenerTest extends TestCase
 {
@@ -93,6 +102,188 @@ class TagListenerTest extends TestCase
         static::assertEquals($columns[0], $label[0]);
         static::assertEquals($columns[1], $label[1]);
         static::assertEquals(123, $label[2]);
+    }
+
+    public function testAddAliasButton()
+    {
+        $this->requestStack
+            ->method('getCurrentRequest')
+            ->willReturn(new Request())
+        ;
+
+        /** @var DataContainer $dataContainer */
+        $dataContainer = $this->createMock(DataContainer::class);
+
+        $buttons = ['save' => 'markup'];
+        $buttons = $this->tagListener->addAliasButton($buttons, $dataContainer);
+
+        static::assertArrayHasKey('alias', $buttons);
+        static::assertArrayHasKey('save', $buttons);
+        static::assertSame('markup', $buttons['save']);
+    }
+
+    public function testAddAliasButtonProcess()
+    {
+        // Set up the callbacks
+        $callback = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['generateAlias'])
+            ->getMock()
+        ;
+
+        $callback
+            ->method('generateAlias')
+            ->willReturn('foobar')
+        ;
+
+        $GLOBALS['TL_DCA']['tl_cfg_tag']['fields']['alias']['save_callback'] = [
+            ['callback', 'generateAlias'],
+            function () {
+                return 'foobar';
+            }
+        ];
+
+        // Set up the data container
+        $dataContainer = $this
+            ->getMockBuilder(DataContainer::class)
+            ->setMethods(['__get', 'getPalette', 'save'])
+            ->getMock()
+        ;
+
+        $dataContainer
+            ->method('__get')
+            ->willReturnCallback(function ($arg) {
+                switch ($arg) {
+                    case 'id':
+                        return 123;
+                    case 'activeRecord':
+                        return new \stdClass();
+                    case 'table':
+                        return 'tl_cfg_tag';
+                }
+            })
+        ;
+
+        // Set tup the versions
+        $versions = $this
+            ->getMockBuilder(Versions::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['initialize', 'create'])
+            ->getMock()
+        ;
+
+        // Set up the request
+        $request = new Request();
+        $request->request->set('FORM_SUBMIT', 'tl_select');
+        $request->request->set('alias', 1);
+
+        $this->requestStack
+            ->method('getCurrentRequest')
+            ->willReturn($request)
+        ;
+
+        // Set up the session
+        $this->session
+            ->method('all')
+            ->willReturn(['CURRENT' => ['IDS' => []]])
+        ;
+
+        // Set up the controller adapter
+        $controllerAdapter = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['redirect'])
+            ->getMock()
+        ;
+
+        $controllerAdapter
+            ->method('redirect')
+            ->willReturnCallback(function ($url) {
+                throw new RedirectResponseException($url);
+            });
+        ;
+
+        // Set up the system adapter
+        $systemAdapter = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['importStatic', 'getReferer'])
+            ->getMock()
+        ;
+
+        $systemAdapter
+            ->method('importStatic')
+            ->willReturn($callback)
+        ;
+
+        $systemAdapter
+            ->method('getReferer')
+            ->willReturn('http://domain.tld/contao')
+        ;
+
+        // Set up the database connection
+        $dbRegistry = [];
+
+        $this->connection
+            ->method('update')
+            ->willReturnCallback(function ($table, $values, $identifier) use (&$dbRegistry) {
+                $dbRegistry[$table][$identifier['id']] = $values['alias'];
+            })
+        ;
+
+        // Set up the tag adapter
+        $tagModelNoUpdate = new \stdClass();
+        $tagModelNoUpdate->id = 123;
+        $tagModelNoUpdate->alias = 'foobar';
+
+        $tagModelUpdate = new \stdClass();
+        $tagModelUpdate->id = 456;
+        $tagModelUpdate->alias = 'foobaz';
+
+        $tagAdapter = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['findMultipleByIds'])
+            ->getMock()
+        ;
+
+        $tagAdapter
+            ->method('findMultipleByIds')
+            ->willReturn([$tagModelNoUpdate, $tagModelUpdate])
+        ;
+
+        // Set up the framework
+        $this->framework
+            ->method('createInstance')
+            ->willReturn($versions)
+        ;
+
+        $this->framework
+            ->method('getAdapter')
+            ->willReturnCallback(function ($class) use ($controllerAdapter, $systemAdapter, $tagAdapter) {
+                switch ($class) {
+                    case Controller::class:
+                        return $controllerAdapter;
+                    case System::class:
+                        return $systemAdapter;
+                    case TagModel::class:
+                        return $tagAdapter;
+                }
+            });
+        ;
+
+        /** @var DataContainer $dataContainer */
+        try {
+            $this->tagListener->addAliasButton([], $dataContainer);
+        } catch (RedirectResponseException $e) {
+            /** @var RedirectResponse $response */
+            $response = $e->getResponse();
+
+            static::assertSame('http://domain.tld/contao', $response->getTargetUrl());
+            static::assertArrayHasKey('tl_cfg_tag', $dbRegistry);
+            static::assertSame([456 => 'foobar'], $dbRegistry['tl_cfg_tag']);
+        }
     }
 
     /**

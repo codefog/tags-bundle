@@ -145,7 +145,8 @@ class TagListener
                     }
 
                     // Initialize the version manager
-                    $versions = new Versions($dc->table, $tagModel->id);
+                    /** @var Versions $versions */
+                    $versions = $this->framework->createInstance(Versions::class, [$dc->table, $tagModel->id]);
                     $versions->initialize();
 
                     // Store the new alias
