@@ -132,15 +132,22 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         /** @var TagModel $adapter */
         $adapter = $this->framework->getAdapter(TagModel::class);
 
+        // Set the relation
         $config['relation'] = array_merge(
             (isset($config['relation']) && is_array($config['relation'])) ? $config['relation'] : [],
             ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => $adapter->getTable()]
         );
 
+        // Set the save_callback
         if (isset($config['save_callback']) && is_array($config['save_callback'])) {
             array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
         } else {
             $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSave'];
+        }
+
+        // Set the options_callback
+        if (!isset($config['options_callback'])) {
+            $config['options_callback'] = ['codefog_tags.listener.tag_manager', 'onOptionsCallback'];
         }
     }
 
@@ -162,6 +169,27 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         }
 
         return serialize($value);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFilterOptions(DataContainer $dc): array
+    {
+        $options = [];
+
+        /** @var Model $adapter */
+        $adapter = $this->framework->getAdapter(Model::class);
+
+        $ids = array_unique($adapter->getRelatedValues($this->sourceTable, $this->sourceField));
+        $tags = $this->findMultiple(['values' => $ids]);
+
+        /** @var Tag $tag */
+        foreach ($tags as $tag) {
+            $options[$tag->getValue()] = $tag->getName();
+        }
+
+        return $options;
     }
 
     /**

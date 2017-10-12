@@ -153,16 +153,11 @@ class TagListenerTest extends TestCase
 
         $dataContainer
             ->method('__get')
-            ->willReturnCallback(function ($arg) {
-                switch ($arg) {
-                    case 'id':
-                        return 123;
-                    case 'activeRecord':
-                        return new \stdClass();
-                    case 'table':
-                        return 'tl_cfg_tag';
-                }
-            })
+            ->willReturnMap([
+                ['id', 123],
+                ['activeRecord', new \stdClass()],
+                ['table', 'tl_cfg_tag'],
+            ])
         ;
 
         // Set tup the versions
@@ -261,16 +256,11 @@ class TagListenerTest extends TestCase
 
         $this->framework
             ->method('getAdapter')
-            ->willReturnCallback(function ($class) use ($controllerAdapter, $systemAdapter, $tagAdapter) {
-                switch ($class) {
-                    case Controller::class:
-                        return $controllerAdapter;
-                    case System::class:
-                        return $systemAdapter;
-                    case TagModel::class:
-                        return $tagAdapter;
-                }
-            });
+            ->willReturnMap([
+                [Controller::class, $controllerAdapter],
+                [System::class, $systemAdapter],
+                [TagModel::class, $tagAdapter],
+            ])
         ;
 
         /** @var DataContainer $dataContainer */

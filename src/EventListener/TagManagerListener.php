@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Codefog\TagsBundle\EventListener;
 
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
+use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Contao\DataContainer;
 use Haste\Util\Debug;
@@ -76,13 +77,44 @@ class TagManagerListener
      */
     public function onFieldSave(string $value, DataContainer $dc): string
     {
-        $manager = $this->registry->get($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager']);
+        $manager = $this->getManagerFromDca($dc);
 
         if ($manager instanceof DcaAwareInterface) {
             $value = $manager->saveDcaField($value, $dc);
         }
 
         return $value;
+    }
+
+    /**
+     * On options callback
+     *
+     * @param DataContainer $dc
+     *
+     * @return array
+     */
+    public function onOptionsCallback(DataContainer $dc): array
+    {
+        $value = [];
+        $manager = $this->getManagerFromDca($dc);
+
+        if ($manager instanceof DcaAwareInterface) {
+            $value = $manager->getFilterOptions($dc);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Get the manager from DCA
+     *
+     * @param DataContainer $dc
+     *
+     * @return ManagerInterface
+     */
+    private function getManagerFromDca(DataContainer $dc): ManagerInterface
+    {
+        return $this->registry->get($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager']);
     }
 
     /**

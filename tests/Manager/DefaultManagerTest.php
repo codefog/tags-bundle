@@ -3,14 +3,16 @@
 namespace Codefog\TagsBundle\Test\Manager;
 
 use Codefog\TagsBundle\Collection\CollectionInterface;
-use Codefog\TagsBundle\Collection\ModelCollection;
 use Codefog\TagsBundle\Manager\DefaultManager;
 use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
 use Codefog\TagsBundle\Test\Fixtures\DummyModel;
 use Codefog\TagsBundle\Test\Fixtures\ExtraDummyModel;
+use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
+use Contao\Model\Collection;
+use Haste\Model\Model;
 use PHPUnit\Framework\TestCase;
 
 class DefaultManagerTest extends TestCase
@@ -87,53 +89,59 @@ class DefaultManagerTest extends TestCase
         static::assertEquals([1, 2, 3], $this->manager->getSourceRecords(new Tag('foo', 'bar')));
     }
 
-    public function testUpdateDcaField()
+    /**
+     * @dataProvider updateDcaFieldProvider
+     */
+    public function testUpdateDcaField(array $provided, array $expected)
     {
         $this->framework->method('getAdapter')->willReturn(
             new DummyModel(['getTable' => 'tl_cfg_tag'])
         );
 
-        // Variant with save_callback not exists
-        $config = [];
-        $this->manager->updateDcaField($config);
+        $this->manager->updateDcaField($provided);
 
-        static::assertEquals(
-            [
-                'relation' => [
-                    'type' => 'haste-ManyToMany',
-                    'load' => 'lazy',
-                    'table' => 'tl_cfg_tag',
-                ],
-                'save_callback' => [
-                    ['codefog_tags.listener.tag_manager', 'onFieldSave']
-                ],
+        static::assertEquals($expected, $provided);
+    }
+
+    public function updateDcaFieldProvider()
+    {
+        return [
+            'Empty config' => [
+                [],
+                [
+                    'relation' => [
+                        'type' => 'haste-ManyToMany',
+                        'load' => 'lazy',
+                        'table' => 'tl_cfg_tag',
+                    ],
+                    'save_callback' => [
+                        ['codefog_tags.listener.tag_manager', 'onFieldSave']
+                    ],
+                    'options_callback' => ['codefog_tags.listener.tag_manager', 'onOptionsCallback'],
+                ]
             ],
-            $config
-        );
 
-        // Variant with save_callback exists
-        $config = [
-            'save_callback' => [
-                ['foo', 'bar'],
+            'Full config' => [
+                [
+                    'save_callback' => [
+                        ['foo', 'bar'],
+                    ],
+                    'options_callback' => ['foo', 'bar'],
+                ],
+                [
+                    'relation' => [
+                        'type' => 'haste-ManyToMany',
+                        'load' => 'lazy',
+                        'table' => 'tl_cfg_tag',
+                    ],
+                    'save_callback' => [
+                        ['codefog_tags.listener.tag_manager', 'onFieldSave'],
+                        ['foo', 'bar'],
+                    ],
+                    'options_callback' => ['foo', 'bar'],
+                ]
             ],
         ];
-
-        $this->manager->updateDcaField($config);
-
-        static::assertEquals(
-            [
-                'relation' => [
-                    'type' => 'haste-ManyToMany',
-                    'load' => 'lazy',
-                    'table' => 'tl_cfg_tag',
-                ],
-                'save_callback' => [
-                    ['codefog_tags.listener.tag_manager', 'onFieldSave'],
-                    ['foo', 'bar'],
-                ],
-            ],
-            $config
-        );
     }
 
     public function testSaveDcaField()
@@ -158,5 +166,50 @@ class DefaultManagerTest extends TestCase
         $output = $this->manager->saveDcaField(serialize(['123', 'new']), $this->createMock(DataContainer::class));
 
         static::assertEquals(serialize(['123', '456']), $output);
+    }
+
+    public function testGetFilterOptions()
+    {
+        require_once __DIR__.'/../Fixtures/Backend.php';
+
+        $tagModel = new DummyModel();
+        $tagModel->id = 123;
+        $tagModel->name = 'Foobar';
+
+        $relationsModelAdapter = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRelatedValues'])
+            ->getMock();
+        ;
+
+        $relationsModelAdapter
+            ->method('getRelatedValues')
+            ->willReturn([1, 2, 3])
+        ;
+
+        $tagModelAdapter = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['findByCriteria'])
+            ->getMock();
+        ;
+
+        $tagModelAdapter
+            ->method('findByCriteria')
+            ->willReturn(new Collection([$tagModel], ''))
+        ;
+
+        $this->framework
+            ->method('getAdapter')
+            ->willReturnMap([
+                [Model::class, $relationsModelAdapter],
+                [TagModel::class, $tagModelAdapter]
+            ]);
+        ;
+
+        $dataContainer = $this->createMock(DataContainer::class);
+
+        static::assertSame([123 => 'Foobar'], $this->manager->getFilterOptions($dataContainer));
     }
 }

@@ -20,6 +20,11 @@ class DummyManager implements ManagerInterface, DcaAwareInterface
         return strtoupper($value);
     }
 
+    public function getFilterOptions(DataContainer $dc): array
+    {
+        return ['foo', 'bar'];
+    }
+
     public function setAlias(string $alias): void
     {
         // TODO: Implement setAlias() method.

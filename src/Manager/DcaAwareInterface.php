@@ -30,4 +30,13 @@ interface DcaAwareInterface
      * @param DataContainer $dc
      */
     public function saveDcaField(string $value, DataContainer $dc): string;
+
+    /**
+     * Get the filter options.
+     *
+     * @param DataContainer $dc
+     *
+     * @return array
+     */
+    public function getFilterOptions(DataContainer $dc): array;
 }
