@@ -75,6 +75,11 @@
                 };
             }
 
+            // Limit number of maximum tags
+            if(this.settings.maxItems > 0){
+                options.maxItems = this.settings.maxItems;
+            }
+
             el.selectize(options);
             this.selectize = el[0].selectize;
         }
