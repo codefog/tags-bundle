@@ -106,6 +106,7 @@ class TagsWidget extends Widget
     {
         return [
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
+            'maxItems'    => isset($this->maxItems) ? intval($this->maxItems) : null,
         ];
     }
 
