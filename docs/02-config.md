@@ -40,6 +40,7 @@ sure that you register it with the *alias* of the service and not the service *n
         'tagsManager' => 'app.article', // Manager, required
         'tagsCreate'  => false, // Allow to create tags, optional (true by default)
         'maxItems' => 5', // Maximum number of tags allowed
+        'hideList' => true, // Hide the list of tags; the input field will be still visible
         'tl_class'    => 'clr'
     ],
 ],

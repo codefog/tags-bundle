@@ -97,6 +97,7 @@ class TagsWidget extends Widget
         $template = new BackendTemplate('be_cfg_tags_widget');
         $template->name = $this->strName;
         $template->id = $this->strId;
+        $template->hideList = $this->hideList ? true : false;
         $template->valueTags = $this->generateValueTags($this->getValueTags());
         $template->allTags = $this->generateAllTags($this->getAllTags());
         $template->config = $this->generateConfig();
