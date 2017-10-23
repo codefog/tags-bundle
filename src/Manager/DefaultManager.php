@@ -26,22 +26,22 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     /**
      * @var string
      */
-    private $alias;
+    protected $alias;
 
     /**
      * @var ContaoFrameworkInterface
      */
-    private $framework;
+    protected $framework;
 
     /**
      * @var string
      */
-    private $sourceTable;
+    protected $sourceTable;
 
     /**
      * @var string
      */
-    private $sourceField;
+    protected $sourceField;
 
     /**
      * DefaultManager constructor.
