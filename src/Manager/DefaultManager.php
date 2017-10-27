@@ -146,7 +146,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         /** @var Model $relationsModel */
         $relationsModel = $this->framework->getAdapter(Model::class);
 
-        $tagIds = array_unique($relationsModel->getRelatedValues($this->sourceTable, $this->sourceField, $sourceId));
+        $tagIds = $relationsModel->getRelatedValues($this->sourceTable, $this->sourceField, $sourceId);
         $tagIds = array_values(array_unique($tagIds));
         $tagIds = array_map('intval', $tagIds);
 
@@ -182,6 +182,39 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         }
 
         return $related;
+    }
+
+    /**
+     * Get the top tag IDs
+     *
+     * @param array    $sourceIds
+     * @param int|null $limit
+     *
+     * @return array
+     */
+    public function getTopTagIds(array $sourceIds = [], int $limit = null): array
+    {
+        /** @var Model $model */
+        $model = $this->framework->getAdapter(Model::class);
+
+        $tagIds = $model->getRelatedValues($this->sourceTable, $this->sourceField, $sourceIds);
+        $tagIds = array_map('intval', $tagIds);
+
+        if (0 === count($tagIds)) {
+            return [];
+        }
+
+        $helper = [];
+
+        // Create the helper array with tag occurrences
+        foreach ($tagIds as $tagId) {
+            ++$helper[$tagId];
+        }
+
+        // Sort the helper array descending
+        arsort($helper);
+
+        return array_slice(array_keys($helper), 0, $limit);
     }
 
     /**

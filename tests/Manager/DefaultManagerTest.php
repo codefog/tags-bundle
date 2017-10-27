@@ -358,4 +358,51 @@ class DefaultManagerTest extends TestCase
 
         static::assertEmpty($this->manager->findRelatedSourceRecords(1));
     }
+
+    public function testGetTopTagIds()
+    {
+        $model = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRelatedValues'])
+            ->getMock()
+        ;
+
+        $model
+            ->method('getRelatedValues')
+            ->willReturn([1, 1, 1, 2, 3, 4, 5, 5])
+        ;
+
+        $this->framework
+            ->method('getAdapter')
+            ->willReturn($model);
+        ;
+
+        static::assertEquals(
+            [1, 5, 2],
+            $this->manager->getTopTagIds([], 3)
+        );
+    }
+
+    public function testGetTopTagIdsEmpty()
+    {
+        $model = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRelatedValues'])
+            ->getMock()
+        ;
+
+        $model
+            ->method('getRelatedValues')
+            ->willReturn([])
+        ;
+
+        $this->framework
+            ->method('getAdapter')
+            ->willReturn($model);
+        ;
+
+        static::assertEmpty($this->manager->getTopTagIds());
+    }
 }
