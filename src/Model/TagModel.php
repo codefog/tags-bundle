@@ -50,6 +50,28 @@ class TagModel extends Model
     }
 
     /**
+     * Find the record by criteria.
+     *
+     * @param array $criteria
+     *
+     * @return TagModel|null
+     */
+    public static function findOneByCriteria(array $criteria): ?TagModel
+    {
+        try {
+            list($columns, $values, $options) = static::parseCriteria($criteria);
+        } catch (NoTagsException $e) {
+            return null;
+        }
+
+        if (count($columns) < 1) {
+            return null;
+        }
+
+        return static::findOneBy($columns, $values, $options);
+    }
+
+    /**
      * Parse the criteria.
      *
      * @param array $criteria
@@ -68,6 +90,12 @@ class TagModel extends Model
         if ($criteria['source']) {
             $columns[] = 'source=?';
             $values[] = $criteria['source'];
+        }
+
+        // Find by alias
+        if ($criteria['alias']) {
+            $columns[] = 'alias=?';
+            $values[] = $criteria['alias'];
         }
 
         // Find only the used tags

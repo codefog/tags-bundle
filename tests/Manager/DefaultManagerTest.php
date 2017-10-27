@@ -54,6 +54,20 @@ class DefaultManagerTest extends TestCase
         static::assertInstanceOf(Tag::class, $this->manager->find('123'));
     }
 
+    public function testFindByAlias()
+    {
+        $dummyModel = new DummyModel();
+        $dummyModel->id = 123;
+        $dummyModel->name = 'foobar';
+        $dummyModel->source = 'foobar';
+
+        $this->framework->method('getAdapter')->willReturn(new DummyModel(['findOneByCriteria' => $dummyModel]));
+        static::assertInstanceOf(Tag::class, $this->manager->findByAlias('foobar'));
+
+        $this->framework->method('getAdapter')->willReturn(new DummyModel(['findOneByCriteria' => null]));
+        static::assertNull($this->manager->findByAlias('foobar'));
+    }
+
     public function testFindTagNotFound()
     {
         $this->framework->method('getAdapter')->willReturn(new DummyModel(['findByPk' => null]));

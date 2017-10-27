@@ -88,6 +88,28 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     }
 
     /**
+     * Find the tag by alias.
+     *
+     * @param string $alias
+     *
+     * @return Tag|null
+     */
+    public function findByAlias(string $alias): ?Tag
+    {
+        /** @var TagModel $adapter */
+        $adapter = $this->framework->getAdapter(TagModel::class);
+
+        $criteria = $this->getCriteria();
+        $criteria['alias'] = $alias;
+
+        if (($model = $adapter->findOneByCriteria($criteria)) === null) {
+            return null;
+        }
+
+        return ModelCollection::createTagFromModel($model);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function findMultiple(array $criteria = []): CollectionInterface
