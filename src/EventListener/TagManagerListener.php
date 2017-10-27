@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Codefog\TagsBundle\EventListener;
 
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
+use Codefog\TagsBundle\Manager\DcaFilterAwareInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Contao\DataContainer;
@@ -98,7 +99,7 @@ class TagManagerListener
         $value = [];
         $manager = $this->getManagerFromDca($dc);
 
-        if ($manager instanceof DcaAwareInterface) {
+        if ($manager instanceof DcaFilterAwareInterface) {
             $value = $manager->getFilterOptions($dc);
         }
 

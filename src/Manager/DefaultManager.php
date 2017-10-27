@@ -21,7 +21,7 @@ use Contao\DataContainer;
 use Contao\StringUtil;
 use Haste\Model\Model;
 
-class DefaultManager implements ManagerInterface, DcaAwareInterface
+class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAwareInterface
 {
     /**
      * @var string

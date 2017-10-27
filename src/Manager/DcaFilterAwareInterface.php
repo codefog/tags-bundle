@@ -14,20 +14,16 @@ namespace Codefog\TagsBundle\Manager;
 
 use Contao\DataContainer;
 
-interface DcaAwareInterface
+// @todo – merge this interface with DcaAwareInterface in next major version
+
+interface DcaFilterAwareInterface
 {
     /**
-     * Update the DCA field.
+     * Get the filter options.
      *
-     * @param array $config
-     */
-    public function updateDcaField(array &$config): void;
-
-    /**
-     * Save the DCA field.
-     *
-     * @param string        $value
      * @param DataContainer $dc
+     *
+     * @return array
      */
-    public function saveDcaField(string $value, DataContainer $dc): string;
+    public function getFilterOptions(DataContainer $dc): array;
 }

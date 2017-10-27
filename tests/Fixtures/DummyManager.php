@@ -4,11 +4,12 @@ namespace Codefog\TagsBundle\Test\Fixtures;
 
 use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
+use Codefog\TagsBundle\Manager\DcaFilterAwareInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
 use Contao\DataContainer;
 
-class DummyManager implements ManagerInterface, DcaAwareInterface
+class DummyManager implements ManagerInterface, DcaAwareInterface, DcaFilterAwareInterface
 {
     public function updateDcaField(array &$config): void
     {
