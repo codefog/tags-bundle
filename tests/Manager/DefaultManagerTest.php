@@ -12,11 +12,18 @@ use Contao\CoreBundle\Framework\Adapter;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
 use Contao\Model\Collection;
+use Doctrine\DBAL\Connection;
 use Haste\Model\Model;
+use Haste\Model\Relations;
 use PHPUnit\Framework\TestCase;
 
 class DefaultManagerTest extends TestCase
 {
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|Connection
+     */
+    private $db;
+
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|ContaoFrameworkInterface
      */
@@ -33,9 +40,11 @@ class DefaultManagerTest extends TestCase
         error_reporting(E_ALL & ~E_NOTICE);
 
         $this->framework = $this->createMock(ContaoFrameworkInterface::class);
+        $this->db = $this->createMock(Connection::class);
 
         $this->manager = new DefaultManager($this->framework, 'tl_table', 'field');
         $this->manager->setAlias('foobar');
+        $this->manager->setDatabase($this->db);
     }
 
     public function testInstantiation()
@@ -225,5 +234,128 @@ class DefaultManagerTest extends TestCase
         $dataContainer = $this->createMock(DataContainer::class);
 
         static::assertSame([123 => 'Foobar'], $this->manager->getFilterOptions($dataContainer));
+    }
+
+    public function testFindRelatedSourceRecords()
+    {
+        $relations = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRelation'])
+            ->getMock()
+        ;
+
+        $relations
+            ->method('getRelation')
+            ->willReturn([
+                'reference_field' => 'foo_id',
+                'related_field' => 'bar_id',
+                'table' => 'tl_foobar',
+            ])
+        ;
+
+        $model = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRelatedValues'])
+            ->getMock()
+        ;
+
+        $model
+            ->method('getRelatedValues')
+            ->willReturn([1, 2, 3, 4])
+        ;
+
+        $this->framework
+            ->method('getAdapter')
+            ->willReturnMap([
+                [Relations::class, $relations],
+                [Model::class, $model],
+            ]);
+        ;
+
+        $this->db
+            ->method('fetchAll')
+            ->willReturn([
+                ['foo_id' => 1, 'relevance' => 4],
+                ['foo_id' => 2, 'relevance' => 2],
+            ])
+        ;
+
+        static::assertSame(
+            [
+                1 => [
+                    'total' => 4,
+                    'found' => 4,
+                    'prcnt' => 100,
+                ],
+                2 => [
+                    'total' => 4,
+                    'found' => 2,
+                    'prcnt' => 50.0,
+                ],
+            ],
+            $this->manager->findRelatedSourceRecords(1, 2)
+        );
+    }
+
+    public function testFindRelatedSourceRecordsNoRelation()
+    {
+        $relations = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRelation'])
+            ->getMock()
+        ;
+
+        $relations
+            ->method('getRelation')
+            ->willReturn(false)
+        ;
+
+        $this->framework
+            ->method('getAdapter')
+            ->willReturn($relations);
+        ;
+
+        $this->expectException(\RuntimeException::class);
+        $this->manager->findRelatedSourceRecords(1);
+    }
+
+    public function testFindRelatedSourceRecordsEmpty()
+    {
+        $relations = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRelation'])
+            ->getMock()
+        ;
+
+        $relations
+            ->method('getRelation')
+            ->willReturn([])
+        ;
+
+        $model = $this
+            ->getMockBuilder(Adapter::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRelatedValues'])
+            ->getMock()
+        ;
+
+        $model
+            ->method('getRelatedValues')
+            ->willReturn([])
+        ;
+
+        $this->framework
+            ->method('getAdapter')
+            ->willReturnMap([
+                [Relations::class, $relations],
+                [Model::class, $model],
+            ]);
+        ;
+
+        static::assertEmpty($this->manager->findRelatedSourceRecords(1));
     }
 }

@@ -19,7 +19,9 @@ use Codefog\TagsBundle\Tag;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
 use Contao\StringUtil;
+use Doctrine\DBAL\Connection;
 use Haste\Model\Model;
+use Haste\Model\Relations;
 
 class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAwareInterface
 {
@@ -27,6 +29,11 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
      * @var string
      */
     protected $alias;
+
+    /**
+     * @var Connection
+     */
+    protected $db;
 
     /**
      * @var ContaoFrameworkInterface
@@ -63,6 +70,14 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     public function setAlias(string $alias): void
     {
         $this->alias = $alias;
+    }
+
+    /**
+     * @param Connection $db
+     */
+    public function setDatabase(Connection $db)
+    {
+        $this->db = $db;
     }
 
     /**
@@ -107,6 +122,66 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         }
 
         return ModelCollection::createTagFromModel($model);
+    }
+
+    /**
+     * Find the related source records.
+     *
+     * @param int      $sourceId
+     * @param int|null $limit
+     *
+     * @throws \RuntimeException
+     *
+     * @return array
+     */
+    public function findRelatedSourceRecords(int $sourceId, int $limit = null): array
+    {
+        /** @var Relations $relations */
+        $relations = $this->framework->getAdapter(Relations::class);
+
+        if (false === ($relation = $relations->getRelation($this->sourceTable, $this->sourceField))) {
+            throw new \RuntimeException(sprintf('The field %s.%s is not related', $this->sourceTable, $this->sourceField));
+        }
+
+        /** @var Model $relationsModel */
+        $relationsModel = $this->framework->getAdapter(Model::class);
+
+        $tagIds = array_unique($relationsModel->getRelatedValues($this->sourceTable, $this->sourceField, $sourceId));
+        $tagIds = array_values(array_unique($tagIds));
+        $tagIds = array_map('intval', $tagIds);
+
+        // Return if there are no tags
+        if (0 === count($tagIds)) {
+            return [];
+        }
+
+        $query = sprintf(
+            'SELECT %s, COUNT(*) AS relevance FROM %s WHERE %s IN (%s) AND %s != ? GROUP BY %s ORDER BY relevance DESC',
+            $relation['reference_field'],
+            $relation['table'],
+            $relation['related_field'],
+            implode(',', $tagIds),
+            $relation['reference_field'],
+            $relation['reference_field']
+        );
+
+        // Set the limit
+        if ($limit > 0) {
+            $query .= sprintf(' LIMIT %s', $limit);
+        }
+
+        $related = [];
+
+        // Generate the related records
+        foreach ($this->db->fetchAll($query, [$sourceId]) as $record) {
+            $related[$record[$relation['reference_field']]] = [
+                'total' => count($tagIds),
+                'found' => $record['relevance'],
+                'prcnt' => ($record['relevance'] / count($tagIds)) * 100,
+            ];
+        }
+
+        return $related;
     }
 
     /**
