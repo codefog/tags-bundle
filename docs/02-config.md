@@ -18,6 +18,7 @@ services:
     app.article_tags_manager:
         class: Codefog\TagsBundle\Manager\DefaultManager
         arguments:
+            - "@contao.framework"
             - "tl_app_article"
             - "tags"
         tags:
