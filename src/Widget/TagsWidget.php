@@ -16,6 +16,7 @@ use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
 use Contao\BackendTemplate;
+use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
 
@@ -185,7 +186,7 @@ class TagsWidget extends Widget
 
         /** @var Tag $tag */
         foreach ($tags as $tag) {
-            $return[] = ['value' => $tag->getValue(), 'text' => $tag->getName()];
+            $return[] = ['value' => $tag->getValue(), 'text' => StringUtil::decodeEntities($tag->getName())];
         }
 
         return $return;
