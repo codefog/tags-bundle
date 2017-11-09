@@ -1,4 +1,9 @@
 services:
+    codefog_tags.listener.insert_tags:
+        class: Codefog\TagsBundle\EventListener\InsertTagsListener
+        arguments:
+            - "@codefog_tags.manager_registry"
+
     codefog_tags.listener.tag_manager:
         class: Codefog\TagsBundle\EventListener\TagManagerListener
         arguments:
