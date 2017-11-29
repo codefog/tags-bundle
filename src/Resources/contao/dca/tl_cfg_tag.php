@@ -11,9 +11,12 @@
 $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
     // Config
     'config' => [
-        'dataContainer' => 'Table',
+        'dataContainer' => 'Tags',
         'enableVersioning' => true,
         'notCopyable' => true,
+        'onload_callback' => [
+            ['codefog_tags.listener.data_container.tag', 'onLoadCallback']
+        ],
         'sql' => [
             'keys' => [
                 'id' => 'primary',
@@ -29,7 +32,10 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
             'mode' => 1,
             'fields' => ['name'],
             'flag' => 1,
-            'panelLayout' => 'filter;search,limit',
+            'panelLayout' => 'filter;cfg_sort,search,limit',
+            'panel_callback' => [
+                'cfg_sort' => ['codefog_tags.listener.data_container.tag', 'onPanelCallback']
+            ],
         ],
         'label' => [
             'fields' => ['name', 'source', 'total'],

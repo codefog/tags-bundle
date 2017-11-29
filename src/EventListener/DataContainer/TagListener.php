@@ -12,17 +12,21 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\EventListener\DataContainer;
 
+use Codefog\TagsBundle\Driver;
+use Codefog\TagsBundle\Manager\DefaultManager;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Model\TagModel;
 use Contao\Controller;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Versions;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class TagListener
@@ -73,6 +77,114 @@ class TagListener
         $this->registry = $registry;
         $this->requestStack = $requestStack;
         $this->session = $session;
+    }
+
+    /**
+     * On load callback.
+     *
+     * @param DataContainer $dc
+     */
+    public function onLoadCallback(DataContainer $dc): void
+    {
+        if (!($dc instanceof Driver)) {
+            return;
+        }
+
+        $ids = [];
+
+        // Collect the top tags from all registries
+        foreach ($this->registry->getAliases() as $alias) {
+            $manager = $this->registry->get($alias);
+
+            if ($manager instanceof DefaultManager) {
+                foreach ($manager->getTopTagIds([], null, true) as $id => $count) {
+                    $ids[$id] = $count;
+                }
+            }
+        }
+
+        // Append all other tags
+        foreach ($this->db->executeQuery("SELECT id FROM {$dc->table}")->fetchAll(\PDO::FETCH_COLUMN, 0) as $id) {
+            if (!array_key_exists($id, $ids)) {
+                $ids[$id] = 0;
+            }
+        }
+
+        /** @var AttributeBagInterface $bag */
+        $bag = $this->session->getBag('contao_backend');
+        $session = $bag->all();
+
+        // Handle the sorting selection
+        switch ($session['sorting'][$dc->table]) {
+            case 'total_asc':
+                asort($ids);
+                break;
+            case 'total_desc':
+                arsort($ids);
+                break;
+            default:
+                $session['sorting'][$dc->table] = null;
+                $bag->replace($session);
+                return;
+        }
+
+        /** @var Database $db */
+        $db = $this->framework->createInstance(Database::class);
+        $dc->setOrderBy([$db->findInSet('id', array_keys($ids))]);
+
+        // Prevent adding an extra column to the listing
+        $dc->setFirstOrderBy('name');
+    }
+
+    /**
+     * On generate panel callback.
+     *
+     * @param DataContainer $dc
+     *
+     * @return string
+     */
+    public function onPanelCallback(DataContainer $dc): string
+    {
+        /** @var AttributeBagInterface $bag */
+        $bag = $this->session->getBag('contao_backend');
+        $session = $bag->all();
+
+        $sorting = ['_default', 'total_asc', 'total_desc'];
+        $request = $this->requestStack->getCurrentRequest();
+
+        // Store the sorting in the session
+        if ($request->request->get('FORM_SUBMIT') === 'tl_filters') {
+            $sort = $request->request->get('tl_sort');
+
+            if ($sort !== '_default' && in_array($sort, $sorting, true)) {
+                $session['sorting'][$dc->table] = $sort;
+            } else {
+                $session['sorting'][$dc->table] = null;
+            }
+
+            $bag->replace($session);
+        }
+
+        $options = [];
+
+        // Generate the markup options
+        foreach ($sorting as $option) {
+            $options[] = sprintf(
+                '<option value="%s"%s>%s</option>',
+                StringUtil::specialchars($option),
+                ($option === $session['sorting'][$dc->table]) ? ' selected="selected"' : '',
+                ($option === '_default') ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$GLOBALS['TL_DCA'][$dc->table]['list']['sorting']['fields'][0]]['label'][0] : $GLOBALS['TL_LANG'][$dc->table]['sortRef'][$option]
+            );
+        }
+
+        return '
+
+<div class="tl_sorting tl_subpanel">
+<strong>' . $GLOBALS['TL_LANG']['MSC']['sortBy'] . ':</strong>
+<select name="tl_sort" id="tl_sort" class="tl_select">
+'.implode("\n", $options).'
+</select>
+</div>';
     }
 
     /**

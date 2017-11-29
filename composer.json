@@ -25,6 +25,9 @@
         "contao/manager-plugin": "<2.0 || >=3.0"
     },
     "autoload": {
+        "classmap": [
+            "src/DC_Tags.php"
+        ],
         "psr-4": {
             "Codefog\\TagsBundle\\": "src",
             "Codefog\\TagsBundle\\Test\\": "tests"

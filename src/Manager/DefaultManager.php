@@ -189,10 +189,11 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
      *
      * @param array    $sourceIds
      * @param int|null $limit
+     * @param bool     $withCount
      *
      * @return array
      */
-    public function getTopTagIds(array $sourceIds = [], int $limit = null): array
+    public function getTopTagIds(array $sourceIds = [], int $limit = null, bool $withCount = false): array
     {
         /** @var Model $model */
         $model = $this->framework->getAdapter(Model::class);
@@ -214,7 +215,12 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         // Sort the helper array descending
         arsort($helper);
 
-        return array_slice(array_keys($helper), 0, $limit);
+        // Strip the count data
+        if (!$withCount) {
+            $helper = array_keys($helper);
+        }
+
+        return array_slice($helper, 0, $limit, $withCount);
     }
 
     /**
