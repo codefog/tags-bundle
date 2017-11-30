@@ -29,8 +29,12 @@
             "src/DC_Tags.php"
         ],
         "psr-4": {
-            "Codefog\\TagsBundle\\": "src",
-            "Codefog\\TagsBundle\\Test\\": "tests"
+            "Codefog\\TagsBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Codefog\\TagsBundle\\Test\\": "tests/"
         }
     },
     "extra": {
