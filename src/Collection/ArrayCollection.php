@@ -36,7 +36,7 @@ class ArrayCollection implements CollectionInterface
      */
     public function count(): int
     {
-        return count($this->tags);
+        return \count($this->tags);
     }
 
     /**

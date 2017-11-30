@@ -69,8 +69,8 @@ class ManagerRegistry
      */
     public function get(string $alias): ManagerInterface
     {
-        if (!array_key_exists($alias, $this->managers)) {
-            throw new \InvalidArgumentException(sprintf('The manager "%s" does not exist', $alias));
+        if (!\array_key_exists($alias, $this->managers)) {
+            throw new \InvalidArgumentException(\sprintf('The manager "%s" does not exist', $alias));
         }
 
         return $this->managers[$alias];
@@ -83,6 +83,6 @@ class ManagerRegistry
      */
     public function getAliases(): array
     {
-        return array_keys($this->managers);
+        return \array_keys($this->managers);
     }
 }

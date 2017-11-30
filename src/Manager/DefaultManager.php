@@ -75,7 +75,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     /**
      * @param Connection $db
      */
-    public function setDatabase(Connection $db)
+    public function setDatabase(Connection $db): void
     {
         $this->db = $db;
     }
@@ -88,7 +88,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         /** @var TagModel $adapter */
         $adapter = $this->framework->getAdapter(TagModel::class);
 
-        if (($model = $adapter->findByPk($value)) === null) {
+        if (null === ($model = $adapter->findByPk($value))) {
             return null;
         }
 
@@ -117,7 +117,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         $criteria = $this->getCriteria();
         $criteria['alias'] = $alias;
 
-        if (($model = $adapter->findOneByCriteria($criteria)) === null) {
+        if (null === ($model = $adapter->findOneByCriteria($criteria))) {
             return null;
         }
 
@@ -140,34 +140,34 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         $relations = $this->framework->getAdapter(Relations::class);
 
         if (false === ($relation = $relations->getRelation($this->sourceTable, $this->sourceField))) {
-            throw new \RuntimeException(sprintf('The field %s.%s is not related', $this->sourceTable, $this->sourceField));
+            throw new \RuntimeException(\sprintf('The field %s.%s is not related', $this->sourceTable, $this->sourceField));
         }
 
         /** @var Model $relationsModel */
         $relationsModel = $this->framework->getAdapter(Model::class);
 
         $tagIds = $relationsModel->getRelatedValues($this->sourceTable, $this->sourceField, $sourceId);
-        $tagIds = array_values(array_unique($tagIds));
-        $tagIds = array_map('intval', $tagIds);
+        $tagIds = \array_values(\array_unique($tagIds));
+        $tagIds = \array_map('intval', $tagIds);
 
         // Return if there are no tags
-        if (0 === count($tagIds)) {
+        if (0 === \count($tagIds)) {
             return [];
         }
 
-        $query = sprintf(
+        $query = \sprintf(
             'SELECT %s, COUNT(*) AS relevance FROM %s WHERE %s IN (%s) AND %s != ? GROUP BY %s ORDER BY relevance DESC',
             $relation['reference_field'],
             $relation['table'],
             $relation['related_field'],
-            implode(',', $tagIds),
+            \implode(',', $tagIds),
             $relation['reference_field'],
             $relation['reference_field']
         );
 
         // Set the limit
         if ($limit > 0) {
-            $query .= sprintf(' LIMIT %s', $limit);
+            $query .= \sprintf(' LIMIT %s', $limit);
         }
 
         $related = [];
@@ -175,9 +175,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         // Generate the related records
         foreach ($this->db->fetchAll($query, [$sourceId]) as $record) {
             $related[$record[$relation['reference_field']]] = [
-                'total' => count($tagIds),
+                'total' => \count($tagIds),
                 'found' => $record['relevance'],
-                'prcnt' => ($record['relevance'] / count($tagIds)) * 100,
+                'prcnt' => ($record['relevance'] / \count($tagIds)) * 100,
             ];
         }
 
@@ -185,7 +185,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     }
 
     /**
-     * Get the top tag IDs
+     * Get the top tag IDs.
      *
      * @param array    $sourceIds
      * @param int|null $limit
@@ -199,9 +199,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         $model = $this->framework->getAdapter(Model::class);
 
         $tagIds = $model->getRelatedValues($this->sourceTable, $this->sourceField, $sourceIds);
-        $tagIds = array_map('intval', $tagIds);
+        $tagIds = \array_map('intval', $tagIds);
 
-        if (0 === count($tagIds)) {
+        if (0 === \count($tagIds)) {
             return [];
         }
 
@@ -213,14 +213,14 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         }
 
         // Sort the helper array descending
-        arsort($helper);
+        \arsort($helper);
 
         // Strip the count data
         if (!$withCount) {
-            $helper = array_keys($helper);
+            $helper = \array_keys($helper);
         }
 
-        return array_slice($helper, 0, $limit, $withCount);
+        return \array_slice($helper, 0, $limit, $withCount);
     }
 
     /**
@@ -242,7 +242,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         /** @var Model $adapter */
         $adapter = $this->framework->getAdapter(Model::class);
 
-        return count($adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue()));
+        return \count($adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue()));
     }
 
     /**
@@ -254,8 +254,8 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         $adapter = $this->framework->getAdapter(Model::class);
 
         $values = $adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue());
-        $values = array_values(array_unique($values));
-        $values = array_map('intval', $values);
+        $values = \array_values(\array_unique($values));
+        $values = \array_map('intval', $values);
 
         return $values;
     }
@@ -269,14 +269,14 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         $adapter = $this->framework->getAdapter(TagModel::class);
 
         // Set the relation
-        $config['relation'] = array_merge(
-            (isset($config['relation']) && is_array($config['relation'])) ? $config['relation'] : [],
+        $config['relation'] = \array_merge(
+            (isset($config['relation']) && \is_array($config['relation'])) ? $config['relation'] : [],
             ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => $adapter->getTable()]
         );
 
         // Set the save_callback
-        if (isset($config['save_callback']) && is_array($config['save_callback'])) {
-            array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
+        if (isset($config['save_callback']) && \is_array($config['save_callback'])) {
+            \array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
         } else {
             $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSave'];
         }
@@ -297,18 +297,18 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
 
         /** @var array $value */
         foreach ($value as $k => $v) {
-            if ($this->find($v, $criteria) !== null) {
+            if (null !== $this->find($v, $criteria)) {
                 continue;
             }
 
             $value[$k] = $this->createTag($v)->getValue();
         }
 
-        return serialize($value);
+        return \serialize($value);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFilterOptions(DataContainer $dc): array
     {
@@ -317,7 +317,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         /** @var Model $adapter */
         $adapter = $this->framework->getAdapter(Model::class);
 
-        $ids = array_unique($adapter->getRelatedValues($this->sourceTable, $this->sourceField));
+        $ids = \array_unique($adapter->getRelatedValues($this->sourceTable, $this->sourceField));
         $tags = $this->findMultiple(['values' => $ids]);
 
         /** @var Tag $tag */
@@ -339,7 +339,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     {
         /** @var TagModel $model */
         $model = $this->framework->createInstance(TagModel::class);
-        $model->tstamp = time();
+        $model->tstamp = \time();
         $model->name = $value;
         $model->source = $this->alias;
         $model->save();

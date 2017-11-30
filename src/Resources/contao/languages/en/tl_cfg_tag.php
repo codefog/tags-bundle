@@ -26,7 +26,7 @@ $GLOBALS['TL_LANG']['tl_cfg_tag']['show'] = ['Tag details', 'Show the details of
 $GLOBALS['TL_LANG']['tl_cfg_tag']['edit'] = ['Edit tag', 'Edit tag ID %s'];
 $GLOBALS['TL_LANG']['tl_cfg_tag']['delete'] = ['Delete tag', 'Delete tag ID %s'];
 
-/**
+/*
  * Sorting reference
  */
 $GLOBALS['TL_LANG']['tl_cfg_tag']['sortRef'] = [

@@ -59,11 +59,11 @@ class TagListener
     /**
      * TagListener constructor.
      *
-     * @param Connection $db
+     * @param Connection               $db
      * @param ContaoFrameworkInterface $framework
-     * @param ManagerRegistry $registry
-     * @param RequestStack $requestStack
-     * @param SessionInterface $session
+     * @param ManagerRegistry          $registry
+     * @param RequestStack             $requestStack
+     * @param SessionInterface         $session
      */
     public function __construct(
         Connection $db,
@@ -105,7 +105,7 @@ class TagListener
 
         // Append all other tags
         foreach ($this->db->executeQuery("SELECT id FROM {$dc->table}")->fetchAll(\PDO::FETCH_COLUMN, 0) as $id) {
-            if (!array_key_exists($id, $ids)) {
+            if (!\array_key_exists($id, $ids)) {
                 $ids[$id] = 0;
             }
         }
@@ -117,20 +117,21 @@ class TagListener
         // Handle the sorting selection
         switch ($session['sorting'][$dc->table]) {
             case 'total_asc':
-                asort($ids);
+                \asort($ids);
                 break;
             case 'total_desc':
-                arsort($ids);
+                \arsort($ids);
                 break;
             default:
                 $session['sorting'][$dc->table] = null;
                 $bag->replace($session);
+
                 return;
         }
 
         /** @var Database $db */
         $db = $this->framework->createInstance(Database::class);
-        $dc->setOrderBy([$db->findInSet('id', array_keys($ids))]);
+        $dc->setOrderBy([$db->findInSet('id', \array_keys($ids))]);
 
         // Prevent adding an extra column to the listing
         $dc->setFirstOrderBy('name');
@@ -153,10 +154,10 @@ class TagListener
         $request = $this->requestStack->getCurrentRequest();
 
         // Store the sorting in the session
-        if ($request->request->get('FORM_SUBMIT') === 'tl_filters') {
+        if ('tl_filters' === $request->request->get('FORM_SUBMIT')) {
             $sort = $request->request->get('tl_sort');
 
-            if ($sort !== '_default' && in_array($sort, $sorting, true)) {
+            if ('_default' !== $sort && \in_array($sort, $sorting, true)) {
                 $session['sorting'][$dc->table] = $sort;
             } else {
                 $session['sorting'][$dc->table] = null;
@@ -169,20 +170,20 @@ class TagListener
 
         // Generate the markup options
         foreach ($sorting as $option) {
-            $options[] = sprintf(
+            $options[] = \sprintf(
                 '<option value="%s"%s>%s</option>',
                 StringUtil::specialchars($option),
-                ($option === $session['sorting'][$dc->table]) ? ' selected="selected"' : '',
-                ($option === '_default') ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$GLOBALS['TL_DCA'][$dc->table]['list']['sorting']['fields'][0]]['label'][0] : $GLOBALS['TL_LANG'][$dc->table]['sortRef'][$option]
+                ($session['sorting'][$dc->table] === $option) ? ' selected="selected"' : '',
+                ('_default' === $option) ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$GLOBALS['TL_DCA'][$dc->table]['list']['sorting']['fields'][0]]['label'][0] : $GLOBALS['TL_LANG'][$dc->table]['sortRef'][$option]
             );
         }
 
         return '
 
 <div class="tl_sorting tl_subpanel">
-<strong>' . $GLOBALS['TL_LANG']['MSC']['sortBy'] . ':</strong>
+<strong>'.$GLOBALS['TL_LANG']['MSC']['sortBy'].':</strong>
 <select name="tl_sort" id="tl_sort" class="tl_select">
-'.implode("\n", $options).'
+'.\implode("\n", $options).'
 </select>
 </div>';
     }
@@ -201,7 +202,7 @@ class TagListener
     {
         $manager = $this->getManager($row['source']);
 
-        if (($tag = $manager->find($row['id'])) !== null) {
+        if (null !== ($tag = $manager->find($row['id']))) {
             $args[2] = $manager->countSourceRecords($tag);
         }
 
@@ -209,7 +210,7 @@ class TagListener
     }
 
     /**
-     * Automatically generate the folder URL aliases
+     * Automatically generate the folder URL aliases.
      *
      * @param array         $buttons
      * @param DataContainer $dc
@@ -221,20 +222,20 @@ class TagListener
         $request = $this->requestStack->getCurrentRequest();
 
         // Generate the aliases
-        if ($request->request->get('FORM_SUBMIT') === 'tl_select' && $request->request->has('alias')) {
+        if ('tl_select' === $request->request->get('FORM_SUBMIT') && $request->request->has('alias')) {
             $ids = $this->session->all()['CURRENT']['IDS'];
 
             /**
-             * @var Controller $controllerAdapter
-             * @var System $systemAdapter
-             * @var TagModel $tagAdapter
+             * @var Controller
+             * @var System     $systemAdapter
+             * @var TagModel   $tagAdapter
              */
             $controllerAdapter = $this->framework->getAdapter(Controller::class);
             $systemAdapter = $this->framework->getAdapter(System::class);
             $tagAdapter = $this->framework->getAdapter(TagModel::class);
 
             // Handle each model individually
-            if (($tagModels = $tagAdapter->findMultipleByIds($ids)) !== null) {
+            if (null !== ($tagModels = $tagAdapter->findMultipleByIds($ids))) {
                 /** @var TagModel $tagModel */
                 foreach ($tagModels as $tagModel) {
                     $dc->id = $tagModel->id;
@@ -244,9 +245,9 @@ class TagListener
 
                     // Generate new alias through save callbacks
                     foreach ($GLOBALS['TL_DCA'][$dc->table]['fields']['alias']['save_callback'] as $callback) {
-                        if (is_array($callback)) {
+                        if (\is_array($callback)) {
                             $alias = $systemAdapter->importStatic($callback[0])->{$callback[1]}($alias, $dc);
-                        } elseif (is_callable($callback)) {
+                        } elseif (\is_callable($callback)) {
                             $alias = $callback($alias, $dc);
                         }
                     }
@@ -273,7 +274,7 @@ class TagListener
         }
 
         // Add the button
-        $buttons['alias'] = sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
+        $buttons['alias'] = \sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
 
         return $buttons;
     }
@@ -289,14 +290,14 @@ class TagListener
     }
 
     /**
-     * Generate the alias
+     * Generate the alias.
      *
      * @param string        $value
      * @param DataContainer $dc
      *
-     * @return string
-     *
      * @throws \RuntimeException
+     *
+     * @return string
      */
     public function generateAlias(string $value, DataContainer $dc): string
     {
@@ -311,13 +312,13 @@ class TagListener
         $exists = $this->db->fetchAll("SELECT id FROM {$dc->table} WHERE alias=? AND source=?", [$value, $dc->activeRecord->source]);
 
         // Check whether the record alias exists
-        if (count($exists) > 1 && !$autoAlias) {
-            throw new \RuntimeException(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
+        if (\count($exists) > 1 && !$autoAlias) {
+            throw new \RuntimeException(\sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
         }
 
         // Add ID to alias
-        if (count($exists) > 0 && $autoAlias) {
-            $value .= '-' . $dc->id;
+        if (\count($exists) > 0 && $autoAlias) {
+            $value .= '-'.$dc->id;
         }
 
         return $value;

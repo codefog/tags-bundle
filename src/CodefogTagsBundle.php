@@ -21,7 +21,7 @@ class CodefogTagsBundle extends Bundle
     /**
      * {@inheritdoc}
      */
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new ManagerPass('codefog_tags.manager_registry', 'codefog_tags.manager'));
     }

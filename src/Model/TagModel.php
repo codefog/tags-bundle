@@ -42,7 +42,7 @@ class TagModel extends Model
             return null;
         }
 
-        if (count($columns) < 1) {
+        if (\count($columns) < 1) {
             return static::findAll($options);
         }
 
@@ -56,7 +56,7 @@ class TagModel extends Model
      *
      * @return TagModel|null
      */
-    public static function findOneByCriteria(array $criteria): ?TagModel
+    public static function findOneByCriteria(array $criteria): ?self
     {
         try {
             list($columns, $values, $options) = static::parseCriteria($criteria);
@@ -64,7 +64,7 @@ class TagModel extends Model
             return null;
         }
 
-        if (count($columns) < 1) {
+        if (\count($columns) < 1) {
             return null;
         }
 
@@ -102,29 +102,29 @@ class TagModel extends Model
         if ($criteria['usedOnly']) {
             $ids = \Haste\Model\Model::getRelatedValues($criteria['sourceTable'], $criteria['sourceField']);
 
-            if (count($ids) < 1) {
+            if (\count($ids) < 1) {
                 throw new NoTagsException();
             }
 
-            $columns[] = 'id IN ('.implode(',', array_map('intval', array_unique($ids))).')';
+            $columns[] = 'id IN ('.\implode(',', \array_map('intval', \array_unique($ids))).')';
         }
 
         // Find the tags by values/IDs
-        if (is_array($criteria['values'])) {
-            if (count($criteria['values']) < 1) {
+        if (\is_array($criteria['values'])) {
+            if (\count($criteria['values']) < 1) {
                 throw new NoTagsException();
             }
 
-            $columns[] = 'id IN ('.implode(',', array_map('intval', $criteria['values'])).')';
+            $columns[] = 'id IN ('.\implode(',', \array_map('intval', $criteria['values'])).')';
         }
 
         // Find the tags by aliases
-        if (is_array($criteria['aliases'])) {
-            if (count($criteria['aliases']) < 1) {
+        if (\is_array($criteria['aliases'])) {
+            if (\count($criteria['aliases']) < 1) {
                 throw new NoTagsException();
             }
 
-            $columns[] = "alias IN ('".implode("','", $criteria['values'])."')'";
+            $columns[] = "alias IN ('".\implode("','", $criteria['values'])."')'";
         }
 
         return [$columns, $values, $options];

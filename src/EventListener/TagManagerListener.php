@@ -43,14 +43,14 @@ class TagManagerListener
      */
     public function onLoadDataContainer(string $table): void
     {
-        if (!isset($GLOBALS['TL_DCA'][$table]['fields']) || !is_array($GLOBALS['TL_DCA'][$table]['fields'])) {
+        if (!isset($GLOBALS['TL_DCA'][$table]['fields']) || !\is_array($GLOBALS['TL_DCA'][$table]['fields'])) {
             return;
         }
 
         $hasTagsFields = false;
 
         foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $name => &$field) {
-            if ($field['inputType'] !== 'cfgTags') {
+            if ('cfgTags' !== $field['inputType']) {
                 continue;
             }
 
@@ -88,7 +88,7 @@ class TagManagerListener
     }
 
     /**
-     * On options callback
+     * On options callback.
      *
      * @param DataContainer $dc
      *
@@ -107,7 +107,7 @@ class TagManagerListener
     }
 
     /**
-     * Get the manager from DCA
+     * Get the manager from DCA.
      *
      * @param DataContainer $dc
      *
@@ -121,13 +121,13 @@ class TagManagerListener
     /**
      * Add the widget assets.
      */
-    private function addAssets()
+    private function addAssets(): void
     {
         $GLOBALS['TL_CSS'][] = Debug::uncompressedFile('bundles/codefogtags/selectize.min.css');
         $GLOBALS['TL_CSS'][] = Debug::uncompressedFile('bundles/codefogtags/backend.min.css');
 
-        if (!in_array('assets/jquery/js/jquery.min.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
-            && !in_array('assets/jquery/js/jquery.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
+        if (!\in_array('assets/jquery/js/jquery.min.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
+            && !\in_array('assets/jquery/js/jquery.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
         ) {
             $GLOBALS['TL_JAVASCRIPT'][] = Debug::uncompressedFile('assets/jquery/js/jquery.min.js');
         }

@@ -40,8 +40,8 @@ class InsertTagsListener
      */
     public function onReplaceInsertTags(string $tag)
     {
-        $elements = explode('::', $tag);
-        $key = strtolower(array_shift($elements));
+        $elements = \explode('::', $tag);
+        $key = \strtolower(\array_shift($elements));
 
         if ('tag' === $key) {
             return $this->replaceInsertTag($elements);
@@ -51,7 +51,7 @@ class InsertTagsListener
     }
 
     /**
-     * Replace the insert tag
+     * Replace the insert tag.
      *
      * @param array $elements
      *
@@ -59,7 +59,7 @@ class InsertTagsListener
      */
     private function replaceInsertTag(array $elements): string
     {
-        if (count($elements) !== 3) {
+        if (3 !== \count($elements)) {
             return '';
         }
 

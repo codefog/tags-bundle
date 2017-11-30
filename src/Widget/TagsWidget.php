@@ -58,7 +58,7 @@ class TagsWidget extends Widget
      */
     public function addAttributes($attributes = null)
     {
-        if (is_array($attributes)) {
+        if (\is_array($attributes)) {
             if ($attributes['tagsManager']) {
                 $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get(
                     $attributes['tagsManager']
@@ -72,15 +72,15 @@ class TagsWidget extends Widget
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
-    public function validate()
+    public function validate(): void
     {
         $value = $this->validator($this->getPost($this->strName));
 
         // Validate the maximum number of items
-        if (is_array($value) && isset($this->maxItems) && count($value) > $this->maxItems) {
-            $this->addError(sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
+        if (\is_array($value) && isset($this->maxItems) && \count($value) > $this->maxItems) {
+            $this->addError(\sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
         }
 
         parent::validate();
@@ -91,7 +91,7 @@ class TagsWidget extends Widget
      */
     public function generate()
     {
-        if ($this->tagsManager === null) {
+        if (null === $this->tagsManager) {
             return '';
         }
 
@@ -111,7 +111,7 @@ class TagsWidget extends Widget
      */
     protected function getPost($key)
     {
-        return array_filter(trimsplit(',', parent::getPost($key)));
+        return \array_filter(trimsplit(',', parent::getPost($key)));
     }
 
     /**
@@ -141,7 +141,7 @@ class TagsWidget extends Widget
      */
     protected function getValueTags(): CollectionInterface
     {
-        return $this->tagsManager->findMultiple(['values' => is_array($this->varValue) ? $this->varValue : []]);
+        return $this->tagsManager->findMultiple(['values' => \is_array($this->varValue) ? $this->varValue : []]);
     }
 
     /**
