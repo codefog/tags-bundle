@@ -19,29 +19,36 @@ use Codefog\TagsBundle\Tag;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
 use Contao\StringUtil;
+use Doctrine\DBAL\Connection;
 use Haste\Model\Model;
+use Haste\Model\Relations;
 
-class DefaultManager implements ManagerInterface, DcaAwareInterface
+class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAwareInterface
 {
     /**
      * @var string
      */
-    private $alias;
+    protected $alias;
+
+    /**
+     * @var Connection
+     */
+    protected $db;
 
     /**
      * @var ContaoFrameworkInterface
      */
-    private $framework;
+    protected $framework;
 
     /**
      * @var string
      */
-    private $sourceTable;
+    protected $sourceTable;
 
     /**
      * @var string
      */
-    private $sourceField;
+    protected $sourceField;
 
     /**
      * DefaultManager constructor.
@@ -66,6 +73,14 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
     }
 
     /**
+     * @param Connection $db
+     */
+    public function setDatabase(Connection $db): void
+    {
+        $this->db = $db;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function find(string $value, array $criteria = []): ?Tag
@@ -73,7 +88,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         /** @var TagModel $adapter */
         $adapter = $this->framework->getAdapter(TagModel::class);
 
-        if (($model = $adapter->findByPk($value)) === null) {
+        if (null === ($model = $adapter->findByPk($value))) {
             return null;
         }
 
@@ -85,6 +100,127 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         }
 
         return ModelCollection::createTagFromModel($model);
+    }
+
+    /**
+     * Find the tag by alias.
+     *
+     * @param string $alias
+     *
+     * @return Tag|null
+     */
+    public function findByAlias(string $alias): ?Tag
+    {
+        /** @var TagModel $adapter */
+        $adapter = $this->framework->getAdapter(TagModel::class);
+
+        $criteria = $this->getCriteria();
+        $criteria['alias'] = $alias;
+
+        if (null === ($model = $adapter->findOneByCriteria($criteria))) {
+            return null;
+        }
+
+        return ModelCollection::createTagFromModel($model);
+    }
+
+    /**
+     * Find the related source records.
+     *
+     * @param int      $sourceId
+     * @param int|null $limit
+     *
+     * @throws \RuntimeException
+     *
+     * @return array
+     */
+    public function findRelatedSourceRecords(int $sourceId, int $limit = null): array
+    {
+        /** @var Relations $relations */
+        $relations = $this->framework->getAdapter(Relations::class);
+
+        if (false === ($relation = $relations->getRelation($this->sourceTable, $this->sourceField))) {
+            throw new \RuntimeException(\sprintf('The field %s.%s is not related', $this->sourceTable, $this->sourceField));
+        }
+
+        /** @var Model $relationsModel */
+        $relationsModel = $this->framework->getAdapter(Model::class);
+
+        $tagIds = $relationsModel->getRelatedValues($this->sourceTable, $this->sourceField, $sourceId);
+        $tagIds = \array_values(\array_unique($tagIds));
+        $tagIds = \array_map('intval', $tagIds);
+
+        // Return if there are no tags
+        if (0 === \count($tagIds)) {
+            return [];
+        }
+
+        $query = \sprintf(
+            'SELECT %s, COUNT(*) AS relevance FROM %s WHERE %s IN (%s) AND %s != ? GROUP BY %s ORDER BY relevance DESC',
+            $relation['reference_field'],
+            $relation['table'],
+            $relation['related_field'],
+            \implode(',', $tagIds),
+            $relation['reference_field'],
+            $relation['reference_field']
+        );
+
+        // Set the limit
+        if ($limit > 0) {
+            $query .= \sprintf(' LIMIT %s', $limit);
+        }
+
+        $related = [];
+
+        // Generate the related records
+        foreach ($this->db->fetchAll($query, [$sourceId]) as $record) {
+            $related[$record[$relation['reference_field']]] = [
+                'total' => \count($tagIds),
+                'found' => $record['relevance'],
+                'prcnt' => ($record['relevance'] / \count($tagIds)) * 100,
+            ];
+        }
+
+        return $related;
+    }
+
+    /**
+     * Get the top tag IDs.
+     *
+     * @param array    $sourceIds
+     * @param int|null $limit
+     * @param bool     $withCount
+     *
+     * @return array
+     */
+    public function getTopTagIds(array $sourceIds = [], int $limit = null, bool $withCount = false): array
+    {
+        /** @var Model $model */
+        $model = $this->framework->getAdapter(Model::class);
+
+        $tagIds = $model->getRelatedValues($this->sourceTable, $this->sourceField, $sourceIds);
+        $tagIds = \array_map('intval', $tagIds);
+
+        if (0 === \count($tagIds)) {
+            return [];
+        }
+
+        $helper = [];
+
+        // Create the helper array with tag occurrences
+        foreach ($tagIds as $tagId) {
+            ++$helper[$tagId];
+        }
+
+        // Sort the helper array descending
+        \arsort($helper);
+
+        // Strip the count data
+        if (!$withCount) {
+            $helper = \array_keys($helper);
+        }
+
+        return \array_slice($helper, 0, $limit, $withCount);
     }
 
     /**
@@ -106,7 +242,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         /** @var Model $adapter */
         $adapter = $this->framework->getAdapter(Model::class);
 
-        return count($adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue()));
+        return \count($adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue()));
     }
 
     /**
@@ -118,8 +254,8 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         $adapter = $this->framework->getAdapter(Model::class);
 
         $values = $adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue());
-        $values = array_values(array_unique($values));
-        $values = array_map('intval', $values);
+        $values = \array_values(\array_unique($values));
+        $values = \array_map('intval', $values);
 
         return $values;
     }
@@ -132,15 +268,22 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
         /** @var TagModel $adapter */
         $adapter = $this->framework->getAdapter(TagModel::class);
 
-        $config['relation'] = array_merge(
-            (isset($config['relation']) && is_array($config['relation'])) ? $config['relation'] : [],
+        // Set the relation
+        $config['relation'] = \array_merge(
+            (isset($config['relation']) && \is_array($config['relation'])) ? $config['relation'] : [],
             ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => $adapter->getTable()]
         );
 
-        if (isset($config['save_callback']) && is_array($config['save_callback'])) {
-            array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
+        // Set the save_callback
+        if (isset($config['save_callback']) && \is_array($config['save_callback'])) {
+            \array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
         } else {
             $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSave'];
+        }
+
+        // Set the options_callback
+        if (!isset($config['options_callback'])) {
+            $config['options_callback'] = ['codefog_tags.listener.tag_manager', 'onOptionsCallback'];
         }
     }
 
@@ -154,14 +297,35 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
 
         /** @var array $value */
         foreach ($value as $k => $v) {
-            if ($this->find($v, $criteria) !== null) {
+            if (null !== $this->find($v, $criteria)) {
                 continue;
             }
 
             $value[$k] = $this->createTag($v)->getValue();
         }
 
-        return serialize($value);
+        return \serialize($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFilterOptions(DataContainer $dc): array
+    {
+        $options = [];
+
+        /** @var Model $adapter */
+        $adapter = $this->framework->getAdapter(Model::class);
+
+        $ids = \array_unique($adapter->getRelatedValues($this->sourceTable, $this->sourceField));
+        $tags = $this->findMultiple(['values' => $ids]);
+
+        /** @var Tag $tag */
+        foreach ($tags as $tag) {
+            $options[$tag->getValue()] = $tag->getName();
+        }
+
+        return $options;
     }
 
     /**
@@ -171,11 +335,11 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      *
      * @return Tag
      */
-    private function createTag(string $value): Tag
+    protected function createTag(string $value): Tag
     {
         /** @var TagModel $model */
         $model = $this->framework->createInstance(TagModel::class);
-        $model->tstamp = time();
+        $model->tstamp = \time();
         $model->name = $value;
         $model->source = $this->alias;
         $model->save();
@@ -190,7 +354,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface
      *
      * @return array
      */
-    private function getCriteria(array $criteria = []): array
+    protected function getCriteria(array $criteria = []): array
     {
         $criteria['source'] = $this->alias;
         $criteria['sourceTable'] = $this->sourceTable;

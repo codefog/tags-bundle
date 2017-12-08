@@ -25,7 +25,7 @@ class ModelCollection extends ArrayCollection
      */
     public function __construct(Collection $models = null)
     {
-        if ($models !== null) {
+        if (null !== $models) {
             parent::__construct($this->createTags($models));
         }
     }

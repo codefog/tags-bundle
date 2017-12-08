@@ -1,5 +1,5 @@
 <div id="cfg-tags-<?= $this->id ?>" class="cfg-tags">
-    <?php if ($this->allTags): ?>
+    <?php if ($this->allTags && !$this->hideList): ?>
         <div class="cfg-tags-all">
             <?php foreach ($this->allTags as $tag): ?>
                 <span data-cfg-tags-tag="<?= $tag['value'] ?>"><?= $tag['text'] ?></span>

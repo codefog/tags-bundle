@@ -4,6 +4,7 @@
 2. [**Configuration**](02-config.md)
 3. [Backend interface](03-backend.md)
 4. [Custom managers](04-custom-managers.md)
+5. [Insert tags](05-insert-tags.md)
 
 
 ## Add the service
@@ -18,6 +19,7 @@ services:
     app.article_tags_manager:
         class: Codefog\TagsBundle\Manager\DefaultManager
         arguments:
+            - "@contao.framework"
             - "tl_app_article"
             - "tags"
         tags:
@@ -39,6 +41,8 @@ sure that you register it with the *alias* of the service and not the service *n
     'eval'      => [
         'tagsManager' => 'app.article', // Manager, required
         'tagsCreate'  => false, // Allow to create tags, optional (true by default)
+        'maxItems' => 5', // Maximum number of tags allowed
+        'hideList' => true, // Hide the list of tags; the input field will be still visible
         'tl_class'    => 'clr'
     ],
 ],
@@ -57,3 +61,23 @@ $GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef']['app.article'] = 'Article';
 Each manager takes care of loading and saving the data from the widget itself. The default manager
 internally uses `Haste-ManyToMany` field relation to store the data, so you need to update the datbaase
 before using it.
+
+
+## Overriding Selectize.js settings
+
+In case you would like to override the [Selectize.js settings](https://github.com/selectize/selectize.js/blob/master/docs/usage.md) 
+directly you can always do that by passing the `selectizeConfig` property of the widget configuration, as shown on example:
+
+```php
+<script>
+    $('#cfg-tags-<?= $this->id ?>').cfgTags(
+        <?= json_encode($this->allTags) ?>, 
+        <?= json_encode($this->valueTags) ?>, 
+        $.extend(<?= json_encode($this->config) ?>, { 
+            selectizeConfig: {
+                hideSelected: true
+            }
+        })
+    );
+</script>
+```

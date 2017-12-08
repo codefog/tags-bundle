@@ -1,8 +1,8 @@
 # Tags Bundle extension for Contao Open Source CMS
 
-![](https://img.shields.io/packagist/v/codefog/tags-bundle.svg)
-![](https://img.shields.io/packagist/l/codefog/tags-bundle.svg)
-![](https://img.shields.io/packagist/dt/codefog/tags-bundle.svg)
+[![](https://img.shields.io/packagist/v/codefog/tags-bundle.svg)](https://packagist.org/packages/codefog/tags-bundle)
+[![](https://img.shields.io/packagist/l/codefog/tags-bundle.svg)](https://github.com/codefog/tags-bundle/blob/master/LICENSE.txt)
+[![](https://img.shields.io/packagist/dt/codefog/tags-bundle.svg)](https://packagist.org/packages/codefog/tags-bundle)
 [![](https://img.shields.io/travis/codefog/tags-bundle/master.svg)](https://travis-ci.org/codefog/tags-bundle/)
 [![](https://img.shields.io/coveralls/codefog/tags-bundle/master.svg)](https://coveralls.io/github/codefog/tags-bundle)
 
@@ -22,6 +22,7 @@ UI widget [selectize.js](https://github.com/selectize/selectize.js) that allows 
 2. [Configuration](docs/02-config.md)
 3. [Backend interface](docs/03-backend.md)
 4. [Custom managers](docs/04-custom-managers.md)
+5. [Insert tags](docs/05-insert-tags.md)
 
 ## Copyright
 

@@ -81,7 +81,13 @@ class TagManagerListenerTest extends TestCase
         ];
 
         $dataContainer = $this->createMock(DataContainer::class);
-        $dataContainer->method('__get')->willReturnOnConsecutiveCalls('tl_table', 'field');
+        $dataContainer
+            ->method('__get')
+            ->willReturnMap([
+                ['table', 'tl_table'],
+                ['field', 'field'],
+            ])
+        ;
 
         $registry = $this->createMock(ManagerRegistry::class);
         $registry->method('get')->willReturn(new DummyManager());
@@ -89,5 +95,33 @@ class TagManagerListenerTest extends TestCase
         $listener = new TagManagerListener($registry);
 
         static::assertEquals('FOOBAR', $listener->onFieldSave('foobar', $dataContainer));
+    }
+
+    public function testOnOptionsCallback()
+    {
+        require_once __DIR__.'/../Fixtures/Backend.php';
+        require_once __DIR__.'/../Fixtures/Controller.php';
+
+        $GLOBALS['TL_DCA']['tl_table']['fields'] = [
+            'field' => [
+                'eval' => ['tagsManager' => 'foobar']
+            ],
+        ];
+
+        $dataContainer = $this->createMock(DataContainer::class);
+        $dataContainer
+            ->method('__get')
+            ->willReturnMap([
+                ['table', 'tl_table'],
+                ['field', 'field'],
+            ])
+        ;
+
+        $registry = $this->createMock(ManagerRegistry::class);
+        $registry->method('get')->willReturn(new DummyManager());
+
+        $listener = new TagManagerListener($registry);
+
+        static::assertEquals(['foo', 'bar'], $listener->onOptionsCallback($dataContainer));
     }
 }

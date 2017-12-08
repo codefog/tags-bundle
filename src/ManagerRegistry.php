@@ -12,16 +12,33 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle;
 
+use Codefog\TagsBundle\Manager\DefaultManager;
 use Codefog\TagsBundle\Manager\ManagerInterface;
+use Doctrine\DBAL\Connection;
 
 class ManagerRegistry
 {
+    /**
+     * @var Connection
+     */
+    private $db;
+
     /**
      * Managers.
      *
      * @var array
      */
     private $managers = [];
+
+    /**
+     * ManagerRegistry constructor.
+     *
+     * @param Connection $db
+     */
+    public function __construct(Connection $db)
+    {
+        $this->db = $db;
+    }
 
     /**
      * Add the manager.
@@ -32,6 +49,12 @@ class ManagerRegistry
     public function add(ManagerInterface $manager, string $alias): void
     {
         $manager->setAlias($alias);
+
+        // @todo – change this in 3.0
+        if ($manager instanceof DefaultManager) {
+            $manager->setDatabase($this->db);
+        }
+
         $this->managers[$alias] = $manager;
     }
 
@@ -46,8 +69,8 @@ class ManagerRegistry
      */
     public function get(string $alias): ManagerInterface
     {
-        if (!array_key_exists($alias, $this->managers)) {
-            throw new \InvalidArgumentException(sprintf('The manager "%s" does not exist', $alias));
+        if (!\array_key_exists($alias, $this->managers)) {
+            throw new \InvalidArgumentException(\sprintf('The manager "%s" does not exist', $alias));
         }
 
         return $this->managers[$alias];
@@ -60,6 +83,6 @@ class ManagerRegistry
      */
     public function getAliases(): array
     {
-        return array_keys($this->managers);
+        return \array_keys($this->managers);
     }
 }

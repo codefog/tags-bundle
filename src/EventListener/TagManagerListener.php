@@ -13,8 +13,11 @@ declare(strict_types=1);
 namespace Codefog\TagsBundle\EventListener;
 
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
+use Codefog\TagsBundle\Manager\DcaFilterAwareInterface;
+use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Contao\DataContainer;
+use Haste\Util\Debug;
 
 class TagManagerListener
 {
@@ -40,14 +43,14 @@ class TagManagerListener
      */
     public function onLoadDataContainer(string $table): void
     {
-        if (!isset($GLOBALS['TL_DCA'][$table]['fields']) || !is_array($GLOBALS['TL_DCA'][$table]['fields'])) {
+        if (!isset($GLOBALS['TL_DCA'][$table]['fields']) || !\is_array($GLOBALS['TL_DCA'][$table]['fields'])) {
             return;
         }
 
         $hasTagsFields = false;
 
         foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $name => &$field) {
-            if ($field['inputType'] !== 'cfgTags') {
+            if ('cfgTags' !== $field['inputType']) {
                 continue;
             }
 
@@ -75,7 +78,7 @@ class TagManagerListener
      */
     public function onFieldSave(string $value, DataContainer $dc): string
     {
-        $manager = $this->registry->get($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager']);
+        $manager = $this->getManagerFromDca($dc);
 
         if ($manager instanceof DcaAwareInterface) {
             $value = $manager->saveDcaField($value, $dc);
@@ -85,21 +88,52 @@ class TagManagerListener
     }
 
     /**
-     * Add the widget assets.
+     * On options callback.
+     *
+     * @param DataContainer $dc
+     *
+     * @return array
      */
-    private function addAssets()
+    public function onOptionsCallback(DataContainer $dc): array
     {
-        $GLOBALS['TL_CSS'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/selectize.min.css');
-        $GLOBALS['TL_CSS'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/backend.min.css');
+        $value = [];
+        $manager = $this->getManagerFromDca($dc);
 
-        if (!in_array('assets/jquery/js/jquery.min.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
-            && !in_array('assets/jquery/js/jquery.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
-        ) {
-            $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('assets/jquery/js/jquery.min.js');
+        if ($manager instanceof DcaFilterAwareInterface) {
+            $value = $manager->getFilterOptions($dc);
         }
 
-        $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/selectize.min.js');
-        $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/widget.min.js');
-        $GLOBALS['TL_JAVASCRIPT'][] = \Haste\Util\Debug::uncompressedFile('bundles/codefogtags/backend.min.js');
+        return $value;
+    }
+
+    /**
+     * Get the manager from DCA.
+     *
+     * @param DataContainer $dc
+     *
+     * @return ManagerInterface
+     */
+    private function getManagerFromDca(DataContainer $dc): ManagerInterface
+    {
+        return $this->registry->get($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager']);
+    }
+
+    /**
+     * Add the widget assets.
+     */
+    private function addAssets(): void
+    {
+        $GLOBALS['TL_CSS'][] = Debug::uncompressedFile('bundles/codefogtags/selectize.min.css');
+        $GLOBALS['TL_CSS'][] = Debug::uncompressedFile('bundles/codefogtags/backend.min.css');
+
+        if (!\in_array('assets/jquery/js/jquery.min.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
+            && !\in_array('assets/jquery/js/jquery.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
+        ) {
+            $GLOBALS['TL_JAVASCRIPT'][] = Debug::uncompressedFile('assets/jquery/js/jquery.min.js');
+        }
+
+        $GLOBALS['TL_JAVASCRIPT'][] = Debug::uncompressedFile('bundles/codefogtags/selectize.min.js');
+        $GLOBALS['TL_JAVASCRIPT'][] = Debug::uncompressedFile('bundles/codefogtags/widget.min.js');
+        $GLOBALS['TL_JAVASCRIPT'][] = Debug::uncompressedFile('bundles/codefogtags/backend.min.js');
     }
 }

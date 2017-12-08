@@ -26,6 +26,11 @@ class DummyModel extends \Contao\Model
         return static::$mapper['findByCriteria'];
     }
 
+    public static function findOneByCriteria()
+    {
+        return static::$mapper['findOneByCriteria'];
+    }
+
     public function getReferenceValues()
     {
         return static::$mapper['getReferenceValues'];

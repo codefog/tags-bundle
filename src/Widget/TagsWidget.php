@@ -16,6 +16,7 @@ use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
 use Contao\BackendTemplate;
+use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
 
@@ -57,7 +58,7 @@ class TagsWidget extends Widget
      */
     public function addAttributes($attributes = null)
     {
-        if (is_array($attributes)) {
+        if (\is_array($attributes)) {
             if ($attributes['tagsManager']) {
                 $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get(
                     $attributes['tagsManager']
@@ -73,15 +74,31 @@ class TagsWidget extends Widget
     /**
      * {@inheritdoc}
      */
+    public function validate(): void
+    {
+        $value = $this->validator($this->getPost($this->strName));
+
+        // Validate the maximum number of items
+        if (\is_array($value) && isset($this->maxItems) && \count($value) > $this->maxItems) {
+            $this->addError(\sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
+        }
+
+        parent::validate();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function generate()
     {
-        if ($this->tagsManager === null) {
+        if (null === $this->tagsManager) {
             return '';
         }
 
         $template = new BackendTemplate('be_cfg_tags_widget');
         $template->name = $this->strName;
         $template->id = $this->strId;
+        $template->hideList = $this->hideList ? true : false;
         $template->valueTags = $this->generateValueTags($this->getValueTags());
         $template->allTags = $this->generateAllTags($this->getAllTags());
         $template->config = $this->generateConfig();
@@ -94,7 +111,7 @@ class TagsWidget extends Widget
      */
     protected function getPost($key)
     {
-        return array_filter(trimsplit(',', parent::getPost($key)));
+        return \array_filter(trimsplit(',', parent::getPost($key)));
     }
 
     /**
@@ -104,9 +121,17 @@ class TagsWidget extends Widget
      */
     protected function generateConfig(): array
     {
-        return [
+        $config = [
+            'addLabel' => $GLOBALS['TL_LANG']['MSC']['cfg_tags.add'],
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
         ];
+
+        // Maximum number of items
+        if (isset($this->maxItems)) {
+            $config['maxItems'] = (int) $this->maxItems;
+        }
+
+        return $config;
     }
 
     /**
@@ -116,7 +141,7 @@ class TagsWidget extends Widget
      */
     protected function getValueTags(): CollectionInterface
     {
-        return $this->tagsManager->findMultiple(['values' => is_array($this->varValue) ? $this->varValue : []]);
+        return $this->tagsManager->findMultiple(['values' => \is_array($this->varValue) ? $this->varValue : []]);
     }
 
     /**
@@ -161,7 +186,7 @@ class TagsWidget extends Widget
 
         /** @var Tag $tag */
         foreach ($tags as $tag) {
-            $return[] = ['value' => $tag->getValue(), 'text' => $tag->getName()];
+            $return[] = ['value' => $tag->getValue(), 'text' => StringUtil::decodeEntities($tag->getName())];
         }
 
         return $return;

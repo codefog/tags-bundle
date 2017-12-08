@@ -6,8 +6,11 @@
 
     // Defaults
     var defaults = {
+        addLabel: 'Add',
         allowCreate: true,
-        delimiter: ','
+        delimiter: ',',
+        maxItems: null,
+        selectizeConfig: {}
     };
 
     /**
@@ -62,7 +65,12 @@
                 delimiter: this.settings.delimiter,
                 options: this.allTags,
                 items: this.valueTags,
-                persist: false
+                persist: false,
+                render: {
+                    option_create: function(data, escape) {
+                        return '<div class="create">' + this.settings.addLabel + ' <strong>' + escape(data.input) + '</strong>&hellip;</div>';
+                    }.bind(this)
+                }
             };
 
             // Allow to create the tags
@@ -75,7 +83,13 @@
                 };
             }
 
-            el.selectize(options);
+            // Set the maximum number of items
+            if (typeof this.settings.maxItems === 'number') {
+                options.maxItems = this.settings.maxItems;
+            }
+
+            el.selectize($.extend(options, this.settings.selectizeConfig));
+
             this.selectize = el[0].selectize;
         }
     });
