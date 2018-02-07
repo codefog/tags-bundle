@@ -125,7 +125,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
             'save_callback' => [
                 ['codefog_tags.listener.data_container.tag', 'generateAlias'],
             ],
-            'sql' => ['type' => 'string', 'length' => 128],
+            'sql' => ['type' => 'string', 'length' => 128, 'default' => ''],
         ],
     ],
 ];
