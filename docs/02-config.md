@@ -51,7 +51,7 @@ sure that you register it with the *alias* of the service and not the service *n
 Do not forget to set the source label for the tags backend module: 
 
 ```php
-// languages/en/tl_cfg_tags.php
+// languages/en/tl_cfg_tag.php
 $GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef']['app.article'] = 'Article';
 ```
 
