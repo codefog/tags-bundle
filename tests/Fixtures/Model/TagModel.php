@@ -1,14 +1,19 @@
 <?php
 
-namespace Codefog\TagsBundle\Test\Fixtures;
+namespace Codefog\TagsBundle\Test\Fixtures\Model;
 
-class ExtraDummyModel extends \Contao\Model
+class TagModel
 {
     private static $mapper = [];
 
     public function __construct(array $mapper = [])
     {
         static::$mapper = $mapper;
+    }
+
+    public function __get($key)
+    {
+        return '';
     }
 
     public static function getTable()
@@ -26,6 +31,11 @@ class ExtraDummyModel extends \Contao\Model
         return static::$mapper['findByCriteria'];
     }
 
+    public static function findOneByCriteria()
+    {
+        return static::$mapper['findOneByCriteria'];
+    }
+
     public function getReferenceValues()
     {
         return static::$mapper['getReferenceValues'];
@@ -34,5 +44,10 @@ class ExtraDummyModel extends \Contao\Model
     public function save()
     {
         return static::$mapper['save'];
+    }
+
+    public function row()
+    {
+        return [];
     }
 }

@@ -14,24 +14,21 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
 use Contao\System;
+use Contao\TestCase\ContaoTestCase;
 use Contao\Versions;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-require_once __DIR__.'/../../Fixtures/Backend.php';
-require_once __DIR__.'/../../Fixtures/Config.php';
-require_once __DIR__.'/../../Fixtures/Controller.php';
-
-class TagListenerTest extends TestCase
+class TagListenerTest extends ContaoTestCase
 {
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|Connection
      */
     private $connection;
+
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|ContaoFrameworkInterface
      */
@@ -70,7 +67,7 @@ class TagListenerTest extends TestCase
 
     public function testInstantiation()
     {
-        static::assertInstanceOf(TagListener::class, $this->tagListener);
+        $this->assertInstanceOf(TagListener::class, $this->tagListener);
     }
 
     public function testGenerateLabel()
@@ -98,10 +95,10 @@ class TagListenerTest extends TestCase
         /** @var DataContainer $dataContainer */
         $label = $this->tagListener->generateLabel(['source' => '', 'id' => ''], '', $dataContainer, $columns);
 
-        static::assertCount(3, $label);
-        static::assertEquals($columns[0], $label[0]);
-        static::assertEquals($columns[1], $label[1]);
-        static::assertEquals(123, $label[2]);
+        $this->assertCount(3, $label);
+        $this->assertEquals($columns[0], $label[0]);
+        $this->assertEquals($columns[1], $label[1]);
+        $this->assertEquals(123, $label[2]);
     }
 
     public function testAddAliasButton()
@@ -110,6 +107,9 @@ class TagListenerTest extends TestCase
             ->method('getCurrentRequest')
             ->willReturn(new Request())
         ;
+
+        $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8';
+        $GLOBALS['TL_LANG']['MSC']['aliasSelected'] = 'Alias selected';
 
         /** @var DataContainer $dataContainer */
         $dataContainer = $this->createMock(DataContainer::class);
@@ -296,6 +296,7 @@ class TagListenerTest extends TestCase
                     case 'activeRecord':
                         $activeRecord = new \stdClass();
                         $activeRecord->name = $data['name'];
+                        $activeRecord->source = '';
 
                         return $activeRecord;
                     case 'table':
@@ -310,6 +311,8 @@ class TagListenerTest extends TestCase
         ;
 
         if ($data['exception'] !== null) {
+            $GLOBALS['TL_LANG']['ERR']['aliasExists'] = 'Alias exists';
+
             $this->expectException($data['exception']);
         }
 
@@ -369,7 +372,7 @@ class TagListenerTest extends TestCase
     public function testGetSources()
     {
         $this->managerRegistry
-            ->method('getAliases')
+            ->method('getNames')
             ->willReturn(['foo', 'bar'])
         ;
 

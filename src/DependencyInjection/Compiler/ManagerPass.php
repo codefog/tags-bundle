@@ -53,7 +53,7 @@ class ManagerPass implements CompilerPassInterface
 
         foreach ($container->findTaggedServiceIds($this->tagName) as $id => $tags) {
             foreach ($tags as $attributes) {
-                $definition->addMethodCall('add', [new Reference($id), $attributes['alias']]);
+                $definition->addMethodCall('add', [new Reference($id), $attributes['name']]);
             }
         }
     }

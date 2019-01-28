@@ -1,19 +1,19 @@
 services:
-    _defaults:
-        public: true
-
     codefog_tags.listener.insert_tags:
         class: Codefog\TagsBundle\EventListener\InsertTagsListener
+        public: true
         arguments:
             - "@codefog_tags.manager_registry"
 
     codefog_tags.listener.tag_manager:
         class: Codefog\TagsBundle\EventListener\TagManagerListener
+        public: true
         arguments:
             - "@codefog_tags.manager_registry"
 
     codefog_tags.listener.data_container.tag:
         class: Codefog\TagsBundle\EventListener\DataContainer\TagListener
+        public: true
         arguments:
             - "@database_connection"
             - "@contao.framework"

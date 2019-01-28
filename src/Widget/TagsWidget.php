@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\Widget;
 
-use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
 use Contao\BackendTemplate;
@@ -137,9 +136,9 @@ class TagsWidget extends Widget
     /**
      * Get the value tags.
      *
-     * @return CollectionInterface
+     * @return array
      */
-    protected function getValueTags(): CollectionInterface
+    protected function getValueTags(): array
     {
         return $this->tagsManager->findMultiple(['values' => \is_array($this->varValue) ? $this->varValue : []]);
     }
@@ -147,9 +146,9 @@ class TagsWidget extends Widget
     /**
      * Get all tags.
      *
-     * @return CollectionInterface
+     * @return array
      */
-    protected function getAllTags(): CollectionInterface
+    protected function getAllTags(): array
     {
         return $this->tagsManager->findMultiple();
     }
@@ -157,11 +156,11 @@ class TagsWidget extends Widget
     /**
      * Generate the value tags.
      *
-     * @param CollectionInterface $tags
+     * @param array $tags
      *
      * @return array
      */
-    private function generateValueTags(CollectionInterface $tags): array
+    private function generateValueTags(array $tags): array
     {
         $return = [];
 
@@ -176,11 +175,11 @@ class TagsWidget extends Widget
     /**
      * Generate all tags.
      *
-     * @param CollectionInterface $tags
+     * @param array $tags
      *
      * @return array
      */
-    private function generateAllTags(CollectionInterface $tags): array
+    private function generateAllTags(array $tags): array
     {
         $return = [];
 

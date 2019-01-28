@@ -31,10 +31,10 @@ class ManagerPassTest extends TestCase
         $registryDefinition = new Definition();
 
         $managerDefinition1 = new Definition();
-        $managerDefinition1->addTag('tag', ['alias' => 'foo']);
+        $managerDefinition1->addTag('tag', ['name' => 'foo']);
 
         $managerDefinition2 = new Definition();
-        $managerDefinition2->addTag('tag', ['alias' => 'bar']);
+        $managerDefinition2->addTag('tag', ['name' => 'bar']);
 
         $container = new ContainerBuilder();
         $container->addDefinitions([
@@ -44,9 +44,9 @@ class ManagerPassTest extends TestCase
         ]);
 
         $this->managerPass->process($container);
-        
+
         $calls = $registryDefinition->getMethodCalls();
-        
+
         static::assertEquals('add', $calls[0][0]);
         static::assertInstanceOf(Reference::class, $calls[0][1][0]);
         static::assertEquals('foo', $calls[0][1][1]);

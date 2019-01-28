@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle;
 
-use Codefog\TagsBundle\Manager\DefaultManager;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Doctrine\DBAL\Connection;
 
@@ -44,44 +43,37 @@ class ManagerRegistry
      * Add the manager.
      *
      * @param ManagerInterface $manager
-     * @param string           $alias
+     * @param string           $name
      */
-    public function add(ManagerInterface $manager, string $alias): void
+    public function add(ManagerInterface $manager, string $name): void
     {
-        $manager->setAlias($alias);
-
-        // @todo – change this in 3.0
-        if ($manager instanceof DefaultManager) {
-            $manager->setDatabase($this->db);
-        }
-
-        $this->managers[$alias] = $manager;
+        $this->managers[$name] = $manager;
     }
 
     /**
      * Get the manager.
      *
-     * @param string $alias
+     * @param string $name
      *
      * @throws \InvalidArgumentException
      *
      * @return ManagerInterface
      */
-    public function get(string $alias): ManagerInterface
+    public function get(string $name): ManagerInterface
     {
-        if (!\array_key_exists($alias, $this->managers)) {
-            throw new \InvalidArgumentException(\sprintf('The manager "%s" does not exist', $alias));
+        if (!\array_key_exists($name, $this->managers)) {
+            throw new \InvalidArgumentException(\sprintf('The manager "%s" does not exist', $name));
         }
 
-        return $this->managers[$alias];
+        return $this->managers[$name];
     }
 
     /**
-     * Get the aliases.
+     * Get the names.
      *
      * @return array
      */
-    public function getAliases(): array
+    public function getNames(): array
     {
         return \array_keys($this->managers);
     }

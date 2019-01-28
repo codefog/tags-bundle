@@ -2,14 +2,12 @@
 
 namespace Codefog\TagsBundle\Test\Fixtures;
 
-use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
-use Codefog\TagsBundle\Manager\DcaFilterAwareInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
 use Contao\DataContainer;
 
-class DummyManager implements ManagerInterface, DcaAwareInterface, DcaFilterAwareInterface
+class DummyManager implements ManagerInterface, DcaAwareInterface
 {
     public function updateDcaField(array &$config): void
     {
@@ -28,26 +26,26 @@ class DummyManager implements ManagerInterface, DcaAwareInterface, DcaFilterAwar
 
     public function setAlias(string $alias): void
     {
-        // TODO: Implement setAlias() method.
+        // noop
     }
 
     public function find(string $value, array $criteria = []): ?Tag
     {
-        // TODO: Implement find() method.
+        // noop
     }
 
-    public function findMultiple(array $criteria = []): CollectionInterface
+    public function findMultiple(array $criteria = []): array
     {
-        // TODO: Implement findMultiple() method.
+        // noop
     }
 
     public function countSourceRecords(Tag $tag): int
     {
-        // TODO: Implement countSourceRecords() method.
+        // noop
     }
 
     public function getSourceRecords(Tag $tag): array
     {
-        // TODO: Implement getSourceRecords() method.
+        // noop
     }
 }

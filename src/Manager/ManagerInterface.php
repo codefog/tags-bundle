@@ -12,18 +12,10 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\Manager;
 
-use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Tag;
 
 interface ManagerInterface
 {
-    /**
-     * Set the alias.
-     *
-     * @param string $alias
-     */
-    public function setAlias(string $alias): void;
-
     /**
      * Find the tag by value.
      *
@@ -39,9 +31,9 @@ interface ManagerInterface
      *
      * @param array $criteria
      *
-     * @return CollectionInterface
+     * @return array
      */
-    public function findMultiple(array $criteria = []): CollectionInterface;
+    public function findMultiple(array $criteria = []): array;
 
     /**
      * Count the source records.

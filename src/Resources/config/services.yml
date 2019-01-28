@@ -1,8 +1,10 @@
 services:
-    _defaults:
-        public: true
+    codefog_tags.default_manager:
+        class: Codefog\TagsBundle\BaseManager
+        abstract: true
+        arguments:
+            - "@contao.framework"
+            - "@database_connection"
 
     codefog_tags.manager_registry:
         class: Codefog\TagsBundle\ManagerRegistry
-        arguments:
-            - "@database_connection"

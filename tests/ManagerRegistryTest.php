@@ -41,6 +41,6 @@ class ManagerRegistryTest extends TestCase
         $registry->add($manager1Mock, 'foobar');
         $registry->add($manager2Mock, 'foobaz');
 
-        static::assertEquals(['foobar', 'foobaz'], $registry->getAliases());
+        static::assertEquals(['foobar', 'foobaz'], $registry->getNames());
     }
 }

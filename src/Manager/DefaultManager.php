@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\Manager;
 
-use Codefog\TagsBundle\Collection\CollectionInterface;
-use Codefog\TagsBundle\Collection\ModelCollection;
 use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
@@ -23,13 +21,8 @@ use Doctrine\DBAL\Connection;
 use Haste\Model\Model;
 use Haste\Model\Relations;
 
-class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAwareInterface
+class DefaultManager implements ManagerInterface, DcaAwareInterface
 {
-    /**
-     * @var string
-     */
-    protected $alias;
-
     /**
      * @var Connection
      */
@@ -43,6 +36,11 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     /**
      * @var string
      */
+    protected $name;
+
+    /**
+     * @var string
+     */
     protected $sourceTable;
 
     /**
@@ -51,33 +49,20 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     protected $sourceField;
 
     /**
-     * DefaultManager constructor.
-     *
-     * @param ContaoFrameworkInterface $framework
-     * @param string                   $sourceTable
-     * @param string                   $sourceField
-     */
-    public function __construct(ContaoFrameworkInterface $framework, string $sourceTable, string $sourceField)
-    {
-        $this->framework = $framework;
-        $this->sourceTable = $sourceTable;
-        $this->sourceField = $sourceField;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setAlias(string $alias): void
-    {
-        $this->alias = $alias;
-    }
-
-    /**
+     * BaseManager constructor.
      * @param Connection $db
+     * @param ContaoFrameworkInterface $framework
+     * @param string $name
+     * @param string $sourceTable
+     * @param string $sourceField
      */
-    public function setDatabase(Connection $db): void
+    public function __construct(Connection $db, ContaoFrameworkInterface $framework, string $name, string $sourceTable, string $sourceField)
     {
         $this->db = $db;
+        $this->framework = $framework;
+        $this->name = $name;
+        $this->sourceTable = $sourceTable;
+        $this->sourceField = $sourceField;
     }
 
     /**
@@ -99,7 +84,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
             return null;
         }
 
-        return ModelCollection::createTagFromModel($model);
+        return $this->createTagFromModel($model);
     }
 
     /**
@@ -121,7 +106,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
             return null;
         }
 
-        return ModelCollection::createTagFromModel($model);
+        return $this->createTagFromModel($model);
     }
 
     /**
@@ -226,12 +211,21 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     /**
      * {@inheritdoc}
      */
-    public function findMultiple(array $criteria = []): CollectionInterface
+    public function findMultiple(array $criteria = []): array
     {
         /** @var TagModel $adapter */
         $adapter = $this->framework->getAdapter(TagModel::class);
 
-        return new ModelCollection($adapter->findByCriteria($this->getCriteria($criteria)));
+        $tags = [];
+
+        if (($models = $adapter->findByCriteria($this->getCriteria($criteria))) !== null) {
+            /** @var TagModel $model */
+            foreach ($models as $model) {
+                $tags[] = $this->createTagFromModel($model);
+            }
+        }
+
+        return $tags;
     }
 
     /**
@@ -344,7 +338,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         $model->source = $this->alias;
         $model->save();
 
-        return ModelCollection::createTagFromModel($model);
+        return $this->createTagFromModel($model);
     }
 
     /**
@@ -361,5 +355,16 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
         $criteria['sourceField'] = $this->sourceField;
 
         return $criteria;
+    }
+
+    /**
+     * Create tag from model
+     *
+     * @param TagModel $model
+     * @return Tag
+     */
+    protected function createTagFromModel(TagModel $model): Tag
+    {
+        return new Tag((string) $model->id, $model->name, $model->row());
     }
 }

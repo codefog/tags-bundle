@@ -14,7 +14,6 @@ namespace Codefog\TagsBundle\EventListener\DataContainer;
 
 use Codefog\TagsBundle\Driver;
 use Codefog\TagsBundle\Manager\DefaultManager;
-use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Model\TagModel;
 use Contao\Controller;
@@ -93,7 +92,7 @@ class TagListener
         $ids = [];
 
         // Collect the top tags from all registries
-        foreach ($this->registry->getAliases() as $alias) {
+        foreach ($this->registry->getNames() as $alias) {
             $manager = $this->registry->get($alias);
 
             if ($manager instanceof DefaultManager) {
@@ -200,7 +199,7 @@ class TagListener
      */
     public function generateLabel(array $row, $label, DataContainer $dc, array $args): array
     {
-        $manager = $this->getManager($row['source']);
+        $manager = $this->registry->get($row['source']);
 
         if (null !== ($tag = $manager->find($row['id']))) {
             $args[2] = $manager->countSourceRecords($tag);
@@ -286,7 +285,7 @@ class TagListener
      */
     public function getSources(): array
     {
-        return $this->registry->getAliases();
+        return $this->registry->getNames();
     }
 
     /**
@@ -322,17 +321,5 @@ class TagListener
         }
 
         return $value;
-    }
-
-    /**
-     * Get the manager.
-     *
-     * @param string $alias
-     *
-     * @return ManagerInterface
-     */
-    private function getManager(string $alias): ManagerInterface
-    {
-        return $this->registry->get($alias);
     }
 }

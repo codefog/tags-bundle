@@ -33,6 +33,7 @@ class TagManagerListenerTest extends TestCase
         define('TL_MODE', 'BE');
         $GLOBALS['TL_CSS'] = [];
         $GLOBALS['TL_JAVASCRIPT'] = [];
+        $GLOBALS['TL_CONFIG']['debugMode'] = false;
 
         $listener = new TagManagerListener($registry);
         $listener->onLoadDataContainer('tl_table');
@@ -71,9 +72,6 @@ class TagManagerListenerTest extends TestCase
 
     public function testOnFieldSave()
     {
-        require_once __DIR__.'/../Fixtures/Backend.php';
-        require_once __DIR__.'/../Fixtures/Controller.php';
-
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
                 'eval' => ['tagsManager' => 'foobar']
@@ -99,9 +97,6 @@ class TagManagerListenerTest extends TestCase
 
     public function testOnOptionsCallback()
     {
-        require_once __DIR__.'/../Fixtures/Backend.php';
-        require_once __DIR__.'/../Fixtures/Controller.php';
-
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
                 'eval' => ['tagsManager' => 'foobar']
