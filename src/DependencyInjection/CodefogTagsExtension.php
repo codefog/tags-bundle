@@ -47,9 +47,7 @@ class CodefogTagsExtension extends ConfigurableExtension
 
         $container
             ->setDefinition($id, new ChildDefinition($config['service']))
-            ->setArgument(2, $name)
-            ->setArgument(3, $config['table'])
-            ->setArgument(4, $config['field'])
+            ->setArguments([$name, $config['table'], $config['field']])
             ->addTag('codefog_tags.default_manager', ['name' => $name])
             ->setPublic(true)
         ;

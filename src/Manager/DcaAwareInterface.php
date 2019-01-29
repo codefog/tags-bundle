@@ -39,4 +39,14 @@ interface DcaAwareInterface
      * @return array
      */
     public function getFilterOptions(DataContainer $dc): array;
+
+    /**
+     * Get the source records count
+     *
+     * @param array         $data
+     * @param DataContainer $dc
+     *
+     * @return int
+     */
+    public function getSourceRecordsCount(array $data, DataContainer $dc): int;
 }

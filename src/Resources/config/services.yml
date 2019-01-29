@@ -1,7 +1,19 @@
 services:
     codefog_tags.default_manager:
-        class: Codefog\TagsBundle\BaseManager
+        class: Codefog\TagsBundle\DefaultManager
         abstract: true
+        calls:
+            - [setTagFinder, ["@codefog_tags.tag_finder"]]
+            - [setSourcefinder, ["@codefog_tags.source_finder"]]
+
+    codefog_tags.tag_finder:
+        class: Codefog\TagsBundle\TagFinder
+        arguments:
+            - "@contao.framework"
+            - "@database_connection"
+
+    codefog_tags.source_finder:
+        class: Codefog\TagsBundle\SourceFinder
         arguments:
             - "@contao.framework"
             - "@database_connection"

@@ -12,44 +12,14 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\Manager;
 
-use Codefog\TagsBundle\Tag;
-
 interface ManagerInterface
 {
     /**
-     * Find the tag by value.
+     * Get multiple tags optionally filtered by values
      *
-     * @param string $value
-     * @param array  $criteria
-     *
-     * @return Tag|null
-     */
-    public function find(string $value, array $criteria = []): ?Tag;
-
-    /**
-     * Find the multiple tags.
-     *
-     * @param array $criteria
+     * @param array $values
      *
      * @return array
      */
-    public function findMultiple(array $criteria = []): array;
-
-    /**
-     * Count the source records.
-     *
-     * @param Tag $tag
-     *
-     * @return int
-     */
-    public function countSourceRecords(Tag $tag): int;
-
-    /**
-     * Get the source records.
-     *
-     * @param Tag $tag
-     *
-     * @return array
-     */
-    public function getSourceRecords(Tag $tag): array;
+    public function getMultipleTags(array $values = []): array;
 }

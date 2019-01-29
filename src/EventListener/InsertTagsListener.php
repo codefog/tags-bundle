@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\EventListener;
 
+use Codefog\TagsBundle\Manager\InsertTagsAwareInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 
 class InsertTagsListener
@@ -65,18 +66,12 @@ class InsertTagsListener
 
         list($source, $value, $property) = $elements;
 
-        $tag = $this->registry->get($source)->find($value);
+        $manager = $this->registry->get($source);
 
-        if (null === $tag) {
-            return '';
+        if ($manager instanceof InsertTagsAwareInterface) {
+            return $manager->getInsertTagValue($value, $property, $elements);
         }
 
-        if ('name' === $property) {
-            return $tag->getName();
-        }
-
-        $data = $tag->getData();
-
-        return isset($data[$property]) ? (string) $data[$property] : '';
+        return '';
     }
 }

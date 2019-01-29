@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Codefog\TagsBundle\EventListener\DataContainer;
 
 use Codefog\TagsBundle\Driver;
+use Codefog\TagsBundle\Manager\DcaAwareInterface;
 use Codefog\TagsBundle\Manager\DefaultManager;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Model\TagModel;
@@ -201,8 +202,8 @@ class TagListener
     {
         $manager = $this->registry->get($row['source']);
 
-        if (null !== ($tag = $manager->find($row['id']))) {
-            $args[2] = $manager->countSourceRecords($tag);
+        if ($manager instanceof DcaAwareInterface) {
+            $args[2] = $manager->getSourceRecordsCount($row, $dc);
         }
 
         return $args;

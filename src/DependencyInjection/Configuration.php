@@ -23,7 +23,7 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('table')->isRequired()->end()
                         ->scalarNode('field')->isRequired()->end()
-                        ->scalarNode('service')->defaultValue('codefog_tags.manager')->end()
+                        ->scalarNode('service')->defaultValue('codefog_tags.default_manager')->end()
                         ->scalarNode('alias')->defaultNull()->end()
                     ->end()
                 ->end()
