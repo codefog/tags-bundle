@@ -297,7 +297,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
 
         /** @var array $value */
         foreach ($value as $k => $v) {
-            if (null !== $this->find($v, $criteria)) {
+            if (preg_match('/^\d+$/', $v) && null !== $this->find($v, $criteria)) {
                 continue;
             }
 
