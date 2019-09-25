@@ -25,3 +25,8 @@ $GLOBALS['TL_LANG']['tl_cfg_tag']['new'] = ['Neues Schlagwort', 'Ein neues Schla
 $GLOBALS['TL_LANG']['tl_cfg_tag']['show'] = ['Schlagwort-Details', 'Schlagwort-Details ID %s anzeigen'];
 $GLOBALS['TL_LANG']['tl_cfg_tag']['edit'] = ['Schlagwort bearbeiten', 'Schlagwort ID %s bearbeiten'];
 $GLOBALS['TL_LANG']['tl_cfg_tag']['delete'] = ['Schlagwort löschen', 'Schlagwort ID %s löschen'];
+
+$GLOBALS['TL_LANG']['tl_cfg_tag']['sortRef'] = [
+    'total_asc' => 'Seltenste Schlagworte',
+    'total_desc' => 'Häufigste Schlagworte',
+];
