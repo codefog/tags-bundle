@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -24,8 +24,6 @@ class InsertTagsListener
 
     /**
      * TagContainer constructor.
-     *
-     * @param ManagerRegistry $registry
      */
     public function __construct(ManagerRegistry $registry)
     {
@@ -35,14 +33,12 @@ class InsertTagsListener
     /**
      * On replace the insert tags.
      *
-     * @param string $tag
-     *
      * @return string|bool
      */
     public function onReplaceInsertTags(string $tag)
     {
-        $elements = \explode('::', $tag);
-        $key = \strtolower(\array_shift($elements));
+        $elements = explode('::', $tag);
+        $key = strtolower(array_shift($elements));
 
         if ('tag' === $key) {
             return $this->replaceInsertTag($elements);
@@ -53,10 +49,6 @@ class InsertTagsListener
 
     /**
      * Replace the insert tag.
-     *
-     * @param array $elements
-     *
-     * @return string
      */
     private function replaceInsertTag(array $elements): string
     {
@@ -64,7 +56,7 @@ class InsertTagsListener
             return '';
         }
 
-        list($source, $value, $property) = $elements;
+        [$source, $value, $property] = $elements;
 
         $manager = $this->registry->get($source);
 

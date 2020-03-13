@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -50,9 +50,6 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
 
     /**
      * DefaultManager constructor.
-     * @param string $name
-     * @param string $sourceTable
-     * @param string $sourceField
      */
     public function __construct(string $name, string $sourceTable, string $sourceField)
     {
@@ -61,24 +58,18 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         $this->sourceField = $sourceField;
     }
 
-    /**
-     * @param TagFinder $tagFinder
-     */
     public function setTagFinder(TagFinder $tagFinder): void
     {
         $this->tagFinder = $tagFinder;
     }
 
-    /**
-     * @param SourceFinder $sourceFinder
-     */
     public function setSourceFinder(SourceFinder $sourceFinder): void
     {
         $this->sourceFinder = $sourceFinder;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getMultipleTags(array $values = []): array
     {
@@ -94,14 +85,14 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     public function updateDcaField(array &$config): void
     {
         // Set the relation
-        $config['relation'] = \array_merge(
+        $config['relation'] = array_merge(
             (isset($config['relation']) && \is_array($config['relation'])) ? $config['relation'] : [],
             ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag']
         );
 
         // Set the save_callback
         if (isset($config['save_callback']) && \is_array($config['save_callback'])) {
-            \array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
+            array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
         } else {
             $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSave'];
         }
@@ -128,7 +119,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
             }
 
             $model = new TagModel();
-            $model->tstamp = \time();
+            $model->tstamp = time();
             $model->name = $v;
             $model->source = $this->name;
             $model->save();
@@ -136,7 +127,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
             $value[$k] = $this->tagFinder->createTagFromModel($model)->getValue();
         }
 
-        return \serialize($value);
+        return serialize($value);
     }
 
     /**
@@ -155,11 +146,11 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getSourceRecordsCount(array $data, DataContainer $dc): int
     {
-        if (($tag = $this->tagFinder->findSingle($this->createTagCriteria()->setValue((string) $data['id']))) === null) {
+        if (null === ($tag = $this->tagFinder->findSingle($this->createTagCriteria()->setValue((string) $data['id'])))) {
             return 0;
         }
 
@@ -167,7 +158,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getInsertTagValue(string $value, string $property, array $elements): string
     {
@@ -185,9 +176,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * Get the tag finder
-     *
-     * @return TagFinder
+     * Get the tag finder.
      */
     public function getTagFinder(): TagFinder
     {
@@ -195,9 +184,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * Create the tag criteria
-     *
-     * @return TagCriteria
+     * Create the tag criteria.
      */
     public function createTagCriteria(): TagCriteria
     {
@@ -205,9 +192,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * Get the source finder
-     *
-     * @return SourceFinder
+     * Get the source finder.
      */
     public function getSourceFinder(): SourceFinder
     {
@@ -215,9 +200,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * Create the source criteria
-     *
-     * @return SourceCriteria
+     * Create the source criteria.
      */
     public function createSourceCriteria(): SourceCriteria
     {

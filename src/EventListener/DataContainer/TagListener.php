@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -58,12 +58,6 @@ class TagListener
 
     /**
      * TagListener constructor.
-     *
-     * @param Connection               $db
-     * @param ContaoFrameworkInterface $framework
-     * @param ManagerRegistry          $registry
-     * @param RequestStack             $requestStack
-     * @param SessionInterface         $session
      */
     public function __construct(
         Connection $db,
@@ -81,8 +75,6 @@ class TagListener
 
     /**
      * On load callback.
-     *
-     * @param DataContainer $dc
      */
     public function onLoadCallback(DataContainer $dc): void
     {
@@ -117,11 +109,13 @@ class TagListener
         // Handle the sorting selection
         switch ($session['sorting'][$dc->table]) {
             case 'total_asc':
-                \asort($ids);
+                asort($ids);
                 break;
+
             case 'total_desc':
-                \arsort($ids);
+                arsort($ids);
                 break;
+
             default:
                 $session['sorting'][$dc->table] = null;
                 $bag->replace($session);
@@ -131,7 +125,7 @@ class TagListener
 
         /** @var Database $db */
         $db = $this->framework->createInstance(Database::class);
-        $dc->setOrderBy([$db->findInSet('id', \array_keys($ids))]);
+        $dc->setOrderBy([$db->findInSet('id', array_keys($ids))]);
 
         // Prevent adding an extra column to the listing
         $dc->setFirstOrderBy('name');
@@ -139,10 +133,6 @@ class TagListener
 
     /**
      * On generate panel callback.
-     *
-     * @param DataContainer $dc
-     *
-     * @return string
      */
     public function onPanelCallback(DataContainer $dc): string
     {
@@ -170,7 +160,7 @@ class TagListener
 
         // Generate the markup options
         foreach ($sorting as $option) {
-            $options[] = \sprintf(
+            $options[] = sprintf(
                 '<option value="%s"%s>%s</option>',
                 StringUtil::specialchars($option),
                 ($session['sorting'][$dc->table] === $option) ? ' selected="selected"' : '',
@@ -183,7 +173,7 @@ class TagListener
 <div class="tl_sorting tl_subpanel">
 <strong>'.$GLOBALS['TL_LANG']['MSC']['sortBy'].':</strong>
 <select name="tl_sort" id="tl_sort" class="tl_select">
-'.\implode("\n", $options).'
+'.implode("\n", $options).'
 </select>
 </div>';
     }
@@ -191,12 +181,7 @@ class TagListener
     /**
      * Generate the label.
      *
-     * @param array         $row
-     * @param string        $label
-     * @param DataContainer $dc
-     * @param array         $args
-     *
-     * @return array
+     * @param string $label
      */
     public function generateLabel(array $row, $label, DataContainer $dc, array $args): array
     {
@@ -211,9 +196,6 @@ class TagListener
 
     /**
      * Automatically generate the folder URL aliases.
-     *
-     * @param array         $buttons
-     * @param DataContainer $dc
      *
      * @return array
      */
@@ -274,15 +256,13 @@ class TagListener
         }
 
         // Add the button
-        $buttons['alias'] = \sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
+        $buttons['alias'] = sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
 
         return $buttons;
     }
 
     /**
      * Get the sources.
-     *
-     * @return array
      */
     public function getSources(): array
     {
@@ -292,12 +272,7 @@ class TagListener
     /**
      * Generate the alias.
      *
-     * @param string        $value
-     * @param DataContainer $dc
-     *
      * @throws \RuntimeException
-     *
-     * @return string
      */
     public function generateAlias(string $value, DataContainer $dc): string
     {
@@ -313,7 +288,7 @@ class TagListener
 
         // Check whether the record alias exists
         if (\count($exists) > 1 && !$autoAlias) {
-            throw new \RuntimeException(\sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
+            throw new \RuntimeException(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
         }
 
         // Add ID to alias

@@ -1,5 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2020, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
+
 namespace Codefog\TagsBundle\Finder;
 
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
@@ -21,9 +31,6 @@ class SourceFinder
 
     /**
      * DefaultFinder constructor.
-     *
-     * @param Connection $db
-     * @param ContaoFrameworkInterface $framework
      */
     public function __construct(Connection $db, ContaoFrameworkInterface $framework)
     {
@@ -32,11 +39,7 @@ class SourceFinder
     }
 
     /**
-     * Count source records by criteria
-     *
-     * @param SourceCriteria $criteria
-     *
-     * @return int
+     * Count source records by criteria.
      */
     public function count(SourceCriteria $criteria): int
     {
@@ -44,11 +47,7 @@ class SourceFinder
     }
 
     /**
-     * Find multiple source record IDs by criteria
-     *
-     * @param SourceCriteria $criteria
-     *
-     * @return array
+     * Find multiple source record IDs by criteria.
      */
     public function findMultiple(SourceCriteria $criteria): array
     {
@@ -63,26 +62,19 @@ class SourceFinder
         $adapter = $this->framework->getAdapter(Model::class);
 
         $values = $adapter->getReferenceValues($criteria->getSourceTable(), $criteria->getSourceField(), $ids);
-        $values = \array_values(\array_unique($values));
-        $values = \array_map('intval', $values);
+        $values = array_values(array_unique($values));
 
-        return $values;
+        return array_map('intval', $values);
     }
-
 
     /**
      * Find the related source records.
      *
-     * @param SourceCriteria $criteria
-     * @param int|null $limit
-     *
      * @throws \RuntimeException
-     *
-     * @return array
      */
     public function findRelatedSourceRecords(SourceCriteria $criteria, int $limit = null): array
     {
-        if (count($criteria->getIds()) === 0) {
+        if (0 === \count($criteria->getIds())) {
             throw new \RuntimeException('No IDs have been provided');
         }
 
@@ -90,34 +82,34 @@ class SourceFinder
         $relations = $this->framework->getAdapter(Relations::class);
 
         if (false === ($relation = $relations->getRelation($criteria->getSourceTable(), $criteria->getSourceField()))) {
-            throw new \RuntimeException(\sprintf('The field %s.%s is not related', $criteria->getSourceTable(), $criteria->getSourceField()));
+            throw new \RuntimeException(sprintf('The field %s.%s is not related', $criteria->getSourceTable(), $criteria->getSourceField()));
         }
 
         /** @var Model $relationsModel */
         $relationsModel = $this->framework->getAdapter(Model::class);
 
         $tagIds = $relationsModel->getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getIds());
-        $tagIds = \array_values(\array_unique($tagIds));
-        $tagIds = \array_map('intval', $tagIds);
+        $tagIds = array_values(array_unique($tagIds));
+        $tagIds = array_map('intval', $tagIds);
 
         if (0 === \count($tagIds)) {
             return [];
         }
 
-        $query = \sprintf(
+        $query = sprintf(
             'SELECT %s, COUNT(*) AS relevance FROM %s WHERE %s IN (%s) AND %s NOT IN (%s) GROUP BY %s ORDER BY relevance DESC',
             $relation['reference_field'],
             $relation['table'],
             $relation['related_field'],
-            \implode(',', $tagIds),
+            implode(',', $tagIds),
             $relation['reference_field'],
-            \implode(',', $criteria->getIds()),
+            implode(',', $criteria->getIds()),
             $relation['reference_field']
         );
 
         // Set the limit
         if ($limit > 0) {
-            $query .= \sprintf(' LIMIT %s', $limit);
+            $query .= sprintf(' LIMIT %s', $limit);
         }
 
         $related = [];

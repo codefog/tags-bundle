@@ -1,5 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2020, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
+
 namespace Codefog\TagsBundle\Finder;
 
 use Codefog\TagsBundle\Exception\NoTagsException;
@@ -8,7 +18,6 @@ use Codefog\TagsBundle\Tag;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Doctrine\DBAL\Connection;
 use Haste\Model\Model;
-use Haste\Model\Relations;
 
 class TagFinder
 {
@@ -24,9 +33,6 @@ class TagFinder
 
     /**
      * DefaultFinder constructor.
-     *
-     * @param Connection $db
-     * @param ContaoFrameworkInterface $framework
      */
     public function __construct(Connection $db, ContaoFrameworkInterface $framework)
     {
@@ -35,21 +41,17 @@ class TagFinder
     }
 
     /**
-     * Count tags by criteria
-     *
-     * @param TagCriteria $criteria
-     *
-     * @return int
+     * Count tags by criteria.
      */
     public function count(TagCriteria $criteria): int
     {
         try {
-            list($columns, $values, $options) = $this->parseCriteria($criteria);
+            [$columns, $values, $options] = $this->parseCriteria($criteria);
         } catch (NoTagsException $e) {
             return 0;
         }
 
-        if (\count($columns) === 0) {
+        if (0 === \count($columns)) {
             return TagModel::countAll();
         }
 
@@ -57,21 +59,17 @@ class TagFinder
     }
 
     /**
-     * Find a single tag by criteria
-     *
-     * @param TagCriteria $criteria
-     *
-     * @return Tag|null
+     * Find a single tag by criteria.
      */
     public function findSingle(TagCriteria $criteria): ?Tag
     {
         try {
-            list($columns, $values, $options) = $this->parseCriteria($criteria);
+            [$columns, $values, $options] = $this->parseCriteria($criteria);
         } catch (NoTagsException $e) {
             return null;
         }
 
-        if (\count($columns) === 0 || ($model = TagModel::findOneBy($columns, $values, $options)) === null) {
+        if (0 === \count($columns) || null === ($model = TagModel::findOneBy($columns, $values, $options))) {
             return null;
         }
 
@@ -79,27 +77,23 @@ class TagFinder
     }
 
     /**
-     * Find multiple tags by criteria
-     *
-     * @param TagCriteria $criteria
-     *
-     * @return array
+     * Find multiple tags by criteria.
      */
     public function findMultiple(TagCriteria $criteria): array
     {
         try {
-            list($columns, $values, $options) = $this->parseCriteria($criteria);
+            [$columns, $values, $options] = $this->parseCriteria($criteria);
         } catch (NoTagsException $e) {
             return [];
         }
 
-        if (\count($columns) === 0) {
+        if (0 === \count($columns)) {
             $models = TagModel::findAll($options);
         } else {
             $models = TagModel::findBy($columns, $values, $options);
         }
 
-        if ($models === null) {
+        if (null === $models) {
             return [];
         }
 
@@ -115,12 +109,6 @@ class TagFinder
 
     /**
      * Get the top tag IDs.
-     *
-     * @param TagCriteria $criteria
-     * @param int|null $limit
-     * @param bool     $withCount
-     *
-     * @return array
      */
     public function getTopTagIds(TagCriteria $criteria, int $limit = null, bool $withCount = false): array
     {
@@ -129,7 +117,7 @@ class TagFinder
 
         // No array_unique() here!
         $tagIds = $model->getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getSourceIds());
-        $tagIds = \array_map('intval', $tagIds);
+        $tagIds = array_map('intval', $tagIds);
 
         if (0 === \count($tagIds)) {
             return [];
@@ -143,22 +131,18 @@ class TagFinder
         }
 
         // Sort the helper array descending
-        \arsort($helper);
+        arsort($helper);
 
         // Strip the count data
         if (!$withCount) {
-            $helper = \array_keys($helper);
+            $helper = array_keys($helper);
         }
 
         return \array_slice($helper, 0, $limit, $withCount);
     }
 
     /**
-     * Create tag from model
-     *
-     * @param TagModel $model
-     *
-     * @return Tag
+     * Create tag from model.
      */
     public function createTagFromModel(TagModel $model): Tag
     {
@@ -166,11 +150,7 @@ class TagFinder
     }
 
     /**
-     * Parse the criteria to object
-     *
-     * @param TagCriteria $criteria
-     *
-     * @return array
+     * Parse the criteria to object.
      *
      * @throws NoTagsException
      */
@@ -181,39 +161,39 @@ class TagFinder
         $options = ['order' => 'name'];
 
         // Find the tags by single or multiple values
-        if (count($ids = $criteria->getValues()) > 0) {
-            if (count($ids) === 1) {
+        if (\count($ids = $criteria->getValues()) > 0) {
+            if (1 === \count($ids)) {
                 $columns[] = 'id=?';
                 $values[] = (int) $ids[0];
             } else {
-                $columns[] = 'id IN ('.\implode(',', \array_map('intval', $ids)).')';
+                $columns[] = 'id IN ('.implode(',', array_map('intval', $ids)).')';
             }
         }
 
         // Find by single or multiple aliases
-        if (count($aliases = $criteria->getAliases()) > 0) {
-            if (count($aliases) === 1) {
+        if (\count($aliases = $criteria->getAliases()) > 0) {
+            if (1 === \count($aliases)) {
                 $columns[] = 'alias=?';
                 $values[] = $aliases[0];
             } else {
-                $columns[] = "alias IN ('".\implode("','", $aliases)."')'";
+                $columns[] = "alias IN ('".implode("','", $aliases)."')'";
             }
         }
 
         // Find by source IDs
-        if (count($sourceIds = $criteria->getSourceIds()) > 0) {
+        if (\count($sourceIds = $criteria->getSourceIds()) > 0) {
             /** @var Model $model */
             $model = $this->framework->getAdapter(Model::class);
 
             $ids = $model->getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $sourceIds);
-            $ids = \array_values(\array_unique($ids));
-            $ids = \array_map('intval', $ids);
+            $ids = array_values(array_unique($ids));
+            $ids = array_map('intval', $ids);
 
-            if (\count($ids) === 0) {
+            if (0 === \count($ids)) {
                 throw new NoTagsException();
             }
 
-            $columns[] = 'id IN ('.\implode(',', $ids).')';
+            $columns[] = 'id IN ('.implode(',', $ids).')';
 
             // Do not execute the same query once again
             $criteria->setUsedOnly(false);
@@ -225,14 +205,14 @@ class TagFinder
             $model = $this->framework->getAdapter(Model::class);
 
             $ids = $model->getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField());
-            $ids = \array_values(\array_unique($ids));
-            $ids = \array_map('intval', $ids);
+            $ids = array_values(array_unique($ids));
+            $ids = array_map('intval', $ids);
 
-            if (\count($ids) === 0) {
+            if (0 === \count($ids)) {
                 throw new NoTagsException();
             }
 
-            $columns[] = 'id IN ('.\implode(',', $ids).')';
+            $columns[] = 'id IN ('.implode(',', $ids).')';
         }
 
         return [$columns, $values, $options];

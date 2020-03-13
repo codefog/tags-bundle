@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -79,7 +79,7 @@ class TagsWidget extends Widget
 
         // Validate the maximum number of items
         if (\is_array($value) && isset($this->maxItems) && \count($value) > $this->maxItems) {
-            $this->addError(\sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
+            $this->addError(sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
         }
 
         parent::validate();
@@ -110,13 +110,11 @@ class TagsWidget extends Widget
      */
     protected function getPost($key)
     {
-        return \array_filter(trimsplit(',', parent::getPost($key)));
+        return array_filter(trimsplit(',', parent::getPost($key)));
     }
 
     /**
      * Generate the widget configuration.
-     *
-     * @return array
      */
     protected function generateConfig(): array
     {
@@ -135,8 +133,6 @@ class TagsWidget extends Widget
 
     /**
      * Get the value tags.
-     *
-     * @return array
      */
     protected function getValueTags(): array
     {
@@ -145,8 +141,6 @@ class TagsWidget extends Widget
 
     /**
      * Get all tags.
-     *
-     * @return array
      */
     protected function getAllTags(): array
     {
@@ -155,10 +149,6 @@ class TagsWidget extends Widget
 
     /**
      * Generate the value tags.
-     *
-     * @param array $tags
-     *
-     * @return array
      */
     private function generateValueTags(array $tags): array
     {
@@ -174,10 +164,6 @@ class TagsWidget extends Widget
 
     /**
      * Generate all tags.
-     *
-     * @param array $tags
-     *
-     * @return array
      */
     private function generateAllTags(array $tags): array
     {

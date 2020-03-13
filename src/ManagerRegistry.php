@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -31,8 +31,6 @@ class ManagerRegistry
 
     /**
      * ManagerRegistry constructor.
-     *
-     * @param Connection $db
      */
     public function __construct(Connection $db)
     {
@@ -41,9 +39,6 @@ class ManagerRegistry
 
     /**
      * Add the manager.
-     *
-     * @param ManagerInterface $manager
-     * @param string           $name
      */
     public function add(ManagerInterface $manager, string $name): void
     {
@@ -53,16 +48,12 @@ class ManagerRegistry
     /**
      * Get the manager.
      *
-     * @param string $name
-     *
      * @throws \InvalidArgumentException
-     *
-     * @return ManagerInterface
      */
     public function get(string $name): ManagerInterface
     {
         if (!\array_key_exists($name, $this->managers)) {
-            throw new \InvalidArgumentException(\sprintf('The manager "%s" does not exist', $name));
+            throw new \InvalidArgumentException(sprintf('The manager "%s" does not exist', $name));
         }
 
         return $this->managers[$name];
@@ -70,11 +61,9 @@ class ManagerRegistry
 
     /**
      * Get the names.
-     *
-     * @return array
      */
     public function getNames(): array
     {
-        return \array_keys($this->managers);
+        return array_keys($this->managers);
     }
 }

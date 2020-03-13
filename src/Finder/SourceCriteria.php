@@ -1,5 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2020, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
+
 namespace Codefog\TagsBundle\Finder;
 
 use Codefog\TagsBundle\Tag;
@@ -33,10 +43,6 @@ class SourceCriteria
 
     /**
      * Criteria constructor.
-     *
-     * @param string $name
-     * @param string $sourceTable
-     * @param string $sourceField
      */
     public function __construct(string $name, string $sourceTable, string $sourceField)
     {
@@ -45,44 +51,27 @@ class SourceCriteria
         $this->sourceField = $sourceField;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
     public function getSourceTable(): string
     {
         return $this->sourceTable;
     }
 
-    /**
-     * @return string
-     */
     public function getSourceField(): string
     {
         return $this->sourceField;
     }
 
-    /**
-     * @return array
-     */
     public function getIds(): array
     {
         return $this->ids;
     }
 
-    /**
-     * @param array $ids
-     *
-     * @return SourceCriteria
-     */
-    public function setIds(array $ids): SourceCriteria
+    public function setIds(array $ids): self
     {
         $this->ids = $ids;
 
@@ -99,22 +88,15 @@ class SourceCriteria
 
     /**
      * @param Tag[] $tags
-     *
-     * @return SourceCriteria
      */
-    public function setTags(array $tags): SourceCriteria
+    public function setTags(array $tags): self
     {
         $this->tags = $tags;
 
         return $this;
     }
 
-    /**
-     * @param Tag $tag
-     *
-     * @return SourceCriteria
-     */
-    public function setTag(Tag $tag): SourceCriteria
+    public function setTag(Tag $tag): self
     {
         $this->tags = [$tag];
 

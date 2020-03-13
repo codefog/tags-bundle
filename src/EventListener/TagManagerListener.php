@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -26,8 +26,6 @@ class TagManagerListener
 
     /**
      * TagContainer constructor.
-     *
-     * @param ManagerRegistry $registry
      */
     public function __construct(ManagerRegistry $registry)
     {
@@ -36,8 +34,6 @@ class TagManagerListener
 
     /**
      * On load the data container.
-     *
-     * @param string $table
      */
     public function onLoadDataContainer(string $table): void
     {
@@ -61,22 +57,17 @@ class TagManagerListener
         }
 
         // Add assets for backend
-        if (defined('TL_MODE') && TL_MODE === 'BE' && $hasTagsFields) {
+        if (\defined('TL_MODE') && TL_MODE === 'BE' && $hasTagsFields) {
             $this->addAssets();
         }
     }
 
     /**
      * On the field save.
-     *
-     * @param string        $value
-     * @param DataContainer $dc
-     *
-     * @return string
      */
     public function onFieldSave(string $value, DataContainer $dc): string
     {
-        if (($manager = $this->getManagerFromDca($dc)) !== null) {
+        if (null !== ($manager = $this->getManagerFromDca($dc))) {
             $value = $manager->saveDcaField($value, $dc);
         }
 
@@ -85,16 +76,12 @@ class TagManagerListener
 
     /**
      * On options callback.
-     *
-     * @param DataContainer $dc
-     *
-     * @return array
      */
     public function onOptionsCallback(DataContainer $dc): array
     {
         $value = [];
 
-        if (($manager = $this->getManagerFromDca($dc)) !== null) {
+        if (null !== ($manager = $this->getManagerFromDca($dc))) {
             $value = $manager->getFilterOptions($dc);
         }
 
@@ -103,10 +90,6 @@ class TagManagerListener
 
     /**
      * Get the manager from DCA.
-     *
-     * @param DataContainer $dc
-     *
-     * @return DcaAwareInterface|null
      */
     private function getManagerFromDca(DataContainer $dc): ?DcaAwareInterface
     {

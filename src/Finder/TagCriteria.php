@@ -1,5 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * Tags Bundle for Contao Open Source CMS.
+ *
+ * @copyright  Copyright (c) 2020, Codefog
+ * @author     Codefog <https://codefog.pl>
+ * @license    MIT
+ */
+
 namespace Codefog\TagsBundle\Finder;
 
 class TagCriteria
@@ -41,10 +51,6 @@ class TagCriteria
 
     /**
      * Criteria constructor.
-     *
-     * @param string $name
-     * @param string $sourceTable
-     * @param string $sourceField
      */
     public function __construct(string $name, string $sourceTable, string $sourceField)
     {
@@ -53,128 +59,77 @@ class TagCriteria
         $this->sourceField = $sourceField;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
     public function getSourceTable(): string
     {
         return $this->sourceTable;
     }
 
-    /**
-     * @return string
-     */
     public function getSourceField(): string
     {
         return $this->sourceField;
     }
 
-    /**
-     * @return array
-     */
     public function getAliases(): array
     {
         return $this->aliases;
     }
 
-    /**
-     * @param array $aliases
-     *
-     * @return TagCriteria
-     */
-    public function setAliases(array $aliases): TagCriteria
+    public function setAliases(array $aliases): self
     {
         $this->aliases = array_unique($aliases);
 
         return $this;
     }
 
-    /**
-     * @param string $alias
-     *
-     * @return TagCriteria
-     */
-    public function setAlias(string $alias): TagCriteria
+    public function setAlias(string $alias): self
     {
         $this->aliases = [$alias];
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getSourceIds(): array
     {
         return $this->sourceIds;
     }
 
-    /**
-     * @param array $sourceIds
-     *
-     * @return TagCriteria
-     */
-    public function setSourceIds(array $sourceIds): TagCriteria
+    public function setSourceIds(array $sourceIds): self
     {
         $this->sourceIds = array_unique($sourceIds);
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isUsedOnly(): bool
     {
         return $this->usedOnly;
     }
 
-    /**
-     * @param bool $usedOnly
-     *
-     * @return TagCriteria
-     */
-    public function setUsedOnly(bool $usedOnly): TagCriteria
+    public function setUsedOnly(bool $usedOnly): self
     {
         $this->usedOnly = $usedOnly;
 
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getValues(): array
     {
         return array_unique($this->values);
     }
 
-    /**
-     * @param array $values
-     *
-     * @return TagCriteria
-     */
-    public function setValues(array $values): TagCriteria
+    public function setValues(array $values): self
     {
         $this->values = $values;
 
         return $this;
     }
 
-    /**
-     * @param string $value
-     *
-     * @return TagCriteria
-     */
-    public function setValue(string $value): TagCriteria
+    public function setValue(string $value): self
     {
         $this->values = [$value];
 
