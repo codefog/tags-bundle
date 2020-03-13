@@ -9,7 +9,8 @@
 
 ## Role of the managers
 
-The tag managers are responsible for  
+The tag managers provide necessary features and/or services for fetching and managing the tags. Behind the scenes
+they are also responsible for handling the backend widgets, the DCA fields and the insert tags.
 
 Currently available managers:
 
