@@ -3,65 +3,60 @@
 1. [Installation](01-installation.md)
 2. [**Configuration**](02-config.md)
 3. [Backend interface](03-backend.md)
-4. [Custom managers](04-custom-managers.md)
+4. [Managers](04-managers.md)
 5. [Insert tags](05-insert-tags.md)
 
+## Configure the managers
 
-## Add the service
-
-First of all you need to add your own service. By default you can use the default manager which stores
-the tags in the `tl_cfg_tag` table and uses Contao models behind the scenes.
-
-Note that for any manager you register you have to explicitly specify the service tags!
+In the first place you have to configure the available managers. This can be done in your app configuration as follows:
 
 ```yml
-services:
-    app.article_tags_manager:
-        class: Codefog\TagsBundle\Manager\DefaultManager
-        arguments:
-            - "@contao.framework"
-            - "tl_app_article"
-            - "tags"
-        tags:
-            - { name: codefog_tags.manager, alias: app.article }
+# config/config.yml
+codefog_tags:
+    managers:
+        my_manager:
+            table: 'tl_table'
+            field: 'tags'
+            service: '' # optional, manager service to use (defaults to "codefog_tags.default_manager")
+            alias: '' # optional, alias of the newly created service
 ```
 
+Afterwards your manager will be available as `codefog_tags.manager.my_manager` public service. 
+
+You can read more about available manager services [here](04-managers.md).  
 
 ## Adjust the DCA files
 
-Once the service is ready to use you can create a new field in the DCA and register it there. Make
-sure that you register it with the *alias* of the service and not the service *name*!
+Once the manager is registered, you can create a new field in the desired DCA table as follows:
 
 ```php
-// dca/tl_app_article.php
+// dca/tl_table.php
 'tags' => [
-    'label'     => &$GLOBALS['TL_LANG']['tl_app_article']['tags'],
-    'exclude'   => true,
+    'exclude' => true,
     'inputType' => 'cfgTags',
-    'eval'      => [
-        'tagsManager' => 'app.article', // Manager, required
+    'eval' => [
+        'tagsManager' => 'my_manager', // Manager name, required
         'tagsCreate'  => false, // Allow to create tags, optional (true by default)
         'maxItems' => 5, // Maximum number of tags allowed
         'hideList' => true, // Hide the list of tags; the input field will be still visible
-        'tl_class'    => 'clr'
+        'tl_class' => 'clr'
     ],
 ],
 ````
 
-Do not forget to set the source label for the tags backend module: 
+The last step is to set the source label for the tags backend module:
 
 ```php
 // languages/en/tl_cfg_tag.php
-$GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef']['app.article'] = 'Article';
+$GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef']['my_manager'] = 'Table tags';
 ```
 
+## Update the database
 
-## Update the database (optional)
+Each manager takes care of loading and saving the data from the widget itself. The default manager internally uses 
+`Haste-ManyToMany` field relation to store the data, so you need to update the database before using it.
 
-Each manager takes care of loading and saving the data from the widget itself. The default manager
-internally uses `Haste-ManyToMany` field relation to store the data, so you need to update the datbaase
-before using it.
-
+You can read more about available manager services [here](04-managers.md).  
 
 ## Overriding Selectize.js settings
 

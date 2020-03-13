@@ -12,12 +12,12 @@
     ],
     "require": {
         "php": "^7.1",
-        "contao/core-bundle": "^4.3",
-        "codefog/contao-haste": "^4.17.5"
+        "contao/core-bundle": "^4.9",
+        "codefog/contao-haste": "^4.24"
     },
     "require-dev": {
         "contao/manager-plugin": "^2.0",
-        "friendsofphp/php-cs-fixer": "^2.2",
+        "contao/php-cs-fixer": "^2.2",
         "phpunit/phpunit": "^7.0",
         "satooshi/php-coveralls": "2.*@dev",
         "contao/test-case": "^2.0"

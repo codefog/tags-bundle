@@ -12,10 +12,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-
-        $rootNode = $treeBuilder->root('codefog_tags');
-        $rootNode
+        $treeBuilder = new TreeBuilder('codefog_tags');
+        $treeBuilder->getRootNode()
             ->children()
                 ->arrayNode('managers')
                     ->useAttributeAsKey('name')
