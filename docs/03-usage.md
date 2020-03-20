@@ -56,7 +56,7 @@ $this->tagsManager->getSourceFinder()->count($criteria);
 // Find the source record IDs
 $this->tagsManager->getSourceFinder()->findMultiple($criteria);
 
-// Find the source record IDs related to IDs set in criteria 
+// Find the source record IDs related to IDs set in criteria (e.g. 1, 2, 3) 
 $this->tagsManager->getSourceFinder()->findRelatedSourceRecords($criteria->setIds([1, 2, 3]));
 ``` 
 
@@ -70,7 +70,7 @@ use Codefog\TagsBundle\Tag;
 // Set some dummy criteria
 $criteria = $this->tagsManager->createTagCriteria()->setSourceIds([1, 2, 3]);
 
-// Get total number of records
+// Get total number of tags
 $this->tagsManager->getTagFinder()->count($criteria);
 
 // Find multiple tags
@@ -79,6 +79,6 @@ $this->tagsManager->getTagFinder()->findMultiple($criteria);
 // Find the top 10 tag IDs 
 $this->tagsManager->getTagFinder()->getTopTagIds($criteria, 10, true);
 
-// Find a single tag
+// Find a single tag with "foo" value
 $this->tagsManager->getTagFinder()->findSingle($criteria->setValue('foo'));
 ``` 
