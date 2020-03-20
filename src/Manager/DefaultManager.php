@@ -58,11 +58,21 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         $this->sourceField = $sourceField;
     }
 
+    /**
+     * Set the tag finder
+     *
+     * @param TagFinder $tagFinder
+     */
     public function setTagFinder(TagFinder $tagFinder): void
     {
         $this->tagFinder = $tagFinder;
     }
 
+    /**
+     * Set the source finder
+     *
+     * @param SourceFinder $sourceFinder
+     */
     public function setSourceFinder(SourceFinder $sourceFinder): void
     {
         $this->sourceFinder = $sourceFinder;

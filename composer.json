@@ -12,6 +12,7 @@
     ],
     "require": {
         "php": "^7.1",
+        "ext-pdo": "*",
         "contao/core-bundle": "^4.9",
         "codefog/contao-haste": "^4.24"
     },

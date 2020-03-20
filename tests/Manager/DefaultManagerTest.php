@@ -2,400 +2,171 @@
 
 namespace Codefog\TagsBundle\Test\Manager;
 
+use Codefog\TagsBundle\Finder\SourceCriteria;
+use Codefog\TagsBundle\Finder\SourceFinder;
+use Codefog\TagsBundle\Finder\TagCriteria;
+use Codefog\TagsBundle\Finder\TagFinder;
 use Codefog\TagsBundle\Manager\DefaultManager;
-use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
-use Codefog\TagsBundle\Test\Fixtures\ExtraDummyModel;
-use Contao\CoreBundle\Framework\Adapter;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
-use Contao\Model\Collection;
+use Contao\StringUtil;
 use Contao\TestCase\ContaoTestCase;
-use Doctrine\DBAL\Connection;
-use Haste\Model\Model;
-use Haste\Model\Relations;
 
 class DefaultManagerTest extends ContaoTestCase
 {
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|Connection
-     */
-    private $db;
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ContaoFrameworkInterface
-     */
-    private $framework;
-
-    /**
-     * @var DefaultManager
-     */
-    private $manager;
-
-    public function setUp()
+    public function testGetMultipleTags()
     {
-        // Adjust the error reporting because of the Contao\Model
-        error_reporting(E_ALL & ~E_NOTICE);
+        $tag1 = new Tag('tag1', 'foo');
+        $tag2 = new Tag('tag2', 'bar');
 
-        $this->framework = $this->createMock(ContaoFrameworkInterface::class);
-        $this->db = $this->createMock(Connection::class);
+        $tags = $this->mockManager(['findMultiple' => [$tag1, $tag2]])->getMultipleTags();
 
-        $this->manager = new DefaultManager($this->db, $this->framework, 'foobar', 'tl_table', 'field');
+        $this->assertCount(2, $tags);
+        $this->assertContains($tag1, $tags);
+        $this->assertContains($tag2, $tags);
     }
 
-    public function testInstantiation()
+    public function testUpdateDcaFieldVariant1()
     {
-        static::assertInstanceOf(DefaultManager::class, $this->manager);
+        $dca = [];
+
+        $this->mockManager()->updateDcaField($dca);
+
+        $this->assertEquals(['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag'], $dca['relation']);
+        $this->assertEquals(['codefog_tags.listener.tag_manager', 'onOptionsCallback'], $dca['options_callback']);
+        $this->assertEquals([['codefog_tags.listener.tag_manager', 'onFieldSave']], $dca['save_callback']);
     }
 
-    public function testFind()
+    public function testUpdateDcaFieldVariant2()
     {
-        $dummyModel = $this->mockClassWithProperties(TagModel::class, [
-            'id' => 123,
-            'name' => 'foobar',
-            'source' => 'foobar',
-        ]);
-
-        $this->framework->method('getAdapter')->willReturn(new TagModel(['findByPk' => $dummyModel]));
-        static::assertInstanceOf(Tag::class, $this->manager->find('123'));
-    }
-
-    public function testFindByAlias()
-    {
-        $dummyModel = new TagModel();
-        $dummyModel->id = 123;
-        $dummyModel->name = 'foobar';
-        $dummyModel->source = 'foobar';
-
-        $this->framework->method('getAdapter')->willReturn(new TagModel(['findOneByCriteria' => $dummyModel]));
-        static::assertInstanceOf(Tag::class, $this->manager->findByAlias('foobar'));
-
-        $this->framework->method('getAdapter')->willReturn(new TagModel(['findOneByCriteria' => null]));
-        static::assertNull($this->manager->findByAlias('foobar'));
-    }
-
-    public function testFindTagNotFound()
-    {
-        $this->framework->method('getAdapter')->willReturn(new TagModel(['findByPk' => null]));
-        static::assertNull($this->manager->find('123'));
-    }
-
-    public function testFindSourceDoesNotMatch()
-    {
-        $dummyModel = new TagModel();
-        $dummyModel->id = 123;
-        $dummyModel->name = 'foobar';
-        $dummyModel->source = 'foobaz';
-
-        $this->framework->method('getAdapter')->willReturn(new TagModel(['findByPk' => $dummyModel]));
-        static::assertNull($this->manager->find('123'));
-    }
-
-    public function testFindMultiple()
-    {
-        $this->framework->method('getAdapter')->willReturn(new TagModel(['findByCriteria' => null]));
-        static::assertTrue(is_array($this->manager->findMultiple()));
-    }
-
-    public function testCountSourceRecords()
-    {
-        $this->framework->method('getAdapter')->willReturn(new TagModel(['getReferenceValues' => [1, 2, 3]]));
-        static::assertEquals(3, $this->manager->countSourceRecords(new Tag('foo', 'bar')));
-    }
-
-    public function testGetSourceRecords()
-    {
-        $this->framework->method('getAdapter')->willReturn(new TagModel(['getReferenceValues' => ['1', 2, 2, 3]]));
-        static::assertEquals([1, 2, 3], $this->manager->getSourceRecords(new Tag('foo', 'bar')));
-    }
-
-    /**
-     * @dataProvider updateDcaFieldProvider
-     */
-    public function testUpdateDcaField(array $provided, array $expected)
-    {
-        $this->framework->method('getAdapter')->willReturn(
-            new TagModel(['getTable' => 'tl_cfg_tag'])
-        );
-
-        $this->manager->updateDcaField($provided);
-
-        static::assertEquals($expected, $provided);
-    }
-
-    public function updateDcaFieldProvider()
-    {
-        return [
-            'Empty config' => [
-                [],
-                [
-                    'relation' => [
-                        'type' => 'haste-ManyToMany',
-                        'load' => 'lazy',
-                        'table' => 'tl_cfg_tag',
-                    ],
-                    'save_callback' => [
-                        ['codefog_tags.listener.tag_manager', 'onFieldSave']
-                    ],
-                    'options_callback' => ['codefog_tags.listener.tag_manager', 'onOptionsCallback'],
-                ]
-            ],
-
-            'Full config' => [
-                [
-                    'save_callback' => [
-                        ['foo', 'bar'],
-                    ],
-                    'options_callback' => ['foo', 'bar'],
-                ],
-                [
-                    'relation' => [
-                        'type' => 'haste-ManyToMany',
-                        'load' => 'lazy',
-                        'table' => 'tl_cfg_tag',
-                    ],
-                    'save_callback' => [
-                        ['codefog_tags.listener.tag_manager', 'onFieldSave'],
-                        ['foo', 'bar'],
-                    ],
-                    'options_callback' => ['foo', 'bar'],
-                ]
+        $dca = [
+            'options_callback' => ['listener', 'options_method'],
+            'save_callback' => [
+                ['listener', 'save_method']
             ],
         ];
+
+        $this->mockManager()->updateDcaField($dca);
+
+        $this->assertEquals(['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag'], $dca['relation']);
+        $this->assertEquals(['listener', 'options_method'], $dca['options_callback']);
+        $this->assertEquals([
+            ['codefog_tags.listener.tag_manager', 'onFieldSave'],
+            ['listener', 'save_method'],
+        ], $dca['save_callback']);
     }
 
-    public function testSaveDcaField()
+    public function testSaveDcaFieldNewTags()
     {
-        $tagModel = new TagModel();
-        $tagModel->id = 456;
+        $tag = new Tag('bar', 'foo');
+        $manager = $this->mockManager(['findSingle' => null, 'createTagFromModel' => $tag]);
 
-        $dummyModel = new TagModel();
-        $dummyModel->id = 123;
-        $dummyModel->name = 'foobar';
-        $dummyModel->source = 'foobar';
+        $value = $manager->saveDcaField(serialize(['new-tag']), $this->createMock(DataContainer::class));
+        $value = StringUtil::deserialize($value, true);
 
-        $this->framework->method('createInstance')->willReturn($tagModel);
+        $this->assertCount(1, $value);
+        $this->assertContains('bar', $value);
+    }
 
-        $this->framework->method('getAdapter')->willReturnOnConsecutiveCalls(
-            new TagModel(['findByPk' => $dummyModel]),
-            new TagModel(['findByPk' => null])
-        );
+    public function testSaveDcaFieldNoNewTags()
+    {
+        $tag = new Tag('bar', 'foo');
+        $manager = $this->mockManager(['findSingle' => $tag]);
 
-        $output = $this->manager->saveDcaField(serialize(['123', 'new']), $this->createMock(DataContainer::class));
+        $value = $manager->saveDcaField(serialize(['existing-tag']), $this->createMock(DataContainer::class));
+        $value = StringUtil::deserialize($value, true);
 
-        static::assertEquals(serialize(['123', '456']), $output);
+        $this->assertCount(1, $value);
+        $this->assertContains('existing-tag', $value);
     }
 
     public function testGetFilterOptions()
     {
-        $tagModel = new TagModel();
-        $tagModel->id = 123;
-        $tagModel->name = 'Foobar';
+        $tag1 = new Tag('tag1', 'foo');
+        $tag2 = new Tag('tag2', 'bar');
 
-        $relationsModelAdapter = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock();
-        ;
+        $options = $this->mockManager(['findMultiple' => [$tag1, $tag2]])->getFilterOptions($this->createMock(DataContainer::class));
 
-        $relationsModelAdapter
-            ->method('getRelatedValues')
-            ->willReturn([1, 2, 3])
-        ;
-
-        $tagModelAdapter = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['findByCriteria'])
-            ->getMock();
-        ;
-
-        $tagModelAdapter
-            ->method('findByCriteria')
-            ->willReturn(new Collection([$tagModel], ''))
-        ;
-
-        $this->framework
-            ->method('getAdapter')
-            ->willReturnMap([
-                [Model::class, $relationsModelAdapter],
-                [TagModel::class, $tagModelAdapter]
-            ]);
-        ;
-
-        $dataContainer = $this->createMock(DataContainer::class);
-
-        static::assertSame([123 => 'Foobar'], $this->manager->getFilterOptions($dataContainer));
+        $this->assertEquals(['tag1' => 'foo', 'tag2' => 'bar'], $options);
     }
 
-    public function testFindRelatedSourceRecords()
+    public function testGetSourceRecordsCountEmpty()
     {
-        $relations = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelation'])
-            ->getMock()
-        ;
+        $manager = $this->mockManager(['findSingle' => null]);
 
-        $relations
-            ->method('getRelation')
-            ->willReturn([
-                'reference_field' => 'foo_id',
-                'related_field' => 'bar_id',
-                'table' => 'tl_foobar',
-            ])
-        ;
+        $count = $manager->getSourceRecordsCount(['id' => 1], $this->createMock(DataContainer::class));
 
-        $model = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock()
-        ;
-
-        $model
-            ->method('getRelatedValues')
-            ->willReturn([1, 2, 3, 4])
-        ;
-
-        $this->framework
-            ->method('getAdapter')
-            ->willReturnMap([
-                [Relations::class, $relations],
-                [Model::class, $model],
-            ]);
-        ;
-
-        $this->db
-            ->method('fetchAll')
-            ->willReturn([
-                ['foo_id' => 1, 'relevance' => 4],
-                ['foo_id' => 2, 'relevance' => 2],
-            ])
-        ;
-
-        static::assertSame(
-            [
-                1 => [
-                    'total' => 4,
-                    'found' => 4,
-                    'prcnt' => 100,
-                ],
-                2 => [
-                    'total' => 4,
-                    'found' => 2,
-                    'prcnt' => 50.0,
-                ],
-            ],
-            $this->manager->findRelatedSourceRecords(1, 2)
-        );
+        $this->assertEquals(0, $count);
     }
 
-    public function testFindRelatedSourceRecordsNoRelation()
+    public function testGetSourceRecordsCount()
     {
-        $relations = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelation'])
-            ->getMock()
-        ;
+        $tag = new Tag('bar', 'foo');
+        $manager = $this->mockManager(['findSingle' => $tag], ['count' => 3]);
 
-        $relations
-            ->method('getRelation')
-            ->willReturn(false)
-        ;
+        $count = $manager->getSourceRecordsCount(['id' => 1], $this->createMock(DataContainer::class));
 
-        $this->framework
-            ->method('getAdapter')
-            ->willReturn($relations);
-        ;
-
-        $this->expectException(\RuntimeException::class);
-        $this->manager->findRelatedSourceRecords(1);
+        $this->assertEquals(3, $count);
     }
 
-    public function testFindRelatedSourceRecordsEmpty()
+    public function testGetInsertTagValueEmpty()
     {
-        $relations = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelation'])
-            ->getMock()
-        ;
+        $manager = $this->mockManager(['findSingle' => null]);
 
-        $relations
-            ->method('getRelation')
-            ->willReturn([])
-        ;
-
-        $model = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock()
-        ;
-
-        $model
-            ->method('getRelatedValues')
-            ->willReturn([])
-        ;
-
-        $this->framework
-            ->method('getAdapter')
-            ->willReturnMap([
-                [Relations::class, $relations],
-                [Model::class, $model],
-            ]);
-        ;
-
-        static::assertEmpty($this->manager->findRelatedSourceRecords(1));
+        $this->assertEquals('', $manager->getInsertTagValue('my_manager', 'name', []));
     }
 
-    public function testGetTopTagIds()
+    public function testGetInsertTagValue()
     {
-        $model = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock()
-        ;
+        $tag = new Tag('bar', 'foo');
+        $tag->setData(['foobar' => 'baz']);
 
-        $model
-            ->method('getRelatedValues')
-            ->willReturn([1, 1, 1, 2, 3, 4, 5, 5])
-        ;
+        $manager = $this->mockManager(['findSingle' => $tag]);
 
-        $this->framework
-            ->method('getAdapter')
-            ->willReturn($model);
-        ;
-
-        static::assertEquals(
-            [1, 5, 2],
-            $this->manager->getTopTagIds([], 3)
-        );
+        $this->assertEquals('foo', $manager->getInsertTagValue('bar', 'name', []));
+        $this->assertEquals('baz', $manager->getInsertTagValue('bar', 'foobar', []));
+        $this->assertEquals('', $manager->getInsertTagValue('bar', 'quux', []));
     }
 
-    public function testGetTopTagIdsEmpty()
+    public function testGetTagFinder()
     {
-        $model = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock()
-        ;
+        $this->assertInstanceOf(TagFinder::class, $this->mockManager()->getTagFinder());
+    }
 
-        $model
-            ->method('getRelatedValues')
-            ->willReturn([])
-        ;
+    public function testGetSourceFinder()
+    {
+        $this->assertInstanceOf(SourceFinder::class, $this->mockManager()->getSourceFinder());
+    }
 
-        $this->framework
-            ->method('getAdapter')
-            ->willReturn($model);
-        ;
+    public function testCreateTagCriteria()
+    {
+        $criteria = $this->mockManager()->createTagCriteria();
 
-        static::assertEmpty($this->manager->getTopTagIds());
+        $this->assertInstanceOf(TagCriteria::class, $criteria);
+        $this->assertEquals($criteria->getName(), 'my_manager');
+        $this->assertEquals($criteria->getSourceTable(), 'tl_table');
+        $this->assertEquals($criteria->getSourceField(), 'tags');
+    }
+
+    public function testCreateSourceCriteria()
+    {
+        $criteria = $this->mockManager()->createSourceCriteria();
+
+        $this->assertInstanceOf(SourceCriteria::class, $criteria);
+        $this->assertEquals($criteria->getName(), 'my_manager');
+        $this->assertEquals($criteria->getSourceTable(), 'tl_table');
+        $this->assertEquals($criteria->getSourceField(), 'tags');
+    }
+
+    private function mockManager(array $tags = [], array $sources = []): DefaultManager
+    {
+        $sourceFinder = $this->createConfiguredMock(SourceFinder::class, $sources);
+        $tagFinder = $this->createConfiguredMock(TagFinder::class, $tags);
+
+        $manager = new DefaultManager('my_manager', 'tl_table', 'tags');
+        $manager->setTagFinder($tagFinder);
+        $manager->setSourceFinder($sourceFinder);
+
+        return $manager;
     }
 }

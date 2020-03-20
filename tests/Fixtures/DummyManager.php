@@ -9,43 +9,43 @@ use Contao\DataContainer;
 
 class DummyManager implements ManagerInterface, DcaAwareInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function updateDcaField(array &$config): void
     {
         $config['dummy'] = true;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function saveDcaField(string $value, DataContainer $dc): string
     {
-        return strtoupper($value);
+        return 'FOOBAR';
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getFilterOptions(DataContainer $dc): array
     {
         return ['foo', 'bar'];
     }
 
-    public function setAlias(string $alias): void
+    /**
+     * @inheritDoc
+     */
+    public function getSourceRecordsCount(array $data, DataContainer $dc): int
     {
-        // noop
+        return 0;
     }
 
-    public function find(string $value, array $criteria = []): ?Tag
+    /**
+     * @inheritDoc
+     */
+    public function getMultipleTags(array $values = []): array
     {
-        // noop
-    }
-
-    public function findMultiple(array $criteria = []): array
-    {
-        // noop
-    }
-
-    public function countSourceRecords(Tag $tag): int
-    {
-        // noop
-    }
-
-    public function getSourceRecords(Tag $tag): array
-    {
-        // noop
+        return [];
     }
 }

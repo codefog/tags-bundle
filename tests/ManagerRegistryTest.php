@@ -10,25 +10,21 @@ use PHPUnit\Framework\TestCase;
 
 class ManagerRegistryTest extends TestCase
 {
-    public function testInstantiation()
-    {
-        static::assertInstanceOf(ManagerRegistry::class, new ManagerRegistry($this->createMock(Connection::class)));
-    }
-
     public function testAddManager()
     {
         $managerMock = $this->createMock(ManagerInterface::class);
 
-        $registry = new ManagerRegistry($this->createMock(Connection::class));
+        $registry = $this->mockRegistry();
         $registry->add($managerMock, 'foobar');
 
-        static::assertEquals($managerMock, $registry->get('foobar'));
+        $this->assertEquals($managerMock, $registry->get('foobar'));
     }
 
     public function testManagerNotExists()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $registry = new ManagerRegistry($this->createMock(Connection::class));
+
+        $registry = $this->mockRegistry();
         $registry->get('foobar');
     }
 
@@ -37,10 +33,15 @@ class ManagerRegistryTest extends TestCase
         $manager1Mock = $this->createMock(ManagerInterface::class);
         $manager2Mock = $this->createMock(DefaultManager::class);
 
-        $registry = new ManagerRegistry($this->createMock(Connection::class));
+        $registry = $this->mockRegistry();
         $registry->add($manager1Mock, 'foobar');
         $registry->add($manager2Mock, 'foobaz');
 
-        static::assertEquals(['foobar', 'foobaz'], $registry->getNames());
+        $this->assertEquals(['foobar', 'foobaz'], $registry->getNames());
+    }
+
+    private function mockRegistry(): ManagerRegistry
+    {
+        return new ManagerRegistry($this->createMock(Connection::class));
     }
 }

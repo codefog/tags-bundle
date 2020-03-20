@@ -146,7 +146,7 @@ class TagFinder
      */
     public function createTagFromModel(TagModel $model): Tag
     {
-        return new Tag((string) $model->id, $model->name, $model->row());
+        return new Tag((string) $model->id, (string) $model->name, $model->row());
     }
 
     /**

@@ -50,13 +50,7 @@ class CodefogTagsExtension extends ConfigurableExtension
 
         // Create an alias
         if (isset($config['alias'])) {
-            $container->getDefinition($id)->setPublic(false);
-
-            if (null === ($alias = $container->setAlias($config['alias'], $id))) {
-                $alias = $container->getAlias($config['alias']);
-            }
-
-            $alias->setPublic(true);
+            $container->setAlias($config['alias'], $id)->setPublic(true);
         }
     }
 }

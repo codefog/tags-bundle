@@ -11,7 +11,7 @@ class CodefogTagsBundleTest extends TestCase
 {
     public function testInstantiation()
     {
-        static::assertInstanceOf(CodefogTagsBundle::class, new CodefogTagsBundle());
+        $this->assertInstanceOf(CodefogTagsBundle::class, new CodefogTagsBundle());
     }
 
     public function testRegisterCompilerPass()
@@ -28,6 +28,6 @@ class CodefogTagsBundleTest extends TestCase
             }
         }
 
-        static::assertTrue($found);
+        $this->assertTrue($found);
     }
 }

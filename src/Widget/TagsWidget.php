@@ -59,9 +59,7 @@ class TagsWidget extends Widget
     {
         if (\is_array($attributes)) {
             if ($attributes['tagsManager']) {
-                $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get(
-                    $attributes['tagsManager']
-                );
+                $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get($attributes['tagsManager']);
             }
 
             unset($attributes['tagsManager']);
@@ -110,7 +108,7 @@ class TagsWidget extends Widget
      */
     protected function getPost($key)
     {
-        return array_filter(trimsplit(',', parent::getPost($key)));
+        return array_filter(StringUtil::trimsplit(',', parent::getPost($key)));
     }
 
     /**

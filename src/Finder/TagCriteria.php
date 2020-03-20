@@ -81,7 +81,7 @@ class TagCriteria
 
     public function setAliases(array $aliases): self
     {
-        $this->aliases = array_unique($aliases);
+        $this->aliases = array_values(array_unique($aliases));
 
         return $this;
     }
@@ -100,7 +100,7 @@ class TagCriteria
 
     public function setSourceIds(array $sourceIds): self
     {
-        $this->sourceIds = array_unique($sourceIds);
+        $this->sourceIds = array_values(array_unique($sourceIds));
 
         return $this;
     }
@@ -119,12 +119,12 @@ class TagCriteria
 
     public function getValues(): array
     {
-        return array_unique($this->values);
+        return $this->values;
     }
 
     public function setValues(array $values): self
     {
-        $this->values = $values;
+        $this->values = array_values(array_unique($values));
 
         return $this;
     }

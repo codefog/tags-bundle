@@ -22,6 +22,9 @@
         <whitelist>
             <directory>./src</directory>
             <exclude>
+                <file>./src/Finder/SourceFinder.php</file>
+                <file>./src/Finder/TagFinder.php</file>
+                <directory>./src/EventListener/DataContainer</directory>
                 <directory>./src/Model</directory>
                 <directory>./src/Resources</directory>
                 <directory>./src/Widget</directory>

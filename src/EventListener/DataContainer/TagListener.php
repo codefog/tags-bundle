@@ -18,13 +18,14 @@ use Codefog\TagsBundle\Manager\DefaultManager;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Model\TagModel;
 use Contao\Controller;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Versions;
 use Doctrine\DBAL\Connection;
+use PDO;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -37,7 +38,7 @@ class TagListener
     private $db;
 
     /**
-     * @var ContaoFrameworkInterface
+     * @var ContaoFramework
      */
     private $framework;
 
@@ -61,7 +62,7 @@ class TagListener
      */
     public function __construct(
         Connection $db,
-        ContaoFrameworkInterface $framework,
+        ContaoFramework $framework,
         ManagerRegistry $registry,
         RequestStack $requestStack,
         SessionInterface $session
@@ -89,14 +90,14 @@ class TagListener
             $manager = $this->registry->get($alias);
 
             if ($manager instanceof DefaultManager) {
-                foreach ($manager->getTopTagIds([], null, true) as $id => $count) {
+                foreach ($manager->getTagFinder()->getTopTagIds($manager->createTagCriteria(), null, true) as $id => $count) {
                     $ids[$id] = $count;
                 }
             }
         }
 
         // Append all other tags
-        foreach ($this->db->executeQuery("SELECT id FROM {$dc->table}")->fetchAll(\PDO::FETCH_COLUMN, 0) as $id) {
+        foreach ($this->db->query("SELECT id FROM {$dc->table}")->fetchAll(PDO::FETCH_COLUMN, 0) as $id) {
             if (!\array_key_exists($id, $ids)) {
                 $ids[$id] = 0;
             }
@@ -179,11 +180,11 @@ class TagListener
     }
 
     /**
-     * Generate the label.
+     * On label callback.
      *
      * @param string $label
      */
-    public function generateLabel(array $row, $label, DataContainer $dc, array $args): array
+    public function onLabelCallback(array $row, $label, DataContainer $dc, array $args): array
     {
         $manager = $this->registry->get($row['source']);
 
@@ -195,11 +196,11 @@ class TagListener
     }
 
     /**
-     * Automatically generate the folder URL aliases.
+     * On buttons callback.
      *
      * @return array
      */
-    public function addAliasButton(array $buttons, DataContainer $dc)
+    public function onButtonsCallback(array $buttons, DataContainer $dc)
     {
         $request = $this->requestStack->getCurrentRequest();
 
@@ -262,19 +263,19 @@ class TagListener
     }
 
     /**
-     * Get the sources.
+     * On source options callback.
      */
-    public function getSources(): array
+    public function onSourceOptionsCallback(): array
     {
         return $this->registry->getNames();
     }
 
     /**
-     * Generate the alias.
+     * On alias save callback.
      *
      * @throws \RuntimeException
      */
-    public function generateAlias(string $value, DataContainer $dc): string
+    public function onAliasSaveCallback(string $value, DataContainer $dc): string
     {
         $autoAlias = false;
 
