@@ -59,9 +59,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * Set the tag finder
-     *
-     * @param TagFinder $tagFinder
+     * Set the tag finder.
      */
     public function setTagFinder(TagFinder $tagFinder): void
     {
@@ -69,9 +67,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * Set the source finder
-     *
-     * @param SourceFinder $sourceFinder
+     * Set the source finder.
      */
     public function setSourceFinder(SourceFinder $sourceFinder): void
     {
