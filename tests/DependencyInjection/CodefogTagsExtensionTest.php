@@ -4,6 +4,7 @@
 namespace Codefog\TagsBundle\Test\DependencyInjection;
 
 use Codefog\TagsBundle\DependencyInjection\CodefogTagsExtension;
+use Codefog\TagsBundle\DependencyInjection\Compiler\ManagerPass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -20,7 +21,7 @@ class CodefogTagsExtensionTest extends TestCase
                     'foo_manager' => [
                         'table' => 'tl_table_foo',
                         'field' => 'tags_foo',
-                        'service' => 'codefog_tags.default_manager',
+                        'service' => ManagerPass::TAG_NAME,
                     ],
                     'bar_manager' => [
                         'table' => 'tl_table_bar',
@@ -50,7 +51,7 @@ class CodefogTagsExtensionTest extends TestCase
         $this->assertEquals('foo_manager', $definition->getArgument(0));
         $this->assertEquals('tl_table_foo', $definition->getArgument(1));
         $this->assertEquals('tags_foo', $definition->getArgument(2));
-        $this->assertEquals([['alias' => 'foo_manager']], $definition->getTag('codefog_tags.default_manager'));
+        $this->assertEquals([['alias' => 'foo_manager']], $definition->getTag(ManagerPass::TAG_NAME));
         $this->assertTrue($definition->isPublic());
 
         // Manager services – bar_manager
@@ -60,7 +61,7 @@ class CodefogTagsExtensionTest extends TestCase
         $this->assertEquals('bar_manager', $definition->getArgument(0));
         $this->assertEquals('tl_table_bar', $definition->getArgument(1));
         $this->assertEquals('tags_bar', $definition->getArgument(2));
-        $this->assertEquals([['alias' => 'bar_manager']], $definition->getTag('codefog_tags.default_manager'));
+        $this->assertEquals([['alias' => 'bar_manager']], $definition->getTag(ManagerPass::TAG_NAME));
         $this->assertTrue($definition->isPublic());
         $this->assertTrue($container->hasAlias('bar_alias'));
     }

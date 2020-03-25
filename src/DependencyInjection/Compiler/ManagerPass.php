@@ -18,26 +18,21 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class ManagerPass implements CompilerPassInterface
 {
+    const TAG_NAME = 'codefog_tags.manager';
+
     /**
      * @var string
      */
     private $registryName;
 
     /**
-     * @var string
-     */
-    private $tagName;
-
-    /**
      * ManagerPass constructor.
      *
      * @param string $registryName
-     * @param string $tagName
      */
-    public function __construct($registryName, $tagName)
+    public function __construct($registryName)
     {
         $this->registryName = $registryName;
-        $this->tagName = $tagName;
     }
 
     /**
@@ -51,7 +46,7 @@ class ManagerPass implements CompilerPassInterface
 
         $definition = $container->getDefinition($this->registryName);
 
-        foreach ($container->findTaggedServiceIds($this->tagName) as $id => $tags) {
+        foreach ($container->findTaggedServiceIds(self::TAG_NAME) as $id => $tags) {
             foreach ($tags as $attributes) {
                 $definition->addMethodCall('add', [new Reference($id), $attributes['alias']]);
             }

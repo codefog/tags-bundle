@@ -23,6 +23,6 @@ class CodefogTagsBundle extends Bundle
      */
     public function build(ContainerBuilder $container): void
     {
-        $container->addCompilerPass(new ManagerPass('codefog_tags.manager_registry', 'codefog_tags.manager'));
+        $container->addCompilerPass(new ManagerPass('codefog_tags.manager_registry'));
     }
 }

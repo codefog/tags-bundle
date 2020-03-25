@@ -16,10 +16,10 @@ class ManagerPassTest extends TestCase
         $registryDefinition = new Definition();
 
         $managerDefinition1 = new Definition();
-        $managerDefinition1->addTag('tag', ['alias' => 'foo']);
+        $managerDefinition1->addTag(ManagerPass::TAG_NAME, ['alias' => 'foo']);
 
         $managerDefinition2 = new Definition();
-        $managerDefinition2->addTag('tag', ['alias' => 'bar']);
+        $managerDefinition2->addTag(ManagerPass::TAG_NAME, ['alias' => 'bar']);
 
         $container = new ContainerBuilder();
         $container->addDefinitions([
@@ -46,6 +46,6 @@ class ManagerPassTest extends TestCase
 
     private function mockCompilerPass(): ManagerPass
     {
-        return new ManagerPass('registry', 'tag');
+        return new ManagerPass('registry');
     }
 }
