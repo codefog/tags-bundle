@@ -25,6 +25,23 @@ of [codefog/contao-haste](https://github.com/codefog/contao-haste) behind the sc
 In order to provide your own tags manager you have to implement the `Codefog\TagsBundle\Manager\ManagerInterface` interface.
 A good example is the default manager which can be found in `Codefog\TagsBundle\Manager\DefaultManager`.
 
+Once you define a custom tags manager service, you can reference it in the configuration as shown below:
+
+```yaml
+# services.yml
+app.page_tags_manager:
+    class: App\PageTagsManager
+    arguments:
+        - '@app.my_service'
+
+# config/config.yml
+codefog_tags:
+    managers:
+        page:
+            source: 'tl_page.app_tags'
+            service: 'app.page_tags_manager'
+```
+
 ### DCA field update
 
 If you would like to handle every DCA field that uses your manager, make sure that your class implements the
