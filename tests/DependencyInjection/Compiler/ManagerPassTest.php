@@ -16,10 +16,10 @@ class ManagerPassTest extends TestCase
         $registryDefinition = new Definition();
 
         $managerDefinition1 = new Definition();
-        $managerDefinition1->addTag('tag', ['name' => 'foo']);
+        $managerDefinition1->addTag('tag', ['alias' => 'foo']);
 
         $managerDefinition2 = new Definition();
-        $managerDefinition2->addTag('tag', ['name' => 'bar']);
+        $managerDefinition2->addTag('tag', ['alias' => 'bar']);
 
         $container = new ContainerBuilder();
         $container->addDefinitions([

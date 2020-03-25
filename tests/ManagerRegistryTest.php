@@ -5,7 +5,6 @@ namespace Codefog\TagsBundle\Test;
 use Codefog\TagsBundle\Manager\DefaultManager;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 
 class ManagerRegistryTest extends TestCase
@@ -42,6 +41,6 @@ class ManagerRegistryTest extends TestCase
 
     private function mockRegistry(): ManagerRegistry
     {
-        return new ManagerRegistry($this->createMock(Connection::class));
+        return new ManagerRegistry();
     }
 }

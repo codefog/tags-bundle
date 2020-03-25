@@ -13,29 +13,15 @@ declare(strict_types=1);
 namespace Codefog\TagsBundle;
 
 use Codefog\TagsBundle\Manager\ManagerInterface;
-use Doctrine\DBAL\Connection;
 
 class ManagerRegistry
 {
-    /**
-     * @var Connection
-     */
-    private $db;
-
     /**
      * Managers.
      *
      * @var array
      */
     private $managers = [];
-
-    /**
-     * ManagerRegistry constructor.
-     */
-    public function __construct(Connection $db)
-    {
-        $this->db = $db;
-    }
 
     /**
      * Add the manager.

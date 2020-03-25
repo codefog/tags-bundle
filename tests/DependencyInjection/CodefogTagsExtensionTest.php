@@ -50,7 +50,7 @@ class CodefogTagsExtensionTest extends TestCase
         $this->assertEquals('foo_manager', $definition->getArgument(0));
         $this->assertEquals('tl_table_foo', $definition->getArgument(1));
         $this->assertEquals('tags_foo', $definition->getArgument(2));
-        $this->assertEquals([['name' => 'foo_manager']], $definition->getTag('codefog_tags.default_manager'));
+        $this->assertEquals([['alias' => 'foo_manager']], $definition->getTag('codefog_tags.default_manager'));
         $this->assertTrue($definition->isPublic());
 
         // Manager services – bar_manager
@@ -60,7 +60,7 @@ class CodefogTagsExtensionTest extends TestCase
         $this->assertEquals('bar_manager', $definition->getArgument(0));
         $this->assertEquals('tl_table_bar', $definition->getArgument(1));
         $this->assertEquals('tags_bar', $definition->getArgument(2));
-        $this->assertEquals([['name' => 'bar_manager']], $definition->getTag('codefog_tags.default_manager'));
+        $this->assertEquals([['alias' => 'bar_manager']], $definition->getTag('codefog_tags.default_manager'));
         $this->assertTrue($definition->isPublic());
         $this->assertTrue($container->hasAlias('bar_alias'));
     }
