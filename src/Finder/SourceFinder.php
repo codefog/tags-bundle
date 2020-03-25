@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\Finder;
 
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Doctrine\DBAL\Connection;
 use Haste\Model\Model;
 use Haste\Model\Relations;
@@ -25,17 +24,11 @@ class SourceFinder
     private $db;
 
     /**
-     * @var ContaoFrameworkInterface
-     */
-    private $framework;
-
-    /**
      * DefaultFinder constructor.
      */
-    public function __construct(Connection $db, ContaoFrameworkInterface $framework)
+    public function __construct(Connection $db)
     {
         $this->db = $db;
-        $this->framework = $framework;
     }
 
     /**
@@ -58,10 +51,7 @@ class SourceFinder
             $ids[] = $tag->getValue();
         }
 
-        /** @var Model $adapter */
-        $adapter = $this->framework->getAdapter(Model::class);
-
-        $values = $adapter->getReferenceValues($criteria->getSourceTable(), $criteria->getSourceField(), $ids);
+        $values = Model::getReferenceValues($criteria->getSourceTable(), $criteria->getSourceField(), $ids);
         $values = array_values(array_unique($values));
 
         return array_map('intval', $values);
@@ -78,17 +68,11 @@ class SourceFinder
             throw new \RuntimeException('No IDs have been provided');
         }
 
-        /** @var Relations $relations */
-        $relations = $this->framework->getAdapter(Relations::class);
-
-        if (false === ($relation = $relations->getRelation($criteria->getSourceTable(), $criteria->getSourceField()))) {
+        if (false === ($relation = Relations::getRelation($criteria->getSourceTable(), $criteria->getSourceField()))) {
             throw new \RuntimeException(sprintf('The field %s.%s is not related', $criteria->getSourceTable(), $criteria->getSourceField()));
         }
 
-        /** @var Model $relationsModel */
-        $relationsModel = $this->framework->getAdapter(Model::class);
-
-        $tagIds = $relationsModel->getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getIds());
+        $tagIds = Model::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getIds());
         $tagIds = array_values(array_unique($tagIds));
         $tagIds = array_map('intval', $tagIds);
 

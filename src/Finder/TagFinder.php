@@ -15,7 +15,6 @@ namespace Codefog\TagsBundle\Finder;
 use Codefog\TagsBundle\Exception\NoTagsException;
 use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Doctrine\DBAL\Connection;
 use Haste\Model\Model;
 
@@ -27,17 +26,11 @@ class TagFinder
     private $db;
 
     /**
-     * @var ContaoFrameworkInterface
-     */
-    private $framework;
-
-    /**
      * DefaultFinder constructor.
      */
-    public function __construct(Connection $db, ContaoFrameworkInterface $framework)
+    public function __construct(Connection $db)
     {
         $this->db = $db;
-        $this->framework = $framework;
     }
 
     /**
@@ -112,11 +105,8 @@ class TagFinder
      */
     public function getTopTagIds(TagCriteria $criteria, int $limit = null, bool $withCount = false): array
     {
-        /** @var Model $model */
-        $model = $this->framework->getAdapter(Model::class);
-
         // No array_unique() here!
-        $tagIds = $model->getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getSourceIds());
+        $tagIds = Model::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getSourceIds());
         $tagIds = array_map('intval', $tagIds);
 
         if (0 === \count($tagIds)) {
@@ -182,10 +172,7 @@ class TagFinder
 
         // Find by source IDs
         if (\count($sourceIds = $criteria->getSourceIds()) > 0) {
-            /** @var Model $model */
-            $model = $this->framework->getAdapter(Model::class);
-
-            $ids = $model->getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $sourceIds);
+            $ids = Model::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $sourceIds);
             $ids = array_values(array_unique($ids));
             $ids = array_map('intval', $ids);
 
@@ -201,10 +188,7 @@ class TagFinder
 
         // Find only the used tags
         if ($criteria->isUsedOnly()) {
-            /** @var Model $model */
-            $model = $this->framework->getAdapter(Model::class);
-
-            $ids = $model->getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField());
+            $ids = Model::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField());
             $ids = array_values(array_unique($ids));
             $ids = array_map('intval', $ids);
 
