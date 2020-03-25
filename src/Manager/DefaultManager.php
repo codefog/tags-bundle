@@ -76,7 +76,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         $criteria = $this->createTagCriteria($source);
 
         if (\is_array($values)) {
-            $criteria->setValues($values);
+            $criteria->setValues(count($values) ? $values : [0]);
         }
 
         return $this->tagFinder->findMultiple($criteria);
