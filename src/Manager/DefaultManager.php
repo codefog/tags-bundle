@@ -77,10 +77,13 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * {@inheritdoc}
      */
-    public function getMultipleTags(array $values = []): array
+    public function getMultipleTags(array $values = null): array
     {
         $criteria = $this->createTagCriteria();
-        $criteria->setValues($values);
+
+        if (\is_array($values)) {
+            $criteria->setValues($values);
+        }
 
         return $this->tagFinder->findMultiple($criteria);
     }
