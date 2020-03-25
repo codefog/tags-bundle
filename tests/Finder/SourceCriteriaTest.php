@@ -10,9 +10,10 @@ class SourceCriteriaTest extends TestCase
 {
     public function testAll()
     {
-        $criteria = new SourceCriteria('my_manager', 'tl_table', 'tags');
+        $criteria = new SourceCriteria('my_manager', 'tl_table.tags');
 
         $this->assertEquals('my_manager', $criteria->getName());
+        $this->assertEquals('tl_table.tags', $criteria->getSource());
         $this->assertEquals('tl_table', $criteria->getSourceTable());
         $this->assertEquals('tags', $criteria->getSourceField());
         $this->assertEquals([], $criteria->getIds());

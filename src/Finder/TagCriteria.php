@@ -22,12 +22,7 @@ class TagCriteria
     /**
      * @var string
      */
-    protected $sourceTable;
-
-    /**
-     * @var string
-     */
-    protected $sourceField;
+    protected $source;
 
     /**
      * @var array
@@ -52,11 +47,10 @@ class TagCriteria
     /**
      * Criteria constructor.
      */
-    public function __construct(string $name, string $sourceTable, string $sourceField)
+    public function __construct(string $name, string $source)
     {
         $this->name = $name;
-        $this->sourceTable = $sourceTable;
-        $this->sourceField = $sourceField;
+        $this->source = $source;
     }
 
     public function getName(): string
@@ -64,14 +58,19 @@ class TagCriteria
         return $this->name;
     }
 
+    public function getSource(): string
+    {
+        return $this->source;
+    }
+
     public function getSourceTable(): string
     {
-        return $this->sourceTable;
+        return explode('.', $this->source)[0];
     }
 
     public function getSourceField(): string
     {
-        return $this->sourceField;
+        return explode('.', $this->source, 2)[1];
     }
 
     public function getAliases(): array

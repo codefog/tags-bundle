@@ -16,8 +16,7 @@ In the first place you have to configure the available managers. This can be don
 codefog_tags:
     managers:
         my_manager:
-            table: 'tl_table'
-            field: 'tags'
+            source: 'tl_table.tags' # in format <table>.<field>, or an array of such
             service: '' # optional, manager service to use (defaults to "codefog_tags.default_manager")
             alias: '' # optional, alias of the newly created service
 ```
@@ -37,7 +36,8 @@ Once the manager is registered, you can create a new field in the desired DCA ta
     'inputType' => 'cfgTags',
     'eval' => [
         'tagsManager' => 'my_manager', // Manager name, required
-        'tagsCreate'  => false, // Allow to create tags, optional (true by default)
+        'tagsCreate' => false, // Allow to create tags, optional (true by default)
+        'tagsSource' => 'tl_table.tags', // Tag source, optional (defaults to current table and current field)
         'maxItems' => 5, // Maximum number of tags allowed
         'hideList' => true, // Hide the list of tags; the input field will be still visible
         'tl_class' => 'clr'

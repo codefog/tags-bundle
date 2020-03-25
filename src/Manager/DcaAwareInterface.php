@@ -19,7 +19,7 @@ interface DcaAwareInterface
     /**
      * Update the DCA field.
      */
-    public function updateDcaField(array &$config): void;
+    public function updateDcaField(string $table, string $field, array &$config): void;
 
     /**
      * Save the DCA field.

@@ -18,14 +18,15 @@ class CodefogTagsExtensionTest extends TestCase
         $extension->load([
             'codefog_tags' => [
                 'managers' => [
-                    'foo_manager' => [
-                        'table' => 'tl_table_foo',
-                        'field' => 'tags_foo',
+                    'manager_1' => [
+                        'source' => 'tl_table_foo.tags_foo',
                         'service' => ManagerPass::TAG_NAME,
                     ],
-                    'bar_manager' => [
-                        'table' => 'tl_table_bar',
-                        'field' => 'tags_bar',
+                    'manager_2' => [
+                        'source' => [
+                            'tl_table_bar_1.tags_bar_1',
+                            'tl_table_bar_2.tags_bar_2',
+                        ],
                         'service' => 'codefog_tags.custom_manager',
                         'alias' => 'bar_alias'
                     ],
@@ -45,24 +46,22 @@ class CodefogTagsExtensionTest extends TestCase
         $this->assertTrue($container->hasDefinition('codefog_tags.manager_registry'));
         $this->assertTrue($container->getDefinition('codefog_tags.manager_registry')->isPublic());
 
-        // Manager services – foo_manager
-        $definition = $container->getDefinition('codefog_tags.manager.foo_manager');
+        // Manager services – manager_1
+        $definition = $container->getDefinition('codefog_tags.manager.manager_1');
 
-        $this->assertTrue($container->hasDefinition('codefog_tags.manager.foo_manager'));
-        $this->assertEquals('foo_manager', $definition->getArgument(0));
-        $this->assertEquals('tl_table_foo', $definition->getArgument(1));
-        $this->assertEquals('tags_foo', $definition->getArgument(2));
-        $this->assertEquals([['alias' => 'foo_manager']], $definition->getTag(ManagerPass::TAG_NAME));
+        $this->assertTrue($container->hasDefinition('codefog_tags.manager.manager_1'));
+        $this->assertEquals('manager_1', $definition->getArgument(0));
+        $this->assertEquals(['tl_table_foo.tags_foo'], $definition->getArgument(1));
+        $this->assertEquals([['alias' => 'manager_1']], $definition->getTag(ManagerPass::TAG_NAME));
         $this->assertTrue($definition->isPublic());
 
-        // Manager services – bar_manager
-        $definition = $container->getDefinition('codefog_tags.manager.bar_manager');
+        // Manager services – manager_2
+        $definition = $container->getDefinition('codefog_tags.manager.manager_2');
 
-        $this->assertTrue($container->hasDefinition('codefog_tags.manager.bar_manager'));
-        $this->assertEquals('bar_manager', $definition->getArgument(0));
-        $this->assertEquals('tl_table_bar', $definition->getArgument(1));
-        $this->assertEquals('tags_bar', $definition->getArgument(2));
-        $this->assertEquals([['alias' => 'bar_manager']], $definition->getTag(ManagerPass::TAG_NAME));
+        $this->assertTrue($container->hasDefinition('codefog_tags.manager.manager_2'));
+        $this->assertEquals('manager_2', $definition->getArgument(0));
+        $this->assertEquals(['tl_table_bar_1.tags_bar_1', 'tl_table_bar_2.tags_bar_2'], $definition->getArgument(1));
+        $this->assertEquals([['alias' => 'manager_2']], $definition->getTag(ManagerPass::TAG_NAME));
         $this->assertTrue($definition->isPublic());
         $this->assertTrue($container->hasAlias('bar_alias'));
     }

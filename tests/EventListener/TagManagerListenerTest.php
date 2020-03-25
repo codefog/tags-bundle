@@ -16,7 +16,7 @@ class TagManagerListenerTest extends TestCase
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field1' => [
                 'inputType' => 'cfgTags',
-                'eval' => ['tagsManager' => 'foobar'],
+                'eval' => ['tagsManager' => 'foobar', 'tagsSource' => 'tl_table.field1'],
             ],
             'field2' => [
                 'inputType' => 'text',
@@ -33,7 +33,7 @@ class TagManagerListenerTest extends TestCase
         $this->assertEquals([
             'field1' => [
                 'inputType' => 'cfgTags',
-                'eval' => ['tagsManager' => 'foobar'],
+                'eval' => ['tagsManager' => 'foobar', 'tagsSource' => 'tl_table.field1'],
                 'dummy' => true,
             ],
             'field2' => [
@@ -62,7 +62,7 @@ class TagManagerListenerTest extends TestCase
         $this->assertEquals([], $GLOBALS['TL_DCA']['tl_table']);
     }
 
-    public function testOnFieldSave()
+    public function testOnFieldSaveCallback()
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
@@ -79,10 +79,10 @@ class TagManagerListenerTest extends TestCase
             ])
         ;
 
-        $this->assertEquals('FOOBAR', $this->mockListener()->onFieldSave('foobar', $dataContainer));
+        $this->assertEquals('FOOBAR', $this->mockListener()->onFieldSaveCallback('foobar', $dataContainer));
     }
 
-    public function testOnFieldSaveManagerUnsupported()
+    public function testOnFieldSaveCallbackManagerUnsupported()
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
@@ -101,7 +101,7 @@ class TagManagerListenerTest extends TestCase
 
         $listener = $this->mockListener($this->createMock(ManagerInterface::class));
 
-        $this->assertEquals('foobar', $listener->onFieldSave('foobar', $dataContainer));
+        $this->assertEquals('foobar', $listener->onFieldSaveCallback('foobar', $dataContainer));
     }
 
     public function testOnOptionsCallback()

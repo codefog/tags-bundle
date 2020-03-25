@@ -65,8 +65,6 @@ $this->tagsManager->getSourceFinder()->findRelatedSourceRecords($criteria->setId
 The tags can be obtained using the `TagFinder` service obtained from the tag manager.
 
 ```php
-use Codefog\TagsBundle\Tag;
-
 // Set some dummy criteria
 $criteria = $this->tagsManager->createTagCriteria()->setSourceIds([1, 2, 3]);
 
@@ -81,4 +79,17 @@ $this->tagsManager->getTagFinder()->getTopTagIds($criteria, 10, true);
 
 // Find a single tag with "foo" value
 $this->tagsManager->getTagFinder()->findSingle($criteria->setValue('foo'));
+``` 
+
+## Note on multiple sources
+
+If you defined multiple sources for a tag manager, you may need to explicitly define the source which you will
+fetch the data from:
+
+```php
+// Tag criteria
+$criteria = $this->tagsManager->createTagCriteria('tl_table_1.tags');
+
+// Source criteria
+$criteria = $this->tagsManager->createSourceCriteria('tl_table_2.tags');
 ``` 

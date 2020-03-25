@@ -44,7 +44,7 @@ class CodefogTagsExtension extends ConfigurableExtension
 
         $container
             ->setDefinition($id, new ChildDefinition($config['service']))
-            ->setArguments([$name, $config['table'], $config['field']])
+            ->setArguments([$name, $config['source']])
             ->addTag(ManagerPass::TAG_NAME, ['alias' => $name])
             ->setPublic(true)
         ;

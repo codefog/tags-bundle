@@ -43,16 +43,16 @@ class TagManagerListener
 
         $hasTagsFields = false;
 
-        foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $name => &$field) {
-            if ('cfgTags' !== $field['inputType']) {
+        foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $field => &$config) {
+            if ('cfgTags' !== $config['inputType']) {
                 continue;
             }
 
             $hasTagsFields = true;
-            $manager = $this->registry->get($field['eval']['tagsManager']);
+            $manager = $this->registry->get($config['eval']['tagsManager']);
 
             if ($manager instanceof DcaAwareInterface) {
-                $manager->updateDcaField($field);
+                $manager->updateDcaField($table, $field, $config);
             }
         }
 
@@ -65,7 +65,7 @@ class TagManagerListener
     /**
      * On the field save.
      */
-    public function onFieldSave(string $value, DataContainer $dc): string
+    public function onFieldSaveCallback(string $value, DataContainer $dc): string
     {
         if (null !== ($manager = $this->getManagerFromDca($dc))) {
             $value = $manager->saveDcaField($value, $dc);

@@ -134,7 +134,7 @@ class TagsWidget extends Widget
      */
     protected function getValueTags(): array
     {
-        return $this->tagsManager->getMultipleTags(\is_array($this->varValue) ? $this->varValue : []);
+        return $this->tagsManager->getMultipleTags($this->tagsSource,\is_array($this->varValue) ? $this->varValue : []);
     }
 
     /**
@@ -142,7 +142,7 @@ class TagsWidget extends Widget
      */
     protected function getAllTags(): array
     {
-        return $this->tagsManager->getMultipleTags();
+        return $this->tagsManager->getMultipleTags($this->tagsSource);
     }
 
     /**

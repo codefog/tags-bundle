@@ -29,8 +29,17 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()
                     ->children()
-                        ->scalarNode('table')->isRequired()->end()
-                        ->scalarNode('field')->isRequired()->end()
+                        ->variableNode('source')
+                            ->isRequired()
+                            ->validate()
+                                ->ifString()
+                                ->then(
+                                    static function (string $value): array {
+                                        return [$value];
+                                    }
+                                )
+                            ->end()
+                        ->end()
                         ->scalarNode('service')->defaultValue('codefog_tags.default_manager')->end()
                         ->scalarNode('alias')->defaultNull()->end()
                     ->end()

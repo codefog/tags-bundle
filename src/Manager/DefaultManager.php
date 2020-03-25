@@ -29,14 +29,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     protected $name;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $sourceTable;
-
-    /**
-     * @var string
-     */
-    protected $sourceField;
+    protected $sources;
 
     /**
      * @var TagFinder
@@ -51,11 +46,10 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * DefaultManager constructor.
      */
-    public function __construct(string $name, string $sourceTable, string $sourceField)
+    public function __construct(string $name, array $sources)
     {
         $this->name = $name;
-        $this->sourceTable = $sourceTable;
-        $this->sourceField = $sourceField;
+        $this->sources = $sources;
     }
 
     /**
@@ -77,9 +71,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * {@inheritdoc}
      */
-    public function getMultipleTags(array $values = null): array
+    public function getMultipleTags(string $source = null, array $values = null): array
     {
-        $criteria = $this->createTagCriteria();
+        $criteria = $this->createTagCriteria($source);
 
         if (\is_array($values)) {
             $criteria->setValues($values);
@@ -91,7 +85,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * {@inheritdoc}
      */
-    public function updateDcaField(array &$config): void
+    public function updateDcaField(string $table, string $field, array &$config): void
     {
         // Set the relation
         $config['relation'] = array_merge(
@@ -101,14 +95,19 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
 
         // Set the save_callback
         if (isset($config['save_callback']) && \is_array($config['save_callback'])) {
-            array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
+            array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback']);
         } else {
-            $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSave'];
+            $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback'];
         }
 
         // Set the options_callback
         if (!isset($config['options_callback'])) {
             $config['options_callback'] = ['codefog_tags.listener.tag_manager', 'onOptionsCallback'];
+        }
+
+        // Set the tag source
+        if (!isset($config['eval']['tagsSource'])) {
+            $config['eval']['tagsSource'] = $table . '.' . $field;
         }
     }
 
@@ -118,7 +117,8 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     public function saveDcaField(string $value, DataContainer $dc): string
     {
         $value = StringUtil::deserialize($value, true);
-        $criteria = $this->createTagCriteria();
+        $source = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource'] ?? null;
+        $criteria = $this->createTagCriteria($source);
 
         /** @var array $value */
         foreach ($value as $k => $v) {
@@ -146,9 +146,17 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     {
         $options = [];
 
-        /** @var Tag $tag */
-        foreach ($this->tagFinder->findMultiple($this->createTagCriteria()->setUsedOnly(true)) as $tag) {
-            $options[$tag->getValue()] = $tag->getName();
+        if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource'])) {
+            $sources = [$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource']];
+        } else {
+            $sources = $this->sources;
+        }
+
+        foreach ($sources as $source) {
+            /** @var Tag $tag */
+            foreach ($this->tagFinder->findMultiple($this->createTagCriteria($source)->setUsedOnly(true)) as $tag) {
+                $options[$tag->getValue()] = $tag->getName();
+            }
         }
 
         return $options;
@@ -159,11 +167,23 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
      */
     public function getSourceRecordsCount(array $data, DataContainer $dc): int
     {
-        if (null === ($tag = $this->tagFinder->findSingle($this->createTagCriteria()->setValue((string) $data['id'])))) {
-            return 0;
+        if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource'])) {
+            $sources = [$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource']];
+        } else {
+            $sources = $this->sources;
         }
 
-        return $this->sourceFinder->count($this->createSourceCriteria()->setTag($tag));
+        $total = 0;
+
+        foreach ($sources as $source) {
+            if (null === ($tag = $this->tagFinder->findSingle($this->createTagCriteria($source)->setValue((string) $data['id'])))) {
+                continue;
+            }
+
+            $total += $this->sourceFinder->count($this->createSourceCriteria($source)->setTag($tag));
+        }
+
+        return $total;
     }
 
     /**
@@ -171,7 +191,16 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
      */
     public function getInsertTagValue(string $value, string $property, array $elements): string
     {
-        if (null === ($tag = $this->tagFinder->findSingle($this->createTagCriteria()->setValue($value)))) {
+        $tag = null;
+
+        // Find the tag in all sources
+        foreach ($this->sources as $source) {
+            if (null !== ($tag = $this->tagFinder->findSingle($this->createTagCriteria($source)->setValue($value)))) {
+                break;
+            }
+        }
+
+        if ($tag === null) {
             return '';
         }
 
@@ -195,9 +224,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Create the tag criteria.
      */
-    public function createTagCriteria(): TagCriteria
+    public function createTagCriteria(string $source = null): TagCriteria
     {
-        return new TagCriteria($this->name, $this->sourceTable, $this->sourceField);
+        return new TagCriteria($this->name, $this->getSource($source));
     }
 
     /**
@@ -211,8 +240,22 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Create the source criteria.
      */
-    public function createSourceCriteria(): SourceCriteria
+    public function createSourceCriteria(string $source = null): SourceCriteria
     {
-        return new SourceCriteria($this->name, $this->sourceTable, $this->sourceField);
+        return new SourceCriteria($this->name, $this->getSource($source));
+    }
+
+    /**
+     * Get the source.
+     */
+    protected function getSource(string $source = null): string
+    {
+        if (null === $source) {
+            $source = $this->sources[0];
+        } elseif (!\in_array($source, $this->sources, true)) {
+            throw new \InvalidArgumentException(sprintf('Invalid source "%s"!', $source));
+        }
+
+        return $source;
     }
 }

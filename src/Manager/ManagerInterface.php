@@ -17,5 +17,5 @@ interface ManagerInterface
     /**
      * Get multiple tags optionally filtered by values.
      */
-    public function getMultipleTags(array $values = null): array;
+    public function getMultipleTags(string $source = null, array $values = null): array;
 }

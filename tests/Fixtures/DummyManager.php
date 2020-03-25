@@ -12,7 +12,7 @@ class DummyManager implements ManagerInterface, DcaAwareInterface
     /**
      * @inheritDoc
      */
-    public function updateDcaField(array &$config): void
+    public function updateDcaField(string $table, string $field, array &$config): void
     {
         $config['dummy'] = true;
     }
@@ -44,7 +44,7 @@ class DummyManager implements ManagerInterface, DcaAwareInterface
     /**
      * @inheritDoc
      */
-    public function getMultipleTags(array $values = null): array
+    public function getMultipleTags(string $source = null, array $values = null): array
     {
         return [];
     }

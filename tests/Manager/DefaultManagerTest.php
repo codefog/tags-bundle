@@ -19,7 +19,7 @@ class DefaultManagerTest extends ContaoTestCase
         $tag1 = new Tag('tag1', 'foo');
         $tag2 = new Tag('tag2', 'bar');
 
-        $tags = $this->mockManager(['findMultiple' => [$tag1, $tag2]])->getMultipleTags();
+        $tags = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getMultipleTags('tl_table.tags', ['tag1']);
 
         $this->assertCount(2, $tags);
         $this->assertContains($tag1, $tags);
@@ -30,28 +30,33 @@ class DefaultManagerTest extends ContaoTestCase
     {
         $dca = [];
 
-        $this->mockManager()->updateDcaField($dca);
+        $this->mockManager(['tl_table.tags'])->updateDcaField('tl_table', 'tags', $dca);
 
         $this->assertEquals(['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag'], $dca['relation']);
         $this->assertEquals(['codefog_tags.listener.tag_manager', 'onOptionsCallback'], $dca['options_callback']);
-        $this->assertEquals([['codefog_tags.listener.tag_manager', 'onFieldSave']], $dca['save_callback']);
+        $this->assertEquals('tl_table.tags', $dca['eval']['tagsSource']);
+        $this->assertEquals([['codefog_tags.listener.tag_manager', 'onFieldSaveCallback']], $dca['save_callback']);
     }
 
     public function testUpdateDcaFieldVariant2()
     {
         $dca = [
             'options_callback' => ['listener', 'options_method'],
+            'eval' => [
+                'tagsSource' => 'tl_table.tags',
+            ],
             'save_callback' => [
                 ['listener', 'save_method']
             ],
         ];
 
-        $this->mockManager()->updateDcaField($dca);
+        $this->mockManager(['tl_table.tags'])->updateDcaField('tl_table_2', 'tags', $dca);
 
         $this->assertEquals(['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag'], $dca['relation']);
         $this->assertEquals(['listener', 'options_method'], $dca['options_callback']);
+        $this->assertEquals('tl_table.tags', $dca['eval']['tagsSource']);
         $this->assertEquals([
-            ['codefog_tags.listener.tag_manager', 'onFieldSave'],
+            ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback'],
             ['listener', 'save_method'],
         ], $dca['save_callback']);
     }
@@ -59,7 +64,7 @@ class DefaultManagerTest extends ContaoTestCase
     public function testSaveDcaFieldNewTags()
     {
         $tag = new Tag('bar', 'foo');
-        $manager = $this->mockManager(['findSingle' => null, 'createTagFromModel' => $tag]);
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null, 'createTagFromModel' => $tag]);
 
         $value = $manager->saveDcaField(serialize(['new-tag']), $this->createMock(DataContainer::class));
         $value = StringUtil::deserialize($value, true);
@@ -71,7 +76,7 @@ class DefaultManagerTest extends ContaoTestCase
     public function testSaveDcaFieldNoNewTags()
     {
         $tag = new Tag('bar', 'foo');
-        $manager = $this->mockManager(['findSingle' => $tag]);
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => $tag]);
 
         $value = $manager->saveDcaField(serialize(['existing-tag']), $this->createMock(DataContainer::class));
         $value = StringUtil::deserialize($value, true);
@@ -85,14 +90,35 @@ class DefaultManagerTest extends ContaoTestCase
         $tag1 = new Tag('tag1', 'foo');
         $tag2 = new Tag('tag2', 'bar');
 
-        $options = $this->mockManager(['findMultiple' => [$tag1, $tag2]])->getFilterOptions($this->createMock(DataContainer::class));
+        $options = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getFilterOptions($this->createMock(DataContainer::class));
+
+        $this->assertEquals(['tag1' => 'foo', 'tag2' => 'bar'], $options);
+    }
+
+    public function testGetFilterOptionsWithPredefinedTagsSource()
+    {
+        $tag1 = new Tag('tag1', 'foo');
+        $tag2 = new Tag('tag2', 'bar');
+
+        $GLOBALS['TL_DCA']['tl_table']['fields']['tags']['eval']['tagsSource'] = 'tl_table.tags';
+
+        $dataContainer = $this->createMock(DataContainer::class);
+        $dataContainer
+            ->method('__get')
+            ->willReturnMap([
+                ['table', 'tl_table'],
+                ['field', 'tags'],
+            ])
+        ;
+
+        $options = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getFilterOptions($dataContainer);
 
         $this->assertEquals(['tag1' => 'foo', 'tag2' => 'bar'], $options);
     }
 
     public function testGetSourceRecordsCountEmpty()
     {
-        $manager = $this->mockManager(['findSingle' => null]);
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null]);
 
         $count = $manager->getSourceRecordsCount(['id' => 1], $this->createMock(DataContainer::class));
 
@@ -102,16 +128,37 @@ class DefaultManagerTest extends ContaoTestCase
     public function testGetSourceRecordsCount()
     {
         $tag = new Tag('bar', 'foo');
-        $manager = $this->mockManager(['findSingle' => $tag], ['count' => 3]);
+        $manager = $this->mockManager(['tl_table.tags', 'tl_table_2.tags'], ['findSingle' => $tag], ['count' => 3]);
 
         $count = $manager->getSourceRecordsCount(['id' => 1], $this->createMock(DataContainer::class));
+
+        $this->assertEquals(6, $count);
+    }
+
+    public function testGetSourceRecordsCountWithPredefinedTagsSource()
+    {
+        $tag = new Tag('bar', 'foo');
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => $tag], ['count' => 3]);
+
+        $GLOBALS['TL_DCA']['tl_table']['fields']['tags']['eval']['tagsSource'] = 'tl_table.tags';
+
+        $dataContainer = $this->createMock(DataContainer::class);
+        $dataContainer
+            ->method('__get')
+            ->willReturnMap([
+                ['table', 'tl_table'],
+                ['field', 'tags'],
+            ])
+        ;
+
+        $count = $manager->getSourceRecordsCount(['id' => 1], $dataContainer);
 
         $this->assertEquals(3, $count);
     }
 
     public function testGetInsertTagValueEmpty()
     {
-        $manager = $this->mockManager(['findSingle' => null]);
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null]);
 
         $this->assertEquals('', $manager->getInsertTagValue('my_manager', 'name', []));
     }
@@ -121,7 +168,7 @@ class DefaultManagerTest extends ContaoTestCase
         $tag = new Tag('bar', 'foo');
         $tag->setData(['foobar' => 'baz']);
 
-        $manager = $this->mockManager(['findSingle' => $tag]);
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => $tag]);
 
         $this->assertEquals('foo', $manager->getInsertTagValue('bar', 'name', []));
         $this->assertEquals('baz', $manager->getInsertTagValue('bar', 'foobar', []));
@@ -130,17 +177,17 @@ class DefaultManagerTest extends ContaoTestCase
 
     public function testGetTagFinder()
     {
-        $this->assertInstanceOf(TagFinder::class, $this->mockManager()->getTagFinder());
+        $this->assertInstanceOf(TagFinder::class, $this->mockManager(['tl_table.tags'])->getTagFinder());
     }
 
     public function testGetSourceFinder()
     {
-        $this->assertInstanceOf(SourceFinder::class, $this->mockManager()->getSourceFinder());
+        $this->assertInstanceOf(SourceFinder::class, $this->mockManager(['tl_table.tags'])->getSourceFinder());
     }
 
     public function testCreateTagCriteria()
     {
-        $criteria = $this->mockManager()->createTagCriteria();
+        $criteria = $this->mockManager(['tl_table.tags'])->createTagCriteria();
 
         $this->assertInstanceOf(TagCriteria::class, $criteria);
         $this->assertEquals($criteria->getName(), 'my_manager');
@@ -148,9 +195,17 @@ class DefaultManagerTest extends ContaoTestCase
         $this->assertEquals($criteria->getSourceField(), 'tags');
     }
 
+    public function testCreateTagCriteriaInvalidSource()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid source "tl_table_2.tags"!');
+
+        $this->mockManager(['tl_table.tags'])->createTagCriteria('tl_table_2.tags');
+    }
+
     public function testCreateSourceCriteria()
     {
-        $criteria = $this->mockManager()->createSourceCriteria();
+        $criteria = $this->mockManager(['tl_table.tags'])->createSourceCriteria();
 
         $this->assertInstanceOf(SourceCriteria::class, $criteria);
         $this->assertEquals($criteria->getName(), 'my_manager');
@@ -158,12 +213,20 @@ class DefaultManagerTest extends ContaoTestCase
         $this->assertEquals($criteria->getSourceField(), 'tags');
     }
 
-    private function mockManager(array $tags = [], array $sources = []): DefaultManager
+    public function testCreateSourceCriteriaInvalidSource()
     {
-        $sourceFinder = $this->createConfiguredMock(SourceFinder::class, $sources);
-        $tagFinder = $this->createConfiguredMock(TagFinder::class, $tags);
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid source "tl_table_2.tags"!');
 
-        $manager = new DefaultManager('my_manager', 'tl_table', 'tags');
+        $this->mockManager(['tl_table.tags'])->createSourceCriteria('tl_table_2.tags');
+    }
+
+    private function mockManager(array $sources, array $tagsFromFinder = [], array $sourcesFromFinder = []): DefaultManager
+    {
+        $sourceFinder = $this->createConfiguredMock(SourceFinder::class, $sourcesFromFinder);
+        $tagFinder = $this->createConfiguredMock(TagFinder::class, $tagsFromFinder);
+
+        $manager = new DefaultManager('my_manager', $sources);
         $manager->setTagFinder($tagFinder);
         $manager->setSourceFinder($sourceFinder);
 
