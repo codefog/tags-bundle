@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class ManagerPass implements CompilerPassInterface
 {
-    const TAG_NAME = 'codefog_tags.manager';
+    public const TAG_NAME = 'codefog_tags.manager';
 
     /**
      * @var string
