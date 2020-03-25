@@ -43,6 +43,7 @@ class CodefogTagsExtensionTest extends TestCase
         $this->assertTrue($container->hasDefinition('codefog_tags.tag_finder'));
         $this->assertTrue($container->hasDefinition('codefog_tags.source_finder'));
         $this->assertTrue($container->hasDefinition('codefog_tags.manager_registry'));
+        $this->assertTrue($container->getDefinition('codefog_tags.manager_registry')->isPublic());
 
         // Manager services – foo_manager
         $definition = $container->getDefinition('codefog_tags.manager.foo_manager');
