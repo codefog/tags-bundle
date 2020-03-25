@@ -8,8 +8,6 @@ services:
 
     codefog_tags.tag_finder:
         class: Codefog\TagsBundle\Finder\TagFinder
-        arguments:
-            - "@database_connection"
 
     codefog_tags.source_finder:
         class: Codefog\TagsBundle\Finder\SourceFinder

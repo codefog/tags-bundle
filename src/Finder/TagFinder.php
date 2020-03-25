@@ -15,24 +15,10 @@ namespace Codefog\TagsBundle\Finder;
 use Codefog\TagsBundle\Exception\NoTagsException;
 use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
-use Doctrine\DBAL\Connection;
 use Haste\Model\Model;
 
 class TagFinder
 {
-    /**
-     * @var Connection
-     */
-    private $db;
-
-    /**
-     * DefaultFinder constructor.
-     */
-    public function __construct(Connection $db)
-    {
-        $this->db = $db;
-    }
-
     /**
      * Count tags by criteria.
      */
