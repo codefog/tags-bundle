@@ -44,7 +44,7 @@ class DummyManager implements ManagerInterface, DcaAwareInterface
     /**
      * @inheritDoc
      */
-    public function getMultipleTags(array $values = []): array
+    public function getMultipleTags(array $values = null): array
     {
         return [];
     }
