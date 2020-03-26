@@ -53,10 +53,6 @@ class TagListener
 
     /**
      * TagListener constructor.
-     * @param Connection $db
-     * @param ManagerRegistry $registry
-     * @param RequestStack $requestStack
-     * @param SessionInterface $session
      */
     public function __construct(Connection $db, ManagerRegistry $registry, RequestStack $requestStack, SessionInterface $session)
     {

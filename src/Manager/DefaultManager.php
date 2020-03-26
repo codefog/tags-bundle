@@ -76,7 +76,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         $criteria = $this->createTagCriteria($source);
 
         if (\is_array($values)) {
-            $criteria->setValues(count($values) ? $values : [0]);
+            $criteria->setValues(\count($values) ? $values : [0]);
         }
 
         return $this->tagFinder->findMultiple($criteria);
@@ -107,7 +107,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
 
         // Set the tag source
         if (!isset($config['eval']['tagsSource'])) {
-            $config['eval']['tagsSource'] = $table . '.' . $field;
+            $config['eval']['tagsSource'] = $table.'.'.$field;
         }
     }
 
@@ -187,12 +187,12 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getTopTagIds(string $source = null): array
     {
         $ids = [];
-        $sources = ($source !== null) ? [$source] : $this->sources;
+        $sources = (null !== $source) ? [$source] : $this->sources;
 
         foreach ($sources as $source) {
             foreach ($this->getTagFinder()->getTopTagIds($this->createTagCriteria($source), null, true) as $id => $count) {
@@ -221,7 +221,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
             }
         }
 
-        if ($tag === null) {
+        if (null === $tag) {
             return '';
         }
 
