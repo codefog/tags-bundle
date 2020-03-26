@@ -48,13 +48,13 @@ does not know what kind of records you are expecting, so by default it always re
 use Codefog\TagsBundle\Tag;
 
 // Set some dummy criteria
-$criteria = $this->tagsManager->createSourceCriteria()->setTag(new Tag('foo', 'bar'));
+$criteria = $this->tagsManager->createSourceCriteria()->setTag(new Tag(123, 'foobar'));
 
 // Get total number of records
 $this->tagsManager->getSourceFinder()->count($criteria);
 
-// Find the source record IDs
-$this->tagsManager->getSourceFinder()->findMultiple($criteria);
+// Find the source record IDs with tag values/IDs 123 and 456
+$this->tagsManager->getSourceFinder()->findMultiple($criteria->setTagValues([123, 456]));
 
 // Find the source record IDs related to IDs set in criteria (e.g. 1, 2, 3) 
 $this->tagsManager->getSourceFinder()->findRelatedSourceRecords($criteria->setIds([1, 2, 3]));
@@ -77,8 +77,8 @@ $this->tagsManager->getTagFinder()->findMultiple($criteria);
 // Find the top 10 tag IDs 
 $this->tagsManager->getTagFinder()->getTopTagIds($criteria, 10, true);
 
-// Find a single tag with "foo" value
-$this->tagsManager->getTagFinder()->findSingle($criteria->setValue('foo'));
+// Find a single tag with 123 value/ID
+$this->tagsManager->getTagFinder()->findSingle($criteria->setValue(123));
 ``` 
 
 ## Note on multiple sources
