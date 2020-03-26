@@ -44,7 +44,7 @@ class SourceFinder
      */
     public function findMultiple(SourceCriteria $criteria): array
     {
-        $ids = [];
+        $ids = $criteria->getTagValues();
 
         // Collect tag IDs
         foreach ($criteria->getTags() as $tag) {

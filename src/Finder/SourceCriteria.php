@@ -37,6 +37,11 @@ class SourceCriteria
     protected $tags = [];
 
     /**
+     * @var array
+     */
+    protected $tagValues = [];
+
+    /**
      * Criteria constructor.
      */
     public function __construct(string $name, string $source)
@@ -98,6 +103,25 @@ class SourceCriteria
     public function setTag(Tag $tag): self
     {
         $this->tags = [$tag];
+
+        return $this;
+    }
+
+    public function getTagValues(): array
+    {
+        return $this->tagValues;
+    }
+
+    public function setTagValues(array $tagValues): self
+    {
+        $this->tagValues = $tagValues;
+
+        return $this;
+    }
+
+    public function setTagValue(string $tagValue): self
+    {
+        $this->tagValues = [$tagValue];
 
         return $this;
     }

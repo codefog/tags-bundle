@@ -26,5 +26,11 @@ class SourceCriteriaTest extends TestCase
 
         $criteria->setTag($tag3 = new Tag('quux', 'quux'));
         $this->assertEquals([$tag3], $criteria->getTags());
+
+        $criteria->setTagValues(['foo', 'bar']);
+        $this->assertEquals(['foo', 'bar'], $criteria->getTagValues());
+
+        $criteria->setTagValue('foobar');
+        $this->assertEquals(['foobar'], $criteria->getTagValues());
     }
 }
