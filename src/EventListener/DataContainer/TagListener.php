@@ -18,7 +18,6 @@ use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Model\TagModel;
 use Contao\Controller;
-use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\StringUtil;
@@ -38,11 +37,6 @@ class TagListener
     private $db;
 
     /**
-     * @var ContaoFramework
-     */
-    private $framework;
-
-    /**
      * @var ManagerRegistry
      */
     private $registry;
@@ -59,16 +53,14 @@ class TagListener
 
     /**
      * TagListener constructor.
+     * @param Connection $db
+     * @param ManagerRegistry $registry
+     * @param RequestStack $requestStack
+     * @param SessionInterface $session
      */
-    public function __construct(
-        Connection $db,
-        ContaoFramework $framework,
-        ManagerRegistry $registry,
-        RequestStack $requestStack,
-        SessionInterface $session
-    ) {
+    public function __construct(Connection $db, ManagerRegistry $registry, RequestStack $requestStack, SessionInterface $session)
+    {
         $this->db = $db;
-        $this->framework = $framework;
         $this->registry = $registry;
         $this->requestStack = $requestStack;
         $this->session = $session;
@@ -127,9 +119,7 @@ class TagListener
                 return;
         }
 
-        /** @var Database $db */
-        $db = $this->framework->createInstance(Database::class);
-        $dc->setOrderBy([$db->findInSet('id', array_keys($ids))]);
+        $dc->setOrderBy([Database::getInstance()->findInSet('id', array_keys($ids))]);
 
         // Prevent adding an extra column to the listing
         $dc->setFirstOrderBy('name');
@@ -211,17 +201,8 @@ class TagListener
         if ('tl_select' === $request->request->get('FORM_SUBMIT') && $request->request->has('alias')) {
             $ids = $this->session->all()['CURRENT']['IDS'];
 
-            /**
-             * @var Controller
-             * @var System     $systemAdapter
-             * @var TagModel   $tagAdapter
-             */
-            $controllerAdapter = $this->framework->getAdapter(Controller::class);
-            $systemAdapter = $this->framework->getAdapter(System::class);
-            $tagAdapter = $this->framework->getAdapter(TagModel::class);
-
             // Handle each model individually
-            if (null !== ($tagModels = $tagAdapter->findMultipleByIds($ids))) {
+            if (null !== ($tagModels = TagModel::findMultipleByIds($ids))) {
                 /** @var TagModel $tagModel */
                 foreach ($tagModels as $tagModel) {
                     $dc->id = $tagModel->id;
@@ -232,7 +213,7 @@ class TagListener
                     // Generate new alias through save callbacks
                     foreach ($GLOBALS['TL_DCA'][$dc->table]['fields']['alias']['save_callback'] as $callback) {
                         if (\is_array($callback)) {
-                            $alias = $systemAdapter->importStatic($callback[0])->{$callback[1]}($alias, $dc);
+                            $alias = System::importStatic($callback[0])->{$callback[1]}($alias, $dc);
                         } elseif (\is_callable($callback)) {
                             $alias = $callback($alias, $dc);
                         }
@@ -244,8 +225,7 @@ class TagListener
                     }
 
                     // Initialize the version manager
-                    /** @var Versions $versions */
-                    $versions = $this->framework->createInstance(Versions::class, [$dc->table, $tagModel->id]);
+                    $versions = new Versions($dc->table, $tagModel->id);
                     $versions->initialize();
 
                     // Store the new alias
@@ -256,7 +236,7 @@ class TagListener
                 }
             }
 
-            $controllerAdapter->redirect($systemAdapter->getReferer());
+            Controller::redirect(System::getReferer());
         }
 
         // Add the button

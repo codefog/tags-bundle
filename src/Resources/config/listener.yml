@@ -16,7 +16,6 @@ services:
         public: true
         arguments:
             - "@database_connection"
-            - "@contao.framework"
             - "@codefog_tags.manager_registry"
             - "@request_stack"
             - "@session"
