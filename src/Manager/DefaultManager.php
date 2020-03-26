@@ -187,6 +187,27 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getTopTagIds(string $source = null): array
+    {
+        $ids = [];
+        $sources = ($source !== null) ? [$source] : $this->sources;
+
+        foreach ($sources as $source) {
+            foreach ($this->getTagFinder()->getTopTagIds($this->createTagCriteria($source), null, true) as $id => $count) {
+                if (!isset($ids[$id])) {
+                    $ids[$id] = $count;
+                } else {
+                    $ids[$id] += $count;
+                }
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getInsertTagValue(string $value, string $property, array $elements): string

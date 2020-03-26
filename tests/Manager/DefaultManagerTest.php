@@ -156,6 +156,13 @@ class DefaultManagerTest extends ContaoTestCase
         $this->assertEquals(3, $count);
     }
 
+    public function testGetTopTagIds()
+    {
+        $manager = $this->mockManager(['tl_table.tags', 'tl_table_2.tags'], ['getTopTagIds' => [1 => 1, 2 => 4, 3 => 9]]);
+
+        $this->assertEquals([1 => 2, 2 => 8, 3 => 18], $manager->getTopTagIds());
+    }
+
     public function testGetInsertTagValueEmpty()
     {
         $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null]);

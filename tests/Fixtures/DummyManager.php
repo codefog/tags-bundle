@@ -48,4 +48,12 @@ class DummyManager implements ManagerInterface, DcaAwareInterface
     {
         return [];
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTopTagIds(): array
+    {
+        return [1 => 1, 2 => 4, 3 => 9];
+    }
 }

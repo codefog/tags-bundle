@@ -35,4 +35,9 @@ interface DcaAwareInterface
      * Get the source records count.
      */
     public function getSourceRecordsCount(array $data, DataContainer $dc): int;
+
+    /**
+     * Get the top tag IDs with count.
+     */
+    public function getTopTagIds(): array;
 }

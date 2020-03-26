@@ -14,7 +14,7 @@ namespace Codefog\TagsBundle\EventListener\DataContainer;
 
 use Codefog\TagsBundle\Driver;
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
-use Codefog\TagsBundle\Manager\DefaultManager;
+use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Model\TagModel;
 use Contao\Controller;
@@ -86,12 +86,15 @@ class TagListener
         $ids = [];
 
         // Collect the top tags from all registries
-        foreach ($this->registry->getNames() as $alias) {
-            $manager = $this->registry->get($alias);
-
-            if ($manager instanceof DefaultManager) {
-                foreach ($manager->getTagFinder()->getTopTagIds($manager->createTagCriteria(), null, true) as $id => $count) {
-                    $ids[$id] = $count;
+        /** @var ManagerInterface $manager */
+        foreach ($this->registry->all() as $manager) {
+            if ($manager instanceof DcaAwareInterface) {
+                foreach ($manager->getTopTagIds() as $id => $count) {
+                    if (!isset($ids[$id])) {
+                        $ids[$id] = $count;
+                    } else {
+                        $ids[$id] += $count;
+                    }
                 }
             }
         }
@@ -267,7 +270,15 @@ class TagListener
      */
     public function onSourceOptionsCallback(): array
     {
-        return $this->registry->getNames();
+        $options = [];
+
+        foreach ($this->registry->all() as $name => $manager) {
+            if ($manager instanceof DcaAwareInterface) {
+                $options[] = $name;
+            }
+        }
+
+        return $options;
     }
 
     /**

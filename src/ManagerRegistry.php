@@ -46,10 +46,10 @@ class ManagerRegistry
     }
 
     /**
-     * Get the names.
+     * Get all managers.
      */
-    public function getNames(): array
+    public function all(): array
     {
-        return array_keys($this->managers);
+        return $this->managers;
     }
 }

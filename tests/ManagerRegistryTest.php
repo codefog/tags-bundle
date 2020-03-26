@@ -36,7 +36,12 @@ class ManagerRegistryTest extends TestCase
         $registry->add($manager1Mock, 'foobar');
         $registry->add($manager2Mock, 'foobaz');
 
-        $this->assertEquals(['foobar', 'foobaz'], $registry->getNames());
+        $managers = $registry->all();
+
+        $this->assertArrayHasKey('foobar', $managers);
+        $this->assertArrayHasKey('foobaz', $managers);
+        $this->assertInstanceOf(ManagerInterface::class, $managers['foobar']);
+        $this->assertInstanceOf(DefaultManager::class, $managers['foobaz']);
     }
 
     private function mockRegistry(): ManagerRegistry
