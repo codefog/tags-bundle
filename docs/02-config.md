@@ -7,7 +7,11 @@
 5. [Backend interface](05-backend.md)
 6. [Insert tags](06-insert-tags.md)
 
-## Configure the managers
+## Basic configuration 
+
+The steps below describe the basic configuration that is required to set up the tags feature in your project.
+
+### Configure the managers
 
 In the first place you have to configure the available managers. This can be done in your app configuration as follows:
 
@@ -25,7 +29,7 @@ Afterwards your manager will be available as `codefog_tags.manager.my_manager` p
 
 You can read more about available manager services [here](04-managers.md).  
 
-## Adjust the DCA files
+### Adjust the DCA files
 
 Once the manager is registered, you can create a new field in the desired DCA table as follows:
 
@@ -43,7 +47,7 @@ Once the manager is registered, you can create a new field in the desired DCA ta
         'tl_class' => 'clr'
     ],
 ],
-````
+```
 
 The last step is to set the source label for the tags backend module:
 
@@ -52,12 +56,34 @@ The last step is to set the source label for the tags backend module:
 $GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef']['my_manager'] = 'Table tags';
 ```
 
-## Update the database
+### Update the database
 
 Each manager takes care of loading and saving the data from the widget itself. The default manager internally uses 
 `Haste-ManyToMany` field relation to store the data, so you need to update the database before using it.
 
 You can read more about available manager services [here](04-managers.md).  
+
+## Use tags widget in content element / frontend module settings 
+
+To provide a read-only tags widget that allows to select certain tags e.g. for filtering the source records in the output,
+you can still use the default manager. There are a few important things you have to set though:    
+
+```php
+// dca/tl_content.php
+$GLOBALS['TL_DCA']['tl_content']['fields']['app_tags'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_content']['app_tags'],
+    'exclude' => true,
+    'inputType' => 'cfgTags',
+    'eval' => [
+        'tagsManager' => 'app',
+        'tagsCreate' => false, # Do not create new tags
+        'tagsSource' => 'tl_table.tags', # Set the source if you have multiple of them
+        'tl_class' => 'clr',
+    ],
+    # Save the tag values directly in the field and do not use the Haste-ManyToMany relation
+    'sql' => ['type' => 'blob', 'notnull' => false],
+];
+```
 
 ## Overriding Selectize.js settings
 

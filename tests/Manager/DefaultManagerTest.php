@@ -35,6 +35,7 @@ class DefaultManagerTest extends ContaoTestCase
         $this->assertEquals(['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag'], $dca['relation']);
         $this->assertEquals(['codefog_tags.listener.tag_manager', 'onOptionsCallback'], $dca['options_callback']);
         $this->assertEquals('tl_table.tags', $dca['eval']['tagsSource']);
+        $this->assertTrue($dca['eval']['tagsCreate']);
         $this->assertEquals([['codefog_tags.listener.tag_manager', 'onFieldSaveCallback']], $dca['save_callback']);
     }
 
@@ -55,10 +56,28 @@ class DefaultManagerTest extends ContaoTestCase
         $this->assertEquals(['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag'], $dca['relation']);
         $this->assertEquals(['listener', 'options_method'], $dca['options_callback']);
         $this->assertEquals('tl_table.tags', $dca['eval']['tagsSource']);
+        $this->assertTrue($dca['eval']['tagsCreate']);
         $this->assertEquals([
             ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback'],
             ['listener', 'save_method'],
         ], $dca['save_callback']);
+    }
+
+    public function testUpdateDcaFieldVariant3()
+    {
+        $dca = [
+            'eval' => [
+                'tagsSource' => 'tl_table.tags',
+                'tagsCreate' => false,
+            ],
+            'sql' => ['type' => 'blob', 'notnull' => false],
+        ];
+
+        $this->mockManager(['tl_table.tags'])->updateDcaField('tl_table_2', 'tags', $dca);
+
+        $this->assertEquals(['type' => 'blob', 'notnull' => false], $dca['sql']);
+        $this->assertEquals('tl_table.tags', $dca['eval']['tagsSource']);
+        $this->assertFalse($dca['eval']['tagsCreate']);
     }
 
     public function testSaveDcaFieldNewTags()

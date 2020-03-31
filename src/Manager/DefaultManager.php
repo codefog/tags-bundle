@@ -87,17 +87,23 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
      */
     public function updateDcaField(string $table, string $field, array &$config): void
     {
+        $config['eval']['tagsCreate'] = $config['eval']['tagsCreate'] ?? true;
+
         // Set the relation
-        $config['relation'] = array_merge(
-            (isset($config['relation']) && \is_array($config['relation'])) ? $config['relation'] : [],
-            ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag']
-        );
+        if (!isset($config['sql'])) {
+            $config['relation'] = array_merge(
+                (isset($config['relation']) && \is_array($config['relation'])) ? $config['relation'] : [],
+                ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag']
+            );
+        }
 
         // Set the save_callback
-        if (isset($config['save_callback']) && \is_array($config['save_callback'])) {
-            array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback']);
-        } else {
-            $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback'];
+        if ($config['eval']['tagsCreate']) {
+            if (isset($config['save_callback']) && \is_array($config['save_callback'])) {
+                array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback']);
+            } else {
+                $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback'];
+            }
         }
 
         // Set the options_callback
