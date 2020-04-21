@@ -1,10 +1,10 @@
 # Tags Bundle extension for Contao Open Source CMS
 
-[![](https://img.shields.io/packagist/v/codefog/tags-bundle.svg)](https://packagist.org/packages/codefog/tags-bundle)
-[![](https://img.shields.io/packagist/l/codefog/tags-bundle.svg)](https://github.com/codefog/tags-bundle/blob/master/LICENSE.txt)
-[![](https://img.shields.io/packagist/dt/codefog/tags-bundle.svg)](https://packagist.org/packages/codefog/tags-bundle)
-[![](https://img.shields.io/travis/codefog/tags-bundle/master.svg)](https://travis-ci.org/codefog/tags-bundle/)
-[![](https://img.shields.io/coveralls/codefog/tags-bundle/master.svg)](https://coveralls.io/github/codefog/tags-bundle)
+[![Version](https://img.shields.io/packagist/v/codefog/tags-bundle)](https://packagist.org/packages/codefog/tags-bundle)
+[![License](https://img.shields.io/github/license/codefog/tags-bundle)](https://github.com/codefog/tags-bundle/blob/master/LICENSE.txt)
+[![Downloads](https://img.shields.io/packagist/dm/codefog/tags-bundle)](https://packagist.org/packages/codefog/tags-bundle)
+[![Build Status](https://travis-ci.org/codefog/tags-bundle.svg?branch=master)](https://travis-ci.org/codefog/tags-bundle)
+[![Coverage Status](https://coveralls.io/repos/github/codefog/tags-bundle/badge.svg?branch=master)](https://coveralls.io/github/codefog/tags-bundle?branch=master)
 
 Tags Bundle is an extension for the [Contao Open Source CMS](https://contao.org).
 
