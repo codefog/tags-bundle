@@ -69,7 +69,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getAllTags(string $source = null): array
     {
@@ -77,7 +77,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFilteredTags(array $values, string $source = null): array
     {
