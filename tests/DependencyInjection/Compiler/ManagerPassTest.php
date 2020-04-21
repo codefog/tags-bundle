@@ -11,30 +11,15 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class ManagerPassTest extends TestCase
 {
-    /**
-     * @var ManagerPass
-     */
-    private $managerPass;
-
-    public function setUp()
-    {
-        $this->managerPass = new ManagerPass('registry', 'tag');
-    }
-
-    public function testInstantiation()
-    {
-        static::assertInstanceOf(ManagerPass::class, $this->managerPass);
-    }
-
     public function testProcess()
     {
         $registryDefinition = new Definition();
 
         $managerDefinition1 = new Definition();
-        $managerDefinition1->addTag('tag', ['alias' => 'foo']);
+        $managerDefinition1->addTag(ManagerPass::TAG_NAME, ['alias' => 'foo']);
 
         $managerDefinition2 = new Definition();
-        $managerDefinition2->addTag('tag', ['alias' => 'bar']);
+        $managerDefinition2->addTag(ManagerPass::TAG_NAME, ['alias' => 'bar']);
 
         $container = new ContainerBuilder();
         $container->addDefinitions([
@@ -43,19 +28,24 @@ class ManagerPassTest extends TestCase
             'manager2' => $managerDefinition2,
         ]);
 
-        $this->managerPass->process($container);
-        
+        $this->mockCompilerPass()->process($container);
+
         $calls = $registryDefinition->getMethodCalls();
-        
-        static::assertEquals('add', $calls[0][0]);
-        static::assertInstanceOf(Reference::class, $calls[0][1][0]);
-        static::assertEquals('foo', $calls[0][1][1]);
-        static::assertEquals('bar', $calls[1][1][1]);
+
+        $this->assertEquals('add', $calls[0][0]);
+        $this->assertInstanceOf(Reference::class, $calls[0][1][0]);
+        $this->assertEquals('foo', $calls[0][1][1]);
+        $this->assertEquals('bar', $calls[1][1][1]);
     }
 
     public function testRegistryNotExists()
     {
         $this->expectException(\RuntimeException::class);
-        $this->managerPass->process(new ContainerBuilder());
+        $this->mockCompilerPass()->process(new ContainerBuilder());
+    }
+
+    private function mockCompilerPass(): ManagerPass
+    {
+        return new ManagerPass('registry');
     }
 }

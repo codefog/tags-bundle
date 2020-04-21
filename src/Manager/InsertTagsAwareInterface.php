@@ -10,19 +10,12 @@ declare(strict_types=1);
  * @license    MIT
  */
 
-namespace Codefog\TagsBundle\Model;
+namespace Codefog\TagsBundle\Manager;
 
-use Contao\Model;
-
-/**
- * @codeCoverageIgnore
- */
-class TagModel extends Model
+interface InsertTagsAwareInterface
 {
     /**
-     * Table name.
-     *
-     * @var string
+     * Get the insert tag value.
      */
-    protected static $strTable = 'tl_cfg_tag';
+    public function getInsertTagValue(string $value, string $property, array $elements): string;
 }

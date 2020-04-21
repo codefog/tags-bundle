@@ -2,52 +2,66 @@
 
 namespace Codefog\TagsBundle\Test\Fixtures;
 
-use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
-use Codefog\TagsBundle\Manager\DcaFilterAwareInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
 use Contao\DataContainer;
 
-class DummyManager implements ManagerInterface, DcaAwareInterface, DcaFilterAwareInterface
+class DummyManager implements ManagerInterface, DcaAwareInterface
 {
-    public function updateDcaField(array &$config): void
+    /**
+     * @inheritDoc
+     */
+    public function updateDcaField(string $table, string $field, array &$config): void
     {
         $config['dummy'] = true;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function saveDcaField(string $value, DataContainer $dc): string
     {
-        return strtoupper($value);
+        return 'FOOBAR';
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getFilterOptions(DataContainer $dc): array
     {
         return ['foo', 'bar'];
     }
 
-    public function setAlias(string $alias): void
+    /**
+     * @inheritDoc
+     */
+    public function getSourceRecordsCount(array $data, DataContainer $dc): int
     {
-        // TODO: Implement setAlias() method.
+        return 0;
     }
 
-    public function find(string $value, array $criteria = []): ?Tag
+    /**
+     * @inheritDoc
+     */
+    public function getAllTags(string $source = null): array
     {
-        // TODO: Implement find() method.
+        return [];
     }
 
-    public function findMultiple(array $criteria = []): CollectionInterface
+    /**
+     * @inheritDoc
+     */
+    public function getFilteredTags(array $values, string $source = null): array
     {
-        // TODO: Implement findMultiple() method.
+        return [];
     }
 
-    public function countSourceRecords(Tag $tag): int
+    /**
+     * @inheritDoc
+     */
+    public function getTopTagIds(): array
     {
-        // TODO: Implement countSourceRecords() method.
-    }
-
-    public function getSourceRecords(Tag $tag): array
-    {
-        // TODO: Implement getSourceRecords() method.
+        return [1 => 1, 2 => 4, 3 => 9];
     }
 }

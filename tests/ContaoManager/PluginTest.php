@@ -11,11 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 class PluginTest extends TestCase
 {
-    public function testInstantiation()
-    {
-        static::assertInstanceOf(Plugin::class, new Plugin());
-    }
-
     public function testGetBundles()
     {
         $plugin = new Plugin();
@@ -24,9 +19,9 @@ class PluginTest extends TestCase
         /** @var BundleConfig $config */
         $config = $bundles[0];
 
-        static::assertCount(1, $bundles);
-        static::assertInstanceOf(BundleConfig::class, $config);
-        static::assertEquals(CodefogTagsBundle::class, $config->getName());
-        static::assertEquals([ContaoCoreBundle::class, 'haste'], $config->getLoadAfter());
+        $this->assertCount(1, $bundles);
+        $this->assertInstanceOf(BundleConfig::class, $config);
+        $this->assertEquals(CodefogTagsBundle::class, $config->getName());
+        $this->assertEquals([ContaoCoreBundle::class, 'haste'], $config->getLoadAfter());
     }
 }

@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -40,7 +42,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
         'label' => [
             'fields' => ['name', 'source', 'total'],
             'showColumns' => true,
-            'label_callback' => ['codefog_tags.listener.data_container.tag', 'generateLabel'],
+            'label_callback' => ['codefog_tags.listener.data_container.tag', 'onLabelCallback'],
         ],
         'global_operations' => [
             'all' => [
@@ -73,7 +75,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
     // Select
     'select' => [
         'buttons_callback' => [
-            ['codefog_tags.listener.data_container.tag', 'addAliasButton'],
+            ['codefog_tags.listener.data_container.tag', 'onButtonsCallback'],
         ],
     ],
 
@@ -111,7 +113,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
             'exclude' => true,
             'filter' => true,
             'inputType' => 'select',
-            'options_callback' => ['codefog_tags.listener.data_container.tag', 'getSources'],
+            'options_callback' => ['codefog_tags.listener.data_container.tag', 'onSourceOptionsCallback'],
             'reference' => &$GLOBALS['TL_LANG']['tl_cfg_tag']['sourceRef'],
             'eval' => ['mandatory' => true, 'includeBlankOption' => true, 'tl_class' => 'w50'],
             'sql' => ['type' => 'string', 'length' => 64, 'default' => 'NULL'],
@@ -123,7 +125,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
             'inputType' => 'text',
             'eval' => ['rgxp' => 'alias', 'maxlength' => 128, 'tl_class' => 'w50'],
             'save_callback' => [
-                ['codefog_tags.listener.data_container.tag', 'generateAlias'],
+                ['codefog_tags.listener.data_container.tag', 'onAliasSaveCallback'],
             ],
             'sql' => ['type' => 'string', 'length' => 128, 'default' => ''],
         ],

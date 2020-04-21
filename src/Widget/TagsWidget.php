@@ -5,14 +5,13 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
 
 namespace Codefog\TagsBundle\Widget;
 
-use Codefog\TagsBundle\Collection\CollectionInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
 use Contao\BackendTemplate;
@@ -60,9 +59,7 @@ class TagsWidget extends Widget
     {
         if (\is_array($attributes)) {
             if ($attributes['tagsManager']) {
-                $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get(
-                    $attributes['tagsManager']
-                );
+                $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get($attributes['tagsManager']);
             }
 
             unset($attributes['tagsManager']);
@@ -80,7 +77,7 @@ class TagsWidget extends Widget
 
         // Validate the maximum number of items
         if (\is_array($value) && isset($this->maxItems) && \count($value) > $this->maxItems) {
-            $this->addError(\sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
+            $this->addError(sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
         }
 
         parent::validate();
@@ -111,13 +108,11 @@ class TagsWidget extends Widget
      */
     protected function getPost($key)
     {
-        return \array_filter(trimsplit(',', parent::getPost($key)));
+        return array_filter(StringUtil::trimsplit(',', parent::getPost($key)));
     }
 
     /**
      * Generate the widget configuration.
-     *
-     * @return array
      */
     protected function generateConfig(): array
     {
@@ -135,33 +130,25 @@ class TagsWidget extends Widget
     }
 
     /**
-     * Get the value tags.
-     *
-     * @return CollectionInterface
+     * Get all tags.
      */
-    protected function getValueTags(): CollectionInterface
+    protected function getAllTags(): array
     {
-        return $this->tagsManager->findMultiple(['values' => \is_array($this->varValue) ? $this->varValue : []]);
+        return $this->tagsManager->getAllTags($this->tagsSource);
     }
 
     /**
-     * Get all tags.
-     *
-     * @return CollectionInterface
+     * Get the value tags.
      */
-    protected function getAllTags(): CollectionInterface
+    protected function getValueTags(): array
     {
-        return $this->tagsManager->findMultiple();
+        return $this->tagsManager->getFilteredTags(\is_array($this->varValue) ? $this->varValue : [], $this->tagsSource);
     }
 
     /**
      * Generate the value tags.
-     *
-     * @param CollectionInterface $tags
-     *
-     * @return array
      */
-    private function generateValueTags(CollectionInterface $tags): array
+    private function generateValueTags(array $tags): array
     {
         $return = [];
 
@@ -175,12 +162,8 @@ class TagsWidget extends Widget
 
     /**
      * Generate all tags.
-     *
-     * @param CollectionInterface $tags
-     *
-     * @return array
      */
-    private function generateAllTags(CollectionInterface $tags): array
+    private function generateAllTags(array $tags): array
     {
         $return = [];
 

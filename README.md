@@ -20,9 +20,10 @@ UI widget [selectize.js](https://github.com/selectize/selectize.js) that allows 
 
 1. [Installation](docs/01-installation.md)
 2. [Configuration](docs/02-config.md)
-3. [Backend interface](docs/03-backend.md)
-4. [Custom managers](docs/04-custom-managers.md)
-5. [Insert tags](docs/05-insert-tags.md)
+3. [Usage](docs/03-usage.md)
+4. [Managers](docs/04-managers.md)
+5. [Backend interface](docs/05-backend.md)
+6. [Insert tags](docs/06-insert-tags.md)
 
 ## Copyright
 

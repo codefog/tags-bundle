@@ -11,17 +11,17 @@ class TagTest extends TestCase
     {
         $tag = new Tag('123', 'Foobar', ['extra' => 1]);
 
-        static::assertEquals('123', $tag->getValue());
-        static::assertEquals('Foobar', $tag->getName());
-        static::assertEquals(['extra' => 1], $tag->getData());
+        $this->assertEquals('123', $tag->getValue());
+        $this->assertEquals('Foobar', $tag->getName());
+        $this->assertEquals(['extra' => 1], $tag->getData());
 
         $tag->setValue('456');
-        static::assertEquals('456', $tag->getValue());
+        $this->assertEquals('456', $tag->getValue());
 
         $tag->setName('Foobaz');
-        static::assertEquals('Foobaz', $tag->getName());
+        $this->assertEquals('Foobaz', $tag->getName());
 
         $tag->setData(['extra' => 2]);
-        static::assertEquals(['extra' => 2], $tag->getData());
+        $this->assertEquals(['extra' => 2], $tag->getData());
     }
 }

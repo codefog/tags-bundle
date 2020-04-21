@@ -5,285 +5,120 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
 
 namespace Codefog\TagsBundle\Manager;
 
-use Codefog\TagsBundle\Collection\CollectionInterface;
-use Codefog\TagsBundle\Collection\ModelCollection;
+use Codefog\TagsBundle\Finder\SourceCriteria;
+use Codefog\TagsBundle\Finder\SourceFinder;
+use Codefog\TagsBundle\Finder\TagCriteria;
+use Codefog\TagsBundle\Finder\TagFinder;
 use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
 use Contao\StringUtil;
-use Doctrine\DBAL\Connection;
-use Haste\Model\Model;
-use Haste\Model\Relations;
 
-class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAwareInterface
+class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsAwareInterface
 {
     /**
      * @var string
      */
-    protected $alias;
+    protected $name;
 
     /**
-     * @var Connection
+     * @var array
      */
-    protected $db;
+    protected $sources;
 
     /**
-     * @var ContaoFrameworkInterface
+     * @var TagFinder
      */
-    protected $framework;
+    protected $tagFinder;
 
     /**
-     * @var string
+     * @var SourceFinder
      */
-    protected $sourceTable;
-
-    /**
-     * @var string
-     */
-    protected $sourceField;
+    protected $sourceFinder;
 
     /**
      * DefaultManager constructor.
-     *
-     * @param ContaoFrameworkInterface $framework
-     * @param string                   $sourceTable
-     * @param string                   $sourceField
      */
-    public function __construct(ContaoFrameworkInterface $framework, string $sourceTable, string $sourceField)
+    public function __construct(string $name, array $sources)
     {
-        $this->framework = $framework;
-        $this->sourceTable = $sourceTable;
-        $this->sourceField = $sourceField;
+        $this->name = $name;
+        $this->sources = $sources;
+    }
+
+    /**
+     * Set the tag finder.
+     */
+    public function setTagFinder(TagFinder $tagFinder): void
+    {
+        $this->tagFinder = $tagFinder;
+    }
+
+    /**
+     * Set the source finder.
+     */
+    public function setSourceFinder(SourceFinder $sourceFinder): void
+    {
+        $this->sourceFinder = $sourceFinder;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setAlias(string $alias): void
+    public function getAllTags(string $source = null): array
     {
-        $this->alias = $alias;
-    }
-
-    /**
-     * @param Connection $db
-     */
-    public function setDatabase(Connection $db): void
-    {
-        $this->db = $db;
+        return $this->tagFinder->findMultiple($this->createTagCriteria($source));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function find(string $value, array $criteria = []): ?Tag
+    public function getFilteredTags(array $values, string $source = null): array
     {
-        /** @var TagModel $adapter */
-        $adapter = $this->framework->getAdapter(TagModel::class);
+        $criteria = $this->createTagCriteria($source);
+        $criteria->setValues(\count($values) ? $values : [0]);
 
-        if (null === ($model = $adapter->findByPk($value))) {
-            return null;
-        }
-
-        $criteria = $this->getCriteria($criteria);
-
-        // Check the source
-        if ($model->source !== $criteria['source']) {
-            return null;
-        }
-
-        return ModelCollection::createTagFromModel($model);
-    }
-
-    /**
-     * Find the tag by alias.
-     *
-     * @param string $alias
-     *
-     * @return Tag|null
-     */
-    public function findByAlias(string $alias): ?Tag
-    {
-        /** @var TagModel $adapter */
-        $adapter = $this->framework->getAdapter(TagModel::class);
-
-        $criteria = $this->getCriteria();
-        $criteria['alias'] = $alias;
-
-        if (null === ($model = $adapter->findOneByCriteria($criteria))) {
-            return null;
-        }
-
-        return ModelCollection::createTagFromModel($model);
-    }
-
-    /**
-     * Find the related source records.
-     *
-     * @param int      $sourceId
-     * @param int|null $limit
-     *
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    public function findRelatedSourceRecords(int $sourceId, int $limit = null): array
-    {
-        /** @var Relations $relations */
-        $relations = $this->framework->getAdapter(Relations::class);
-
-        if (false === ($relation = $relations->getRelation($this->sourceTable, $this->sourceField))) {
-            throw new \RuntimeException(\sprintf('The field %s.%s is not related', $this->sourceTable, $this->sourceField));
-        }
-
-        /** @var Model $relationsModel */
-        $relationsModel = $this->framework->getAdapter(Model::class);
-
-        $tagIds = $relationsModel->getRelatedValues($this->sourceTable, $this->sourceField, $sourceId);
-        $tagIds = \array_values(\array_unique($tagIds));
-        $tagIds = \array_map('intval', $tagIds);
-
-        // Return if there are no tags
-        if (0 === \count($tagIds)) {
-            return [];
-        }
-
-        $query = \sprintf(
-            'SELECT %s, COUNT(*) AS relevance FROM %s WHERE %s IN (%s) AND %s != ? GROUP BY %s ORDER BY relevance DESC',
-            $relation['reference_field'],
-            $relation['table'],
-            $relation['related_field'],
-            \implode(',', $tagIds),
-            $relation['reference_field'],
-            $relation['reference_field']
-        );
-
-        // Set the limit
-        if ($limit > 0) {
-            $query .= \sprintf(' LIMIT %s', $limit);
-        }
-
-        $related = [];
-
-        // Generate the related records
-        foreach ($this->db->fetchAll($query, [$sourceId]) as $record) {
-            $related[$record[$relation['reference_field']]] = [
-                'total' => \count($tagIds),
-                'found' => $record['relevance'],
-                'prcnt' => ($record['relevance'] / \count($tagIds)) * 100,
-            ];
-        }
-
-        return $related;
-    }
-
-    /**
-     * Get the top tag IDs.
-     *
-     * @param array    $sourceIds
-     * @param int|null $limit
-     * @param bool     $withCount
-     *
-     * @return array
-     */
-    public function getTopTagIds(array $sourceIds = [], int $limit = null, bool $withCount = false): array
-    {
-        /** @var Model $model */
-        $model = $this->framework->getAdapter(Model::class);
-
-        $tagIds = $model->getRelatedValues($this->sourceTable, $this->sourceField, $sourceIds);
-        $tagIds = \array_map('intval', $tagIds);
-
-        if (0 === \count($tagIds)) {
-            return [];
-        }
-
-        $helper = [];
-
-        // Create the helper array with tag occurrences
-        foreach ($tagIds as $tagId) {
-            ++$helper[$tagId];
-        }
-
-        // Sort the helper array descending
-        \arsort($helper);
-
-        // Strip the count data
-        if (!$withCount) {
-            $helper = \array_keys($helper);
-        }
-
-        return \array_slice($helper, 0, $limit, $withCount);
+        return $this->tagFinder->findMultiple($criteria);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findMultiple(array $criteria = []): CollectionInterface
+    public function updateDcaField(string $table, string $field, array &$config): void
     {
-        /** @var TagModel $adapter */
-        $adapter = $this->framework->getAdapter(TagModel::class);
-
-        return new ModelCollection($adapter->findByCriteria($this->getCriteria($criteria)));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function countSourceRecords(Tag $tag): int
-    {
-        /** @var Model $adapter */
-        $adapter = $this->framework->getAdapter(Model::class);
-
-        return \count($adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue()));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSourceRecords(Tag $tag): array
-    {
-        /** @var Model $adapter */
-        $adapter = $this->framework->getAdapter(Model::class);
-
-        $values = $adapter->getReferenceValues($this->sourceTable, $this->sourceField, $tag->getValue());
-        $values = \array_values(\array_unique($values));
-        $values = \array_map('intval', $values);
-
-        return $values;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function updateDcaField(array &$config): void
-    {
-        /** @var TagModel $adapter */
-        $adapter = $this->framework->getAdapter(TagModel::class);
+        $config['eval']['tagsCreate'] = $config['eval']['tagsCreate'] ?? true;
 
         // Set the relation
-        $config['relation'] = \array_merge(
-            (isset($config['relation']) && \is_array($config['relation'])) ? $config['relation'] : [],
-            ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => $adapter->getTable()]
-        );
+        if (!isset($config['sql'])) {
+            $config['relation'] = array_merge(
+                (isset($config['relation']) && \is_array($config['relation'])) ? $config['relation'] : [],
+                ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag']
+            );
+        }
 
         // Set the save_callback
-        if (isset($config['save_callback']) && \is_array($config['save_callback'])) {
-            \array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSave']);
-        } else {
-            $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSave'];
+        if ($config['eval']['tagsCreate']) {
+            if (isset($config['save_callback']) && \is_array($config['save_callback'])) {
+                array_unshift($config['save_callback'], ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback']);
+            } else {
+                $config['save_callback'][] = ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback'];
+            }
         }
 
         // Set the options_callback
         if (!isset($config['options_callback'])) {
             $config['options_callback'] = ['codefog_tags.listener.tag_manager', 'onOptionsCallback'];
+        }
+
+        // Set the tag source
+        if (!isset($config['eval']['tagsSource'])) {
+            $config['eval']['tagsSource'] = $table.'.'.$field;
         }
     }
 
@@ -293,18 +128,26 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     public function saveDcaField(string $value, DataContainer $dc): string
     {
         $value = StringUtil::deserialize($value, true);
-        $criteria = $this->getCriteria();
+        $source = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource'] ?? null;
+        $criteria = $this->createTagCriteria($source);
 
         /** @var array $value */
         foreach ($value as $k => $v) {
-            if (preg_match('/^\d+$/', $v) && null !== $this->find($v, $criteria)) {
+            // Do not create tags that already exist
+            if (null !== $this->tagFinder->findSingle($criteria->setValue((string) $v))) {
                 continue;
             }
 
-            $value[$k] = $this->createTag($v)->getValue();
+            $model = new TagModel();
+            $model->tstamp = time();
+            $model->name = $v;
+            $model->source = $this->name;
+            $model->save();
+
+            $value[$k] = $this->tagFinder->createTagFromModel($model)->getValue();
         }
 
-        return \serialize($value);
+        return serialize($value);
     }
 
     /**
@@ -314,52 +157,137 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, DcaFilterAw
     {
         $options = [];
 
-        /** @var Model $adapter */
-        $adapter = $this->framework->getAdapter(Model::class);
+        if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource'])) {
+            $sources = [$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource']];
+        } else {
+            $sources = $this->sources;
+        }
 
-        $ids = \array_unique($adapter->getRelatedValues($this->sourceTable, $this->sourceField));
-        $tags = $this->findMultiple(['values' => $ids]);
-
-        /** @var Tag $tag */
-        foreach ($tags as $tag) {
-            $options[$tag->getValue()] = $tag->getName();
+        foreach ($sources as $source) {
+            /** @var Tag $tag */
+            foreach ($this->tagFinder->findMultiple($this->createTagCriteria($source)->setUsedOnly(true)) as $tag) {
+                $options[$tag->getValue()] = $tag->getName();
+            }
         }
 
         return $options;
     }
 
     /**
-     * Create the tag.
-     *
-     * @param string $value
-     *
-     * @return Tag
+     * {@inheritdoc}
      */
-    protected function createTag(string $value): Tag
+    public function getSourceRecordsCount(array $data, DataContainer $dc): int
     {
-        /** @var TagModel $model */
-        $model = $this->framework->createInstance(TagModel::class);
-        $model->tstamp = \time();
-        $model->name = $value;
-        $model->source = $this->alias;
-        $model->save();
+        if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource'])) {
+            $sources = [$GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource']];
+        } else {
+            $sources = $this->sources;
+        }
 
-        return ModelCollection::createTagFromModel($model);
+        $total = 0;
+
+        foreach ($sources as $source) {
+            if (null === ($tag = $this->tagFinder->findSingle($this->createTagCriteria($source)->setValue((string) $data['id'])))) {
+                continue;
+            }
+
+            $total += $this->sourceFinder->count($this->createSourceCriteria($source)->setTag($tag));
+        }
+
+        return $total;
     }
 
     /**
-     * Get the criteria with necessary data.
-     *
-     * @param array $criteria
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    protected function getCriteria(array $criteria = []): array
+    public function getTopTagIds(string $source = null): array
     {
-        $criteria['source'] = $this->alias;
-        $criteria['sourceTable'] = $this->sourceTable;
-        $criteria['sourceField'] = $this->sourceField;
+        $ids = [];
+        $sources = (null !== $source) ? [$source] : $this->sources;
 
-        return $criteria;
+        foreach ($sources as $source) {
+            foreach ($this->getTagFinder()->getTopTagIds($this->createTagCriteria($source), null, true) as $id => $count) {
+                if (!isset($ids[$id])) {
+                    $ids[$id] = $count;
+                } else {
+                    $ids[$id] += $count;
+                }
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getInsertTagValue(string $value, string $property, array $elements): string
+    {
+        $tag = null;
+
+        // Find the tag in all sources
+        foreach ($this->sources as $source) {
+            if (null !== ($tag = $this->tagFinder->findSingle($this->createTagCriteria($source)->setValue($value)))) {
+                break;
+            }
+        }
+
+        if (null === $tag) {
+            return '';
+        }
+
+        if ('name' === $property) {
+            return $tag->getName();
+        }
+
+        $data = $tag->getData();
+
+        return isset($data[$property]) ? (string) $data[$property] : '';
+    }
+
+    /**
+     * Get the tag finder.
+     */
+    public function getTagFinder(): TagFinder
+    {
+        return $this->tagFinder;
+    }
+
+    /**
+     * Create the tag criteria.
+     */
+    public function createTagCriteria(string $source = null): TagCriteria
+    {
+        return new TagCriteria($this->name, $this->getSource($source));
+    }
+
+    /**
+     * Get the source finder.
+     */
+    public function getSourceFinder(): SourceFinder
+    {
+        return $this->sourceFinder;
+    }
+
+    /**
+     * Create the source criteria.
+     */
+    public function createSourceCriteria(string $source = null): SourceCriteria
+    {
+        return new SourceCriteria($this->name, $this->getSource($source));
+    }
+
+    /**
+     * Get the source.
+     */
+    protected function getSource(string $source = null): string
+    {
+        if (null === $source) {
+            $source = $this->sources[0];
+        } elseif (!\in_array($source, $this->sources, true)) {
+            throw new \InvalidArgumentException(sprintf('Invalid source "%s"!', $source));
+        }
+
+        return $source;
     }
 }
