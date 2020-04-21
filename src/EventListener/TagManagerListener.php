@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -13,8 +13,6 @@ declare(strict_types=1);
 namespace Codefog\TagsBundle\EventListener;
 
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
-use Codefog\TagsBundle\Manager\DcaFilterAwareInterface;
-use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Contao\DataContainer;
 use Haste\Util\Debug;
@@ -28,8 +26,6 @@ class TagManagerListener
 
     /**
      * TagContainer constructor.
-     *
-     * @param ManagerRegistry $registry
      */
     public function __construct(ManagerRegistry $registry)
     {
@@ -38,8 +34,6 @@ class TagManagerListener
 
     /**
      * On load the data container.
-     *
-     * @param string $table
      */
     public function onLoadDataContainer(string $table): void
     {
@@ -49,38 +43,31 @@ class TagManagerListener
 
         $hasTagsFields = false;
 
-        foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $name => &$field) {
-            if ('cfgTags' !== $field['inputType']) {
+        foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $field => &$config) {
+            if ('cfgTags' !== $config['inputType']) {
                 continue;
             }
 
             $hasTagsFields = true;
-            $manager = $this->registry->get($field['eval']['tagsManager']);
+            $manager = $this->registry->get($config['eval']['tagsManager']);
 
             if ($manager instanceof DcaAwareInterface) {
-                $manager->updateDcaField($field);
+                $manager->updateDcaField($table, $field, $config);
             }
         }
 
         // Add assets for backend
-        if (TL_MODE === 'BE' && $hasTagsFields) {
+        if (\defined('TL_MODE') && TL_MODE === 'BE' && $hasTagsFields) {
             $this->addAssets();
         }
     }
 
     /**
      * On the field save.
-     *
-     * @param string        $value
-     * @param DataContainer $dc
-     *
-     * @return string
      */
-    public function onFieldSave(string $value, DataContainer $dc): string
+    public function onFieldSaveCallback(string $value, DataContainer $dc): string
     {
-        $manager = $this->getManagerFromDca($dc);
-
-        if ($manager instanceof DcaAwareInterface) {
+        if (null !== ($manager = $this->getManagerFromDca($dc))) {
             $value = $manager->saveDcaField($value, $dc);
         }
 
@@ -89,17 +76,12 @@ class TagManagerListener
 
     /**
      * On options callback.
-     *
-     * @param DataContainer $dc
-     *
-     * @return array
      */
     public function onOptionsCallback(DataContainer $dc): array
     {
         $value = [];
-        $manager = $this->getManagerFromDca($dc);
 
-        if ($manager instanceof DcaFilterAwareInterface) {
+        if (null !== ($manager = $this->getManagerFromDca($dc))) {
             $value = $manager->getFilterOptions($dc);
         }
 
@@ -108,14 +90,16 @@ class TagManagerListener
 
     /**
      * Get the manager from DCA.
-     *
-     * @param DataContainer $dc
-     *
-     * @return ManagerInterface
      */
-    private function getManagerFromDca(DataContainer $dc): ManagerInterface
+    private function getManagerFromDca(DataContainer $dc): ?DcaAwareInterface
     {
-        return $this->registry->get($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager']);
+        $manager = $this->registry->get($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager']);
+
+        if ($manager instanceof DcaAwareInterface) {
+            return $manager;
+        }
+
+        return null;
     }
 
     /**

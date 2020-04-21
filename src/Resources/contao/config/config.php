@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -27,8 +29,8 @@ $GLOBALS['TL_MODELS']['tl_cfg_tag'] = \Codefog\TagsBundle\Model\TagModel::class;
  */
 $GLOBALS['TL_HOOKS']['replaceInsertTags'][] = ['codefog_tags.listener.insert_tags', 'onReplaceInsertTags'];
 
-if (\is_array($GLOBALS['TL_HOOKS']['loadDataContainer'])) {
-    \array_unshift($GLOBALS['TL_HOOKS']['loadDataContainer'], ['codefog_tags.listener.tag_manager', 'onLoadDataContainer']);
+if (is_array($GLOBALS['TL_HOOKS']['loadDataContainer'])) {
+    array_unshift($GLOBALS['TL_HOOKS']['loadDataContainer'], ['codefog_tags.listener.tag_manager', 'onLoadDataContainer']);
 } else {
     $GLOBALS['TL_HOOKS']['loadDataContainer'][] = ['codefog_tags.listener.tag_manager', 'onLoadDataContainer'];
 }

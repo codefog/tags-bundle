@@ -2,407 +2,272 @@
 
 namespace Codefog\TagsBundle\Test\Manager;
 
-use Codefog\TagsBundle\Collection\CollectionInterface;
+use Codefog\TagsBundle\Finder\SourceCriteria;
+use Codefog\TagsBundle\Finder\SourceFinder;
+use Codefog\TagsBundle\Finder\TagCriteria;
+use Codefog\TagsBundle\Finder\TagFinder;
 use Codefog\TagsBundle\Manager\DefaultManager;
-use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
-use Codefog\TagsBundle\Test\Fixtures\DummyModel;
-use Codefog\TagsBundle\Test\Fixtures\ExtraDummyModel;
-use Contao\CoreBundle\Framework\Adapter;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\DataContainer;
-use Contao\Model\Collection;
-use Doctrine\DBAL\Connection;
-use Haste\Model\Model;
-use Haste\Model\Relations;
-use PHPUnit\Framework\TestCase;
+use Contao\StringUtil;
+use Contao\TestCase\ContaoTestCase;
 
-class DefaultManagerTest extends TestCase
+class DefaultManagerTest extends ContaoTestCase
 {
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|Connection
-     */
-    private $db;
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ContaoFrameworkInterface
-     */
-    private $framework;
-
-    /**
-     * @var DefaultManager
-     */
-    private $manager;
-
-    public function setUp()
+    public function testGetAllTags()
     {
-        // Adjust the error reporting because of the Contao\Model
-        error_reporting(E_ALL & ~E_NOTICE);
+        $tag1 = new Tag('tag1', 'foo');
+        $tag2 = new Tag('tag2', 'bar');
 
-        $this->framework = $this->createMock(ContaoFrameworkInterface::class);
-        $this->db = $this->createMock(Connection::class);
+        $tags = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getAllTags('tl_table.tags');
 
-        $this->manager = new DefaultManager($this->framework, 'tl_table', 'field');
-        $this->manager->setAlias('foobar');
-        $this->manager->setDatabase($this->db);
+        $this->assertCount(2, $tags);
+        $this->assertContains($tag1, $tags);
+        $this->assertContains($tag2, $tags);
     }
 
-    public function testInstantiation()
+    public function testGetFilteredTags()
     {
-        static::assertInstanceOf(DefaultManager::class, $this->manager);
+        $tag1 = new Tag('tag1', 'foo');
+        $tag2 = new Tag('tag2', 'bar');
+
+        $tags = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1]])->getFilteredTags(['tag1'], 'tl_table.tags');
+
+        $this->assertCount(1, $tags);
+        $this->assertContains($tag1, $tags);
+        $this->assertNotContains($tag2, $tags);
     }
 
-    public function testFind()
+    public function testUpdateDcaFieldVariant1()
     {
-        $dummyModel = new DummyModel();
-        $dummyModel->id = 123;
-        $dummyModel->name = 'foobar';
-        $dummyModel->source = 'foobar';
+        $dca = [];
 
-        $this->framework->method('getAdapter')->willReturn(new DummyModel(['findByPk' => $dummyModel]));
-        static::assertInstanceOf(Tag::class, $this->manager->find('123'));
+        $this->mockManager(['tl_table.tags'])->updateDcaField('tl_table', 'tags', $dca);
+
+        $this->assertEquals(['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag'], $dca['relation']);
+        $this->assertEquals(['codefog_tags.listener.tag_manager', 'onOptionsCallback'], $dca['options_callback']);
+        $this->assertEquals('tl_table.tags', $dca['eval']['tagsSource']);
+        $this->assertTrue($dca['eval']['tagsCreate']);
+        $this->assertEquals([['codefog_tags.listener.tag_manager', 'onFieldSaveCallback']], $dca['save_callback']);
     }
 
-    public function testFindByAlias()
+    public function testUpdateDcaFieldVariant2()
     {
-        $dummyModel = new DummyModel();
-        $dummyModel->id = 123;
-        $dummyModel->name = 'foobar';
-        $dummyModel->source = 'foobar';
-
-        $this->framework->method('getAdapter')->willReturn(new DummyModel(['findOneByCriteria' => $dummyModel]));
-        static::assertInstanceOf(Tag::class, $this->manager->findByAlias('foobar'));
-
-        $this->framework->method('getAdapter')->willReturn(new DummyModel(['findOneByCriteria' => null]));
-        static::assertNull($this->manager->findByAlias('foobar'));
-    }
-
-    public function testFindTagNotFound()
-    {
-        $this->framework->method('getAdapter')->willReturn(new DummyModel(['findByPk' => null]));
-        static::assertNull($this->manager->find('123'));
-    }
-
-    public function testFindSourceDoesNotMatch()
-    {
-        $dummyModel = new DummyModel();
-        $dummyModel->id = 123;
-        $dummyModel->name = 'foobar';
-        $dummyModel->source = 'foobaz';
-
-        $this->framework->method('getAdapter')->willReturn(new DummyModel(['findByPk' => $dummyModel]));
-        static::assertNull($this->manager->find('123'));
-    }
-
-    public function testFindMultiple()
-    {
-        $this->framework->method('getAdapter')->willReturn(new DummyModel(['findByCriteria' => null]));
-        static::assertInstanceOf(CollectionInterface::class, $this->manager->findMultiple());
-    }
-
-    public function testCountSourceRecords()
-    {
-        $this->framework->method('getAdapter')->willReturn(new DummyModel(['getReferenceValues' => [1, 2, 3]]));
-        static::assertEquals(3, $this->manager->countSourceRecords(new Tag('foo', 'bar')));
-    }
-
-    public function testGetSourceRecords()
-    {
-        $this->framework->method('getAdapter')->willReturn(new DummyModel(['getReferenceValues' => ['1', 2, 2, 3]]));
-        static::assertEquals([1, 2, 3], $this->manager->getSourceRecords(new Tag('foo', 'bar')));
-    }
-
-    /**
-     * @dataProvider updateDcaFieldProvider
-     */
-    public function testUpdateDcaField(array $provided, array $expected)
-    {
-        $this->framework->method('getAdapter')->willReturn(
-            new DummyModel(['getTable' => 'tl_cfg_tag'])
-        );
-
-        $this->manager->updateDcaField($provided);
-
-        static::assertEquals($expected, $provided);
-    }
-
-    public function updateDcaFieldProvider()
-    {
-        return [
-            'Empty config' => [
-                [],
-                [
-                    'relation' => [
-                        'type' => 'haste-ManyToMany',
-                        'load' => 'lazy',
-                        'table' => 'tl_cfg_tag',
-                    ],
-                    'save_callback' => [
-                        ['codefog_tags.listener.tag_manager', 'onFieldSave']
-                    ],
-                    'options_callback' => ['codefog_tags.listener.tag_manager', 'onOptionsCallback'],
-                ]
+        $dca = [
+            'options_callback' => ['listener', 'options_method'],
+            'eval' => [
+                'tagsSource' => 'tl_table.tags',
             ],
-
-            'Full config' => [
-                [
-                    'save_callback' => [
-                        ['foo', 'bar'],
-                    ],
-                    'options_callback' => ['foo', 'bar'],
-                ],
-                [
-                    'relation' => [
-                        'type' => 'haste-ManyToMany',
-                        'load' => 'lazy',
-                        'table' => 'tl_cfg_tag',
-                    ],
-                    'save_callback' => [
-                        ['codefog_tags.listener.tag_manager', 'onFieldSave'],
-                        ['foo', 'bar'],
-                    ],
-                    'options_callback' => ['foo', 'bar'],
-                ]
+            'save_callback' => [
+                ['listener', 'save_method']
             ],
         ];
+
+        $this->mockManager(['tl_table.tags'])->updateDcaField('tl_table_2', 'tags', $dca);
+
+        $this->assertEquals(['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag'], $dca['relation']);
+        $this->assertEquals(['listener', 'options_method'], $dca['options_callback']);
+        $this->assertEquals('tl_table.tags', $dca['eval']['tagsSource']);
+        $this->assertTrue($dca['eval']['tagsCreate']);
+        $this->assertEquals([
+            ['codefog_tags.listener.tag_manager', 'onFieldSaveCallback'],
+            ['listener', 'save_method'],
+        ], $dca['save_callback']);
     }
 
-    public function testSaveDcaField()
+    public function testUpdateDcaFieldVariant3()
     {
-        require_once __DIR__.'/../Fixtures/Backend.php';
+        $dca = [
+            'eval' => [
+                'tagsSource' => 'tl_table.tags',
+                'tagsCreate' => false,
+            ],
+            'sql' => ['type' => 'blob', 'notnull' => false],
+        ];
 
-        $tagModel = new DummyModel();
-        $tagModel->id = 456;
+        $this->mockManager(['tl_table.tags'])->updateDcaField('tl_table_2', 'tags', $dca);
 
-        $dummyModel = new DummyModel();
-        $dummyModel->id = 123;
-        $dummyModel->name = 'foobar';
-        $dummyModel->source = 'foobar';
+        $this->assertEquals(['type' => 'blob', 'notnull' => false], $dca['sql']);
+        $this->assertEquals('tl_table.tags', $dca['eval']['tagsSource']);
+        $this->assertFalse($dca['eval']['tagsCreate']);
+    }
 
-        $this->framework->method('createInstance')->willReturn($tagModel);
+    public function testSaveDcaFieldNewTags()
+    {
+        $tag = new Tag('bar', 'foo');
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null, 'createTagFromModel' => $tag]);
 
-        $this->framework->method('getAdapter')->willReturnOnConsecutiveCalls(
-            new DummyModel(['findByPk' => $dummyModel]),
-            new ExtraDummyModel(['findByPk' => null])
-        );
+        $value = $manager->saveDcaField(serialize(['new-tag']), $this->createMock(DataContainer::class));
+        $value = StringUtil::deserialize($value, true);
 
-        $output = $this->manager->saveDcaField(serialize(['123', 'new']), $this->createMock(DataContainer::class));
+        $this->assertCount(1, $value);
+        $this->assertContains('bar', $value);
+    }
 
-        static::assertEquals(serialize(['123', '456']), $output);
+    public function testSaveDcaFieldNoNewTags()
+    {
+        $tag = new Tag('bar', 'foo');
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => $tag]);
+
+        $value = $manager->saveDcaField(serialize(['existing-tag']), $this->createMock(DataContainer::class));
+        $value = StringUtil::deserialize($value, true);
+
+        $this->assertCount(1, $value);
+        $this->assertContains('existing-tag', $value);
     }
 
     public function testGetFilterOptions()
     {
-        require_once __DIR__.'/../Fixtures/Backend.php';
+        $tag1 = new Tag('tag1', 'foo');
+        $tag2 = new Tag('tag2', 'bar');
 
-        $tagModel = new DummyModel();
-        $tagModel->id = 123;
-        $tagModel->name = 'Foobar';
+        $options = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getFilterOptions($this->createMock(DataContainer::class));
 
-        $relationsModelAdapter = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock();
-        ;
+        $this->assertEquals(['tag1' => 'foo', 'tag2' => 'bar'], $options);
+    }
 
-        $relationsModelAdapter
-            ->method('getRelatedValues')
-            ->willReturn([1, 2, 3])
-        ;
+    public function testGetFilterOptionsWithPredefinedTagsSource()
+    {
+        $tag1 = new Tag('tag1', 'foo');
+        $tag2 = new Tag('tag2', 'bar');
 
-        $tagModelAdapter = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['findByCriteria'])
-            ->getMock();
-        ;
-
-        $tagModelAdapter
-            ->method('findByCriteria')
-            ->willReturn(new Collection([$tagModel], ''))
-        ;
-
-        $this->framework
-            ->method('getAdapter')
-            ->willReturnMap([
-                [Model::class, $relationsModelAdapter],
-                [TagModel::class, $tagModelAdapter]
-            ]);
-        ;
+        $GLOBALS['TL_DCA']['tl_table']['fields']['tags']['eval']['tagsSource'] = 'tl_table.tags';
 
         $dataContainer = $this->createMock(DataContainer::class);
-
-        static::assertSame([123 => 'Foobar'], $this->manager->getFilterOptions($dataContainer));
-    }
-
-    public function testFindRelatedSourceRecords()
-    {
-        $relations = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelation'])
-            ->getMock()
-        ;
-
-        $relations
-            ->method('getRelation')
-            ->willReturn([
-                'reference_field' => 'foo_id',
-                'related_field' => 'bar_id',
-                'table' => 'tl_foobar',
+        $dataContainer
+            ->method('__get')
+            ->willReturnMap([
+                ['table', 'tl_table'],
+                ['field', 'tags'],
             ])
         ;
 
-        $model = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock()
-        ;
+        $options = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getFilterOptions($dataContainer);
 
-        $model
-            ->method('getRelatedValues')
-            ->willReturn([1, 2, 3, 4])
-        ;
+        $this->assertEquals(['tag1' => 'foo', 'tag2' => 'bar'], $options);
+    }
 
-        $this->framework
-            ->method('getAdapter')
+    public function testGetSourceRecordsCountEmpty()
+    {
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null]);
+
+        $count = $manager->getSourceRecordsCount(['id' => 1], $this->createMock(DataContainer::class));
+
+        $this->assertEquals(0, $count);
+    }
+
+    public function testGetSourceRecordsCount()
+    {
+        $tag = new Tag('bar', 'foo');
+        $manager = $this->mockManager(['tl_table.tags', 'tl_table_2.tags'], ['findSingle' => $tag], ['count' => 3]);
+
+        $count = $manager->getSourceRecordsCount(['id' => 1], $this->createMock(DataContainer::class));
+
+        $this->assertEquals(6, $count);
+    }
+
+    public function testGetSourceRecordsCountWithPredefinedTagsSource()
+    {
+        $tag = new Tag('bar', 'foo');
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => $tag], ['count' => 3]);
+
+        $GLOBALS['TL_DCA']['tl_table']['fields']['tags']['eval']['tagsSource'] = 'tl_table.tags';
+
+        $dataContainer = $this->createMock(DataContainer::class);
+        $dataContainer
+            ->method('__get')
             ->willReturnMap([
-                [Relations::class, $relations],
-                [Model::class, $model],
-            ]);
-        ;
-
-        $this->db
-            ->method('fetchAll')
-            ->willReturn([
-                ['foo_id' => 1, 'relevance' => 4],
-                ['foo_id' => 2, 'relevance' => 2],
+                ['table', 'tl_table'],
+                ['field', 'tags'],
             ])
         ;
 
-        static::assertSame(
-            [
-                1 => [
-                    'total' => 4,
-                    'found' => 4,
-                    'prcnt' => 100,
-                ],
-                2 => [
-                    'total' => 4,
-                    'found' => 2,
-                    'prcnt' => 50.0,
-                ],
-            ],
-            $this->manager->findRelatedSourceRecords(1, 2)
-        );
-    }
+        $count = $manager->getSourceRecordsCount(['id' => 1], $dataContainer);
 
-    public function testFindRelatedSourceRecordsNoRelation()
-    {
-        $relations = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelation'])
-            ->getMock()
-        ;
-
-        $relations
-            ->method('getRelation')
-            ->willReturn(false)
-        ;
-
-        $this->framework
-            ->method('getAdapter')
-            ->willReturn($relations);
-        ;
-
-        $this->expectException(\RuntimeException::class);
-        $this->manager->findRelatedSourceRecords(1);
-    }
-
-    public function testFindRelatedSourceRecordsEmpty()
-    {
-        $relations = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelation'])
-            ->getMock()
-        ;
-
-        $relations
-            ->method('getRelation')
-            ->willReturn([])
-        ;
-
-        $model = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock()
-        ;
-
-        $model
-            ->method('getRelatedValues')
-            ->willReturn([])
-        ;
-
-        $this->framework
-            ->method('getAdapter')
-            ->willReturnMap([
-                [Relations::class, $relations],
-                [Model::class, $model],
-            ]);
-        ;
-
-        static::assertEmpty($this->manager->findRelatedSourceRecords(1));
+        $this->assertEquals(3, $count);
     }
 
     public function testGetTopTagIds()
     {
-        $model = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock()
-        ;
+        $manager = $this->mockManager(['tl_table.tags', 'tl_table_2.tags'], ['getTopTagIds' => [1 => 1, 2 => 4, 3 => 9]]);
 
-        $model
-            ->method('getRelatedValues')
-            ->willReturn([1, 1, 1, 2, 3, 4, 5, 5])
-        ;
-
-        $this->framework
-            ->method('getAdapter')
-            ->willReturn($model);
-        ;
-
-        static::assertEquals(
-            [1, 5, 2],
-            $this->manager->getTopTagIds([], 3)
-        );
+        $this->assertEquals([1 => 2, 2 => 8, 3 => 18], $manager->getTopTagIds());
     }
 
-    public function testGetTopTagIdsEmpty()
+    public function testGetInsertTagValueEmpty()
     {
-        $model = $this
-            ->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRelatedValues'])
-            ->getMock()
-        ;
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null]);
 
-        $model
-            ->method('getRelatedValues')
-            ->willReturn([])
-        ;
+        $this->assertEquals('', $manager->getInsertTagValue('my_manager', 'name', []));
+    }
 
-        $this->framework
-            ->method('getAdapter')
-            ->willReturn($model);
-        ;
+    public function testGetInsertTagValue()
+    {
+        $tag = new Tag('bar', 'foo');
+        $tag->setData(['foobar' => 'baz']);
 
-        static::assertEmpty($this->manager->getTopTagIds());
+        $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => $tag]);
+
+        $this->assertEquals('foo', $manager->getInsertTagValue('bar', 'name', []));
+        $this->assertEquals('baz', $manager->getInsertTagValue('bar', 'foobar', []));
+        $this->assertEquals('', $manager->getInsertTagValue('bar', 'quux', []));
+    }
+
+    public function testGetTagFinder()
+    {
+        $this->assertInstanceOf(TagFinder::class, $this->mockManager(['tl_table.tags'])->getTagFinder());
+    }
+
+    public function testGetSourceFinder()
+    {
+        $this->assertInstanceOf(SourceFinder::class, $this->mockManager(['tl_table.tags'])->getSourceFinder());
+    }
+
+    public function testCreateTagCriteria()
+    {
+        $criteria = $this->mockManager(['tl_table.tags'])->createTagCriteria();
+
+        $this->assertInstanceOf(TagCriteria::class, $criteria);
+        $this->assertEquals($criteria->getName(), 'my_manager');
+        $this->assertEquals($criteria->getSourceTable(), 'tl_table');
+        $this->assertEquals($criteria->getSourceField(), 'tags');
+    }
+
+    public function testCreateTagCriteriaInvalidSource()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid source "tl_table_2.tags"!');
+
+        $this->mockManager(['tl_table.tags'])->createTagCriteria('tl_table_2.tags');
+    }
+
+    public function testCreateSourceCriteria()
+    {
+        $criteria = $this->mockManager(['tl_table.tags'])->createSourceCriteria();
+
+        $this->assertInstanceOf(SourceCriteria::class, $criteria);
+        $this->assertEquals($criteria->getName(), 'my_manager');
+        $this->assertEquals($criteria->getSourceTable(), 'tl_table');
+        $this->assertEquals($criteria->getSourceField(), 'tags');
+    }
+
+    public function testCreateSourceCriteriaInvalidSource()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid source "tl_table_2.tags"!');
+
+        $this->mockManager(['tl_table.tags'])->createSourceCriteria('tl_table_2.tags');
+    }
+
+    private function mockManager(array $sources, array $tagsFromFinder = [], array $sourcesFromFinder = []): DefaultManager
+    {
+        $sourceFinder = $this->createConfiguredMock(SourceFinder::class, $sourcesFromFinder);
+        $tagFinder = $this->createConfiguredMock(TagFinder::class, $tagsFromFinder);
+
+        $manager = new DefaultManager('my_manager', $sources);
+        $manager->setTagFinder($tagFinder);
+        $manager->setSourceFinder($sourceFinder);
+
+        return $manager;
     }
 }

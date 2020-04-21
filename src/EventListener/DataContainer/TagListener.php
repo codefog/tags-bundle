@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
- * @copyright  Copyright (c) 2017, Codefog
+ * @copyright  Copyright (c) 2020, Codefog
  * @author     Codefog <https://codefog.pl>
  * @license    MIT
  */
@@ -13,18 +13,18 @@ declare(strict_types=1);
 namespace Codefog\TagsBundle\EventListener\DataContainer;
 
 use Codefog\TagsBundle\Driver;
-use Codefog\TagsBundle\Manager\DefaultManager;
+use Codefog\TagsBundle\Manager\DcaAwareInterface;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Model\TagModel;
 use Contao\Controller;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Versions;
 use Doctrine\DBAL\Connection;
+use PDO;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -35,11 +35,6 @@ class TagListener
      * @var Connection
      */
     private $db;
-
-    /**
-     * @var ContaoFrameworkInterface
-     */
-    private $framework;
 
     /**
      * @var ManagerRegistry
@@ -58,22 +53,10 @@ class TagListener
 
     /**
      * TagListener constructor.
-     *
-     * @param Connection               $db
-     * @param ContaoFrameworkInterface $framework
-     * @param ManagerRegistry          $registry
-     * @param RequestStack             $requestStack
-     * @param SessionInterface         $session
      */
-    public function __construct(
-        Connection $db,
-        ContaoFrameworkInterface $framework,
-        ManagerRegistry $registry,
-        RequestStack $requestStack,
-        SessionInterface $session
-    ) {
+    public function __construct(Connection $db, ManagerRegistry $registry, RequestStack $requestStack, SessionInterface $session)
+    {
         $this->db = $db;
-        $this->framework = $framework;
         $this->registry = $registry;
         $this->requestStack = $requestStack;
         $this->session = $session;
@@ -81,8 +64,6 @@ class TagListener
 
     /**
      * On load callback.
-     *
-     * @param DataContainer $dc
      */
     public function onLoadCallback(DataContainer $dc): void
     {
@@ -93,18 +74,21 @@ class TagListener
         $ids = [];
 
         // Collect the top tags from all registries
-        foreach ($this->registry->getAliases() as $alias) {
-            $manager = $this->registry->get($alias);
-
-            if ($manager instanceof DefaultManager) {
-                foreach ($manager->getTopTagIds([], null, true) as $id => $count) {
-                    $ids[$id] = $count;
+        /** @var ManagerInterface $manager */
+        foreach ($this->registry->all() as $manager) {
+            if ($manager instanceof DcaAwareInterface) {
+                foreach ($manager->getTopTagIds() as $id => $count) {
+                    if (!isset($ids[$id])) {
+                        $ids[$id] = $count;
+                    } else {
+                        $ids[$id] += $count;
+                    }
                 }
             }
         }
 
         // Append all other tags
-        foreach ($this->db->executeQuery("SELECT id FROM {$dc->table}")->fetchAll(\PDO::FETCH_COLUMN, 0) as $id) {
+        foreach ($this->db->query("SELECT id FROM {$dc->table}")->fetchAll(PDO::FETCH_COLUMN, 0) as $id) {
             if (!\array_key_exists($id, $ids)) {
                 $ids[$id] = 0;
             }
@@ -117,11 +101,13 @@ class TagListener
         // Handle the sorting selection
         switch ($session['sorting'][$dc->table]) {
             case 'total_asc':
-                \asort($ids);
+                asort($ids);
                 break;
+
             case 'total_desc':
-                \arsort($ids);
+                arsort($ids);
                 break;
+
             default:
                 $session['sorting'][$dc->table] = null;
                 $bag->replace($session);
@@ -129,9 +115,7 @@ class TagListener
                 return;
         }
 
-        /** @var Database $db */
-        $db = $this->framework->createInstance(Database::class);
-        $dc->setOrderBy([$db->findInSet('id', \array_keys($ids))]);
+        $dc->setOrderBy([Database::getInstance()->findInSet('id', array_keys($ids))]);
 
         // Prevent adding an extra column to the listing
         $dc->setFirstOrderBy('name');
@@ -139,10 +123,6 @@ class TagListener
 
     /**
      * On generate panel callback.
-     *
-     * @param DataContainer $dc
-     *
-     * @return string
      */
     public function onPanelCallback(DataContainer $dc): string
     {
@@ -170,7 +150,7 @@ class TagListener
 
         // Generate the markup options
         foreach ($sorting as $option) {
-            $options[] = \sprintf(
+            $options[] = sprintf(
                 '<option value="%s"%s>%s</option>',
                 StringUtil::specialchars($option),
                 ($session['sorting'][$dc->table] === $option) ? ' selected="selected"' : '',
@@ -183,41 +163,33 @@ class TagListener
 <div class="tl_sorting tl_subpanel">
 <strong>'.$GLOBALS['TL_LANG']['MSC']['sortBy'].':</strong>
 <select name="tl_sort" id="tl_sort" class="tl_select">
-'.\implode("\n", $options).'
+'.implode("\n", $options).'
 </select>
 </div>';
     }
 
     /**
-     * Generate the label.
+     * On label callback.
      *
-     * @param array         $row
-     * @param string        $label
-     * @param DataContainer $dc
-     * @param array         $args
-     *
-     * @return array
+     * @param string $label
      */
-    public function generateLabel(array $row, $label, DataContainer $dc, array $args): array
+    public function onLabelCallback(array $row, $label, DataContainer $dc, array $args): array
     {
-        $manager = $this->getManager($row['source']);
+        $manager = $this->registry->get($row['source']);
 
-        if (null !== ($tag = $manager->find($row['id']))) {
-            $args[2] = $manager->countSourceRecords($tag);
+        if ($manager instanceof DcaAwareInterface) {
+            $args[2] = $manager->getSourceRecordsCount($row, $dc);
         }
 
         return $args;
     }
 
     /**
-     * Automatically generate the folder URL aliases.
-     *
-     * @param array         $buttons
-     * @param DataContainer $dc
+     * On buttons callback.
      *
      * @return array
      */
-    public function addAliasButton(array $buttons, DataContainer $dc)
+    public function onButtonsCallback(array $buttons, DataContainer $dc)
     {
         $request = $this->requestStack->getCurrentRequest();
 
@@ -225,17 +197,8 @@ class TagListener
         if ('tl_select' === $request->request->get('FORM_SUBMIT') && $request->request->has('alias')) {
             $ids = $this->session->all()['CURRENT']['IDS'];
 
-            /**
-             * @var Controller
-             * @var System     $systemAdapter
-             * @var TagModel   $tagAdapter
-             */
-            $controllerAdapter = $this->framework->getAdapter(Controller::class);
-            $systemAdapter = $this->framework->getAdapter(System::class);
-            $tagAdapter = $this->framework->getAdapter(TagModel::class);
-
             // Handle each model individually
-            if (null !== ($tagModels = $tagAdapter->findMultipleByIds($ids))) {
+            if (null !== ($tagModels = TagModel::findMultipleByIds($ids))) {
                 /** @var TagModel $tagModel */
                 foreach ($tagModels as $tagModel) {
                     $dc->id = $tagModel->id;
@@ -246,7 +209,7 @@ class TagListener
                     // Generate new alias through save callbacks
                     foreach ($GLOBALS['TL_DCA'][$dc->table]['fields']['alias']['save_callback'] as $callback) {
                         if (\is_array($callback)) {
-                            $alias = $systemAdapter->importStatic($callback[0])->{$callback[1]}($alias, $dc);
+                            $alias = System::importStatic($callback[0])->{$callback[1]}($alias, $dc);
                         } elseif (\is_callable($callback)) {
                             $alias = $callback($alias, $dc);
                         }
@@ -258,8 +221,7 @@ class TagListener
                     }
 
                     // Initialize the version manager
-                    /** @var Versions $versions */
-                    $versions = $this->framework->createInstance(Versions::class, [$dc->table, $tagModel->id]);
+                    $versions = new Versions($dc->table, $tagModel->id);
                     $versions->initialize();
 
                     // Store the new alias
@@ -270,36 +232,37 @@ class TagListener
                 }
             }
 
-            $controllerAdapter->redirect($systemAdapter->getReferer());
+            Controller::redirect(System::getReferer());
         }
 
         // Add the button
-        $buttons['alias'] = \sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
+        $buttons['alias'] = sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
 
         return $buttons;
     }
 
     /**
-     * Get the sources.
-     *
-     * @return array
+     * On source options callback.
      */
-    public function getSources(): array
+    public function onSourceOptionsCallback(): array
     {
-        return $this->registry->getAliases();
+        $options = [];
+
+        foreach ($this->registry->all() as $name => $manager) {
+            if ($manager instanceof DcaAwareInterface) {
+                $options[] = $name;
+            }
+        }
+
+        return $options;
     }
 
     /**
-     * Generate the alias.
-     *
-     * @param string        $value
-     * @param DataContainer $dc
+     * On alias save callback.
      *
      * @throws \RuntimeException
-     *
-     * @return string
      */
-    public function generateAlias(string $value, DataContainer $dc): string
+    public function onAliasSaveCallback(string $value, DataContainer $dc): string
     {
         $autoAlias = false;
 
@@ -313,7 +276,7 @@ class TagListener
 
         // Check whether the record alias exists
         if (\count($exists) > 1 && !$autoAlias) {
-            throw new \RuntimeException(\sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
+            throw new \RuntimeException(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
         }
 
         // Add ID to alias
@@ -322,17 +285,5 @@ class TagListener
         }
 
         return $value;
-    }
-
-    /**
-     * Get the manager.
-     *
-     * @param string $alias
-     *
-     * @return ManagerInterface
-     */
-    private function getManager(string $alias): ManagerInterface
-    {
-        return $this->registry->get($alias);
     }
 }

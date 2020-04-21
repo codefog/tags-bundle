@@ -5,30 +5,25 @@ namespace Codefog\TagsBundle\Test;
 use Codefog\TagsBundle\Manager\DefaultManager;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 
 class ManagerRegistryTest extends TestCase
 {
-    public function testInstantiation()
-    {
-        static::assertInstanceOf(ManagerRegistry::class, new ManagerRegistry($this->createMock(Connection::class)));
-    }
-
     public function testAddManager()
     {
         $managerMock = $this->createMock(ManagerInterface::class);
 
-        $registry = new ManagerRegistry($this->createMock(Connection::class));
+        $registry = $this->mockRegistry();
         $registry->add($managerMock, 'foobar');
 
-        static::assertEquals($managerMock, $registry->get('foobar'));
+        $this->assertEquals($managerMock, $registry->get('foobar'));
     }
 
     public function testManagerNotExists()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $registry = new ManagerRegistry($this->createMock(Connection::class));
+
+        $registry = $this->mockRegistry();
         $registry->get('foobar');
     }
 
@@ -37,10 +32,20 @@ class ManagerRegistryTest extends TestCase
         $manager1Mock = $this->createMock(ManagerInterface::class);
         $manager2Mock = $this->createMock(DefaultManager::class);
 
-        $registry = new ManagerRegistry($this->createMock(Connection::class));
+        $registry = $this->mockRegistry();
         $registry->add($manager1Mock, 'foobar');
         $registry->add($manager2Mock, 'foobaz');
 
-        static::assertEquals(['foobar', 'foobaz'], $registry->getAliases());
+        $managers = $registry->all();
+
+        $this->assertArrayHasKey('foobar', $managers);
+        $this->assertArrayHasKey('foobaz', $managers);
+        $this->assertInstanceOf(ManagerInterface::class, $managers['foobar']);
+        $this->assertInstanceOf(DefaultManager::class, $managers['foobaz']);
+    }
+
+    private function mockRegistry(): ManagerRegistry
+    {
+        return new ManagerRegistry();
     }
 }

@@ -2,9 +2,10 @@
 
 1. [Installation](01-installation.md)
 2. [Configuration](02-config.md)
-3. [**Backend interface**](03-backend.md)
-4. [Custom managers](04-custom-managers.md)
-5. [Insert tags](05-insert-tags.md)
+3. [Usage](03-usage.md)
+4. [Managers](04-managers.md)
+5. [**Backend interface**](05-backend.md)
+6. [Insert tags](06-insert-tags.md)
 
 
 ## Tags widget
@@ -28,7 +29,6 @@ field is focused.
 
 You can add the new tags on the fly by typing them into the input field. If no existing tag will be found
 then you will notice a new option in the dropdown field that will say "Add <your_tag>...".
-
 
 ## Tags module
 
