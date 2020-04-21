@@ -130,19 +130,19 @@ class TagsWidget extends Widget
     }
 
     /**
-     * Get the value tags.
-     */
-    protected function getValueTags(): array
-    {
-        return $this->tagsManager->getMultipleTags($this->tagsSource, \is_array($this->varValue) ? $this->varValue : []);
-    }
-
-    /**
      * Get all tags.
      */
     protected function getAllTags(): array
     {
-        return $this->tagsManager->getMultipleTags($this->tagsSource);
+        return $this->tagsManager->getAllTags($this->tagsSource);
+    }
+
+    /**
+     * Get the value tags.
+     */
+    protected function getValueTags(): array
+    {
+        return $this->tagsManager->getFilteredTags(\is_array($this->varValue) ? $this->varValue : [], $this->tagsSource);
     }
 
     /**

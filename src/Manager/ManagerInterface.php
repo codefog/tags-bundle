@@ -15,7 +15,12 @@ namespace Codefog\TagsBundle\Manager;
 interface ManagerInterface
 {
     /**
-     * Get multiple tags optionally filtered by values.
+     * Get all tags.
      */
-    public function getMultipleTags(string $source = null, array $values = null): array;
+    public function getAllTags(string $source = null): array;
+
+    /**
+     * Get tags optionally filtered by values.
+     */
+    public function getFilteredTags(array $values, string $source = null): array;
 }

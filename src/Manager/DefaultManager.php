@@ -69,15 +69,20 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
-    public function getMultipleTags(string $source = null, array $values = null): array
+    public function getAllTags(string $source = null): array
+    {
+        return $this->tagFinder->findMultiple($this->createTagCriteria($source));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFilteredTags(array $values, string $source = null): array
     {
         $criteria = $this->createTagCriteria($source);
-
-        if (\is_array($values)) {
-            $criteria->setValues(\count($values) ? $values : [0]);
-        }
+        $criteria->setValues(\count($values) ? $values : [0]);
 
         return $this->tagFinder->findMultiple($criteria);
     }

@@ -14,16 +14,28 @@ use Contao\TestCase\ContaoTestCase;
 
 class DefaultManagerTest extends ContaoTestCase
 {
-    public function testGetMultipleTags()
+    public function testGetAllTags()
     {
         $tag1 = new Tag('tag1', 'foo');
         $tag2 = new Tag('tag2', 'bar');
 
-        $tags = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getMultipleTags('tl_table.tags', ['tag1']);
+        $tags = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getAllTags('tl_table.tags');
 
         $this->assertCount(2, $tags);
         $this->assertContains($tag1, $tags);
         $this->assertContains($tag2, $tags);
+    }
+
+    public function testGetFilteredTags()
+    {
+        $tag1 = new Tag('tag1', 'foo');
+        $tag2 = new Tag('tag2', 'bar');
+
+        $tags = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1]])->getFilteredTags(['tag1'], 'tl_table.tags');
+
+        $this->assertCount(1, $tags);
+        $this->assertContains($tag1, $tags);
+        $this->assertNotContains($tag2, $tags);
     }
 
     public function testUpdateDcaFieldVariant1()
