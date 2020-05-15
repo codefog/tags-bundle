@@ -94,6 +94,8 @@ class DefaultManagerTest extends ContaoTestCase
 
     public function testSaveDcaFieldNewTags()
     {
+        $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8'; // for StringUtil::generateAlias() method
+
         $tag = new Tag('bar', 'foo');
         $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null, 'createTagFromModel' => $tag]);
 

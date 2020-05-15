@@ -144,6 +144,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
             $model->source = $this->name;
             $model->save();
 
+            // Generate the alias
+            $this->generateAlias($model, $source);
+
             $value[$k] = $this->tagFinder->createTagFromModel($model)->getValue();
         }
 
@@ -289,5 +292,24 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         }
 
         return $source;
+    }
+
+    /**
+     * Generate the tag alias
+     *
+     * @param TagModel $model
+     * @param string|null $source
+     */
+    protected function generateAlias(TagModel $model, string $source = null): void
+    {
+        $alias = StringUtil::generateAlias($model->name);
+
+        // Add ID to alias if it already exists
+        if (($existingTag = $this->tagFinder->findSingle($this->createTagCriteria($source)->setAlias($alias))) !== null) {
+            $alias .= '-'.$model->id;
+        }
+
+        $model->alias = $alias;
+        $model->save();
     }
 }
