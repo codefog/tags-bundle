@@ -30,6 +30,4 @@ gulp.task('vendors', function () {
         .pipe(gulp.dest(config.targetFolder));
 });
 
-gulp.task('default', ['vendors'], function () {
-    gulp.start('scripts', 'styles');
-});
+gulp.task('default', gulp.series('vendors', gulp.parallel('scripts', 'styles')));
