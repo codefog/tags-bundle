@@ -91,7 +91,7 @@ class TagFinder
      */
     public function getTopTags(TagCriteria $criteria, int $limit = null, bool $withCount = false): array
     {
-        if (\count($tagIds = $this->getTopTagIds($criteria, $limit, $withCount)) === 0) {
+        if (0 === \count($tagIds = $this->getTopTagIds($criteria, $limit, $withCount))) {
             return [];
         }
 
