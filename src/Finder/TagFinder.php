@@ -87,6 +87,28 @@ class TagFinder
     }
 
     /**
+     * Get the top tags. The tag count will be part of tag's data ($tag->getData()['count']).
+     */
+    public function getTopTags(TagCriteria $criteria, int $limit = null, bool $withCount = false): array
+    {
+        if (0 === \count($tagIds = $this->getTopTagIds($criteria, $limit, $withCount))) {
+            return [];
+        }
+
+        $tags = $this->findMultiple($criteria->setValues($withCount ? array_keys($tagIds) : $tagIds));
+
+        // Enhance the tags data with count
+        if ($withCount) {
+            /** @var Tag $tag */
+            foreach ($tags as $tag) {
+                $tag->setData(array_merge($tag->getData(), ['count' => $tagIds[$tag->getValue()]]));
+            }
+        }
+
+        return $tags;
+    }
+
+    /**
      * Get the top tag IDs.
      */
     public function getTopTagIds(TagCriteria $criteria, int $limit = null, bool $withCount = false): array

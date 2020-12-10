@@ -295,17 +295,14 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
-     * Generate the tag alias
-     *
-     * @param TagModel $model
-     * @param string|null $source
+     * Generate the tag alias.
      */
     protected function generateAlias(TagModel $model, string $source = null): void
     {
         $alias = StringUtil::generateAlias($model->name);
 
         // Add ID to alias if it already exists
-        if (($existingTag = $this->tagFinder->findSingle($this->createTagCriteria($source)->setAlias($alias))) !== null) {
+        if (null !== ($existingTag = $this->tagFinder->findSingle($this->createTagCriteria($source)->setAlias($alias)))) {
             $alias .= '-'.$model->id;
         }
 
