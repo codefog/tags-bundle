@@ -74,7 +74,7 @@ $this->tagsManager->getTagFinder()->count($criteria);
 // Find multiple tags
 $this->tagsManager->getTagFinder()->findMultiple($criteria);
 
-// Find top 5 tags with count usage ($tag->getData()['count'])
+// Find top 5 tags with count data ($tag->getData()['count'])
 $this->tagsManager->getTagFinder()->getTopTags($criteria, 5, true);
 
 // Find the top 10 tag IDs 
