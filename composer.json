@@ -19,7 +19,7 @@
     "require-dev": {
         "contao/manager-plugin": "^2.0",
         "contao/php-cs-fixer": "^2.2",
-        "phpunit/phpunit": "^7.0",
+        "phpunit/phpunit": "^7.0 || ^9.3",
         "contao/test-case": "^2.0",
         "php-coveralls/php-coveralls": "^2.2"
     },
