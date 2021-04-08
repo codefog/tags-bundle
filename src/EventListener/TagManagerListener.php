@@ -44,7 +44,7 @@ class TagManagerListener
         $hasTagsFields = false;
 
         foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $field => &$config) {
-            if ('cfgTags' !== $config['inputType']) {
+            if (!isset($config['inputType']) || 'cfgTags' !== $config['inputType']) {
                 continue;
             }
 
