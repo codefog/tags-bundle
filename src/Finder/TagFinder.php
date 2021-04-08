@@ -128,6 +128,7 @@ class TagFinder
             if (!isset($helper[$tagId])) {
                 $helper[$tagId] = 0;
             }
+
             ++$helper[$tagId];
         }
 
