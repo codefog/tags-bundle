@@ -32,7 +32,7 @@ class InsertTagsListenerTest extends TestCase
     public function insertTagsDataProvider()
     {
         return [
-            'Unsupported tag' => ['foobar', null, false],
+            'Unsupported tag' => ['foobar', '', false],
             'Invalid tag' => ['tag::foobar', '', false],
             'Tag not found' => ['tag::foobar::123::name', '', ''],
             'Tag name' => ['tag::foobar::123::name', 'Foobar', 'Foobar'],
