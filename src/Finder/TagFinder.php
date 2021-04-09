@@ -125,6 +125,10 @@ class TagFinder
 
         // Create the helper array with tag occurrences
         foreach ($tagIds as $tagId) {
+            if (!isset($helper[$tagId])) {
+                $helper[$tagId] = 0;
+            }
+
             ++$helper[$tagId];
         }
 

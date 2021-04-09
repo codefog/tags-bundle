@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.1 || ^8.0",
         "ext-pdo": "*",
         "contao/core-bundle": "^4.4",
         "codefog/contao-haste": "^4.24"
@@ -19,7 +19,7 @@
     "require-dev": {
         "contao/manager-plugin": "^2.0",
         "contao/php-cs-fixer": "^2.2",
-        "phpunit/phpunit": "^7.0",
+        "phpunit/phpunit": "^7.0 || ^9.3",
         "contao/test-case": "^2.0",
         "php-coveralls/php-coveralls": "^2.2"
     },
