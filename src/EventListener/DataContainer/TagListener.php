@@ -99,7 +99,7 @@ class TagListener
         $session = $bag->all();
 
         // Handle the sorting selection
-        switch ($session['sorting'][$dc->table]) {
+        switch ($session['sorting'][$dc->table] ?? null) {
             case 'total_asc':
                 asort($ids);
                 break;
