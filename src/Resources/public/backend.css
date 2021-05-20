@@ -1,7 +1,7 @@
 .cfg-tags {
     padding-top: 5px;
     position: relative;
-    z-index: 0;
+    z-index: 1;
 }
 
 .cfg-tags-all {
