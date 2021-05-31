@@ -74,6 +74,9 @@ $this->tagsManager->getTagFinder()->count($criteria);
 // Find multiple tags
 $this->tagsManager->getTagFinder()->findMultiple($criteria);
 
+// Find multiple tags in the exact order (useful in combination with backend manual sorting)
+$this->tagsManager->getTagFinder()->findMultiple($criteria->setOrder(\Contao\Database::getInstance()->findInSet('id', [3, 2, 1])));
+
 // Find top 5 tags with count data ($tag->getData()['count'])
 $this->tagsManager->getTagFinder()->getTopTags($criteria, 5, true);
 

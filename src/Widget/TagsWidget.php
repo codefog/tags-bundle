@@ -65,7 +65,7 @@ class TagsWidget extends Widget
             unset($attributes['tagsManager']);
         }
 
-        return parent::addAttributes($attributes);
+        parent::addAttributes($attributes);
     }
 
     /**
@@ -119,6 +119,7 @@ class TagsWidget extends Widget
         $config = [
             'addLabel' => $GLOBALS['TL_LANG']['MSC']['cfg_tags.add'],
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
+            'sortable' => isset($this->tagsSortable) ? (bool) $this->tagsSortable : false,
         ];
 
         // Maximum number of items
@@ -142,7 +143,29 @@ class TagsWidget extends Widget
      */
     protected function getValueTags(): array
     {
-        return $this->tagsManager->getFilteredTags(\is_array($this->varValue) ? $this->varValue : [], $this->tagsSource);
+        $values = \is_array($this->varValue) ? $this->varValue : [];
+
+        if (count($values) === 0) {
+            return [];
+        }
+
+        $tags = $this->tagsManager->getFilteredTags($values, $this->tagsSource);
+
+        // Respect the tags order
+        if ($this->tagsSortable && count($tags) > 0) {
+            usort($tags, function (Tag $aTag, Tag $bTag) use ($values) {
+                $aIndex = array_search($aTag->getValue(), $values, true);
+                $bIndex = array_search($bTag->getValue(), $values, true);
+
+                if ($aIndex === $bIndex) {
+                    return 0;
+                }
+
+                return ($aIndex < $bIndex) ? -1 : 1;
+            });
+        }
+
+        return $tags;
     }
 
     /**

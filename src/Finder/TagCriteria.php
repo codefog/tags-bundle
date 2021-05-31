@@ -45,6 +45,11 @@ class TagCriteria
     protected $values = [];
 
     /**
+     * @var string
+     */
+    protected $order = 'name';
+
+    /**
      * Criteria constructor.
      */
     public function __construct(string $name, string $source)
@@ -131,6 +136,18 @@ class TagCriteria
     public function setValue(string $value): self
     {
         $this->values = [$value];
+
+        return $this;
+    }
+
+    public function getOrder(): string
+    {
+        return $this->order;
+    }
+
+    public function setOrder(string $order): self
+    {
+        $this->order = $order;
 
         return $this;
     }

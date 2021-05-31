@@ -15,6 +15,7 @@ class TagCriteriaTest extends TestCase
         $this->assertEquals('tl_table.tags', $criteria->getSource());
         $this->assertEquals('tl_table', $criteria->getSourceTable());
         $this->assertEquals('tags', $criteria->getSourceField());
+        $this->assertEquals('name', $criteria->getOrder());
         $this->assertEquals([], $criteria->getAliases());
         $this->assertEquals([], $criteria->getSourceIds());
         $this->assertEquals([], $criteria->getValues());
@@ -37,5 +38,8 @@ class TagCriteriaTest extends TestCase
 
         $criteria->setUsedOnly(true);
         $this->assertTrue($criteria->isUsedOnly());
+
+        $criteria->setOrder('alias');
+        $this->assertEquals('alias', $criteria->getOrder());
     }
 }
