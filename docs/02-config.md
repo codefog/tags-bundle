@@ -78,6 +78,7 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['app_tags'] = [
         'tagsManager' => 'app',
         'tagsCreate' => false, # Do not create new tags
         'tagsSource' => 'tl_table.tags', # Set the source if you have multiple of them
+        'tagsSortable' => true, # Make the tags sortable
         'tl_class' => 'clr',
     ],
     # Save the tag values directly in the field and do not use the Haste-ManyToMany relation

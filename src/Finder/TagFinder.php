@@ -160,7 +160,7 @@ class TagFinder
     {
         $columns = ['source=?'];
         $values = [$criteria->getName()];
-        $options = ['order' => 'name'];
+        $options = ['order' => $criteria->getOrder()];
 
         // Find the tags by single or multiple values
         if (\count($ids = $criteria->getValues()) > 0) {

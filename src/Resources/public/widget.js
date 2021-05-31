@@ -88,6 +88,11 @@
                 options.maxItems = this.settings.maxItems;
             }
 
+            // Make the tags sortable
+            if (this.settings.sortable) {
+                options.plugins = ['drag_drop'];
+            }
+
             el.selectize($.extend(options, this.settings.selectizeConfig));
 
             this.selectize = el[0].selectize;
