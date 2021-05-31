@@ -65,7 +65,7 @@ class TagsWidget extends Widget
             unset($attributes['tagsManager']);
         }
 
-        return parent::addAttributes($attributes);
+        parent::addAttributes($attributes);
     }
 
     /**

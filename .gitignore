@@ -1,5 +1,7 @@
 /.php_cs.cache
+/.phpunit.result.cache
 /composer.lock
+/build
 /node_modules
 /vendor
 /yarn.lock
