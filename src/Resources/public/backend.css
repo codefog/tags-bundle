@@ -36,3 +36,6 @@
     color: #fff;
 }
 
+.bootstrap-tagsinput.tl_select {
+  height: auto;
+}
