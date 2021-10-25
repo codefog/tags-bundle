@@ -175,10 +175,12 @@ class TagListener
      */
     public function onLabelCallback(array $row, $label, DataContainer $dc, array $args): array
     {
-        $manager = $this->registry->get($row['source']);
+        if ($row['source']) {
+            $manager = $this->registry->get($row['source']);
 
-        if ($manager instanceof DcaAwareInterface) {
-            $args[2] = $manager->getSourceRecordsCount($row, $dc);
+            if ($manager instanceof DcaAwareInterface) {
+                $args[2] = $manager->getSourceRecordsCount($row, $dc);
+            }
         }
 
         return $args;
