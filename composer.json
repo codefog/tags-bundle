@@ -14,7 +14,8 @@
         "php": "^7.1 || ^8.0",
         "ext-pdo": "*",
         "contao/core-bundle": "^4.4",
-        "codefog/contao-haste": "^4.24"
+        "codefog/contao-haste": "^4.24",
+        "doctrine/dbal": "^2.12 || ^3.0"
     },
     "require-dev": {
         "contao/manager-plugin": "^2.0",
