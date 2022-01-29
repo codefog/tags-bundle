@@ -88,7 +88,7 @@ class TagListener
         }
 
         // Append all other tags
-        foreach ($this->db->query("SELECT id FROM {$dc->table}")->fetchAll(PDO::FETCH_COLUMN, 0) as $id) {
+        foreach ($this->db->query("SELECT id FROM {$dc->table}")->fetchFirstColumn() as $id) {
             if (!\array_key_exists($id, $ids)) {
                 $ids[$id] = 0;
             }
@@ -274,7 +274,7 @@ class TagListener
             $value = StringUtil::generateAlias($dc->activeRecord->name);
         }
 
-        $exists = $this->db->fetchAll("SELECT id FROM {$dc->table} WHERE alias=? AND source=?", [$value, $dc->activeRecord->source]);
+        $exists = $this->db->fetchAllAssociative("SELECT id FROM {$dc->table} WHERE alias=? AND source=?", [$value, $dc->activeRecord->source]);
 
         // Check whether the record alias exists
         if (\count($exists) > 1 && !$autoAlias) {
