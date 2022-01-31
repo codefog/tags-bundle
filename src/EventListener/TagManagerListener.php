@@ -111,9 +111,7 @@ class TagManagerListener
         $GLOBALS['TL_CSS'][] = Debug::uncompressedFile('bundles/codefogtags/backend.min.css');
 
         // Add the jQuery
-        if (!\in_array('assets/jquery/js/jquery.min.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
-            && !\in_array('assets/jquery/js/jquery.js', (array) $GLOBALS['TL_JAVASCRIPT'], true)
-        ) {
+        if (!isset($GLOBALS['TL_JAVASCRIPT']) || !preg_grep("/^assets\/jquery\/js\/jquery(\.min)?\.js$/", $GLOBALS['TL_JAVASCRIPT'])) {
             $GLOBALS['TL_JAVASCRIPT'][] = Debug::uncompressedFile('assets/jquery/js/jquery.min.js');
         }
 
