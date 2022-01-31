@@ -97,7 +97,7 @@ class SourceFinder
         }
 
         $related = [];
-        $records = $this->db->fetchAll($query);
+        $records = $this->db->fetchAllAssociative($query);
 
         // Generate the related records
         foreach ($records as $record) {
