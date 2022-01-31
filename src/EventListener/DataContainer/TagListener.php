@@ -274,15 +274,15 @@ class TagListener
             $value = StringUtil::generateAlias($dc->activeRecord->name);
         }
 
-        $exists = $this->db->fetchOne("SELECT COUNT(*) FROM {$dc->table} WHERE alias=? AND source=?", [$value, $dc->activeRecord->source]);
+        $existingAliases = $this->db->fetchOne("SELECT COUNT(*) FROM {$dc->table} WHERE alias=? AND source=?", [$value, $dc->activeRecord->source]);
 
         // Check whether the record alias exists
-        if ($exists > 1 && !$autoAlias) {
+        if ($existingAliases > 1 && !$autoAlias) {
             throw new \RuntimeException(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
         }
 
         // Add ID to alias
-        if ($exists > 0 && $autoAlias) {
+        if ($existingAliases > 0 && $autoAlias) {
             $value .= '-'.$dc->id;
         }
 
