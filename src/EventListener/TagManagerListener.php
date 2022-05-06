@@ -93,6 +93,10 @@ class TagManagerListener
      */
     private function getManagerFromDca(DataContainer $dc): ?DcaAwareInterface
     {
+        if (!isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager'])) {
+            return null;
+        }
+
         $manager = $this->registry->get($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager']);
 
         if ($manager instanceof DcaAwareInterface) {
