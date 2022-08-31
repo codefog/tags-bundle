@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\ContaoManager;
 
+use Codefog\HasteBundle\CodefogHasteBundle;
 use Codefog\TagsBundle\CodefogTagsBundle;
 use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
@@ -26,7 +27,7 @@ class Plugin implements BundlePluginInterface
     public function getBundles(ParserInterface $parser)
     {
         return [
-            BundleConfig::create(CodefogTagsBundle::class)->setLoadAfter([ContaoCoreBundle::class, 'haste']),
+            BundleConfig::create(CodefogTagsBundle::class)->setLoadAfter([ContaoCoreBundle::class, CodefogHasteBundle::class]),
         ];
     }
 }
