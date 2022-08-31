@@ -13,15 +13,15 @@
     "require": {
         "php": "^7.1 || ^8.0",
         "ext-pdo": "*",
-        "contao/core-bundle": "^4.4",
+        "contao/core-bundle": "^4.13 || ^5.0",
         "codefog/contao-haste": "^4.24",
         "doctrine/dbal": "^2.12 || ^3.0"
     },
     "require-dev": {
         "contao/manager-plugin": "^2.0",
-        "contao/php-cs-fixer": "^2.2",
+        "contao/easy-coding-standard": "^5.3",
         "phpunit/phpunit": "^7.0 || ^9.3",
-        "contao/test-case": "^2.0",
+        "contao/test-case": "^4.13",
         "php-coveralls/php-coveralls": "^2.2"
     },
     "conflict": {
@@ -42,5 +42,13 @@
     },
     "extra": {
         "contao-manager-plugin": "Codefog\\TagsBundle\\ContaoManager\\Plugin"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "cs-fixer": "vendor/bin/ecs check src tests --fix --ansi"
     }
 }
