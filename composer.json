@@ -11,10 +11,10 @@
         }
     ],
     "require": {
-        "php": "^7.1 || ^8.0",
+        "php": "^8.0",
         "ext-pdo": "*",
         "contao/core-bundle": "^4.13 || ^5.0",
-        "codefog/contao-haste": "^4.24",
+        "codefog/contao-haste": "5.x-dev@dev",
         "doctrine/dbal": "^2.12 || ^3.0"
     },
     "require-dev": {

@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\Finder;
 
+use Codefog\HasteBundle\Model\DcaRelationsModel;
 use Codefog\TagsBundle\Exception\NoTagsException;
 use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
-use Haste\Model\Model;
 
 class TagFinder
 {
@@ -114,7 +114,7 @@ class TagFinder
     public function getTopTagIds(TagCriteria $criteria, int $limit = null, bool $withCount = false): array
     {
         // No array_unique() here!
-        $tagIds = Model::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getSourceIds());
+        $tagIds = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getSourceIds());
         $tagIds = array_map('intval', $tagIds);
 
         if (0 === \count($tagIds)) {
@@ -184,7 +184,7 @@ class TagFinder
 
         // Find by source IDs
         if (\count($sourceIds = $criteria->getSourceIds()) > 0) {
-            $ids = Model::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $sourceIds);
+            $ids = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $sourceIds);
             $ids = array_values(array_unique($ids));
             $ids = array_map('intval', $ids);
 
@@ -200,7 +200,7 @@ class TagFinder
 
         // Find only the used tags
         if ($criteria->isUsedOnly()) {
-            $ids = Model::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField());
+            $ids = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField());
             $ids = array_values(array_unique($ids));
             $ids = array_map('intval', $ids);
 
