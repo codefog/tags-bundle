@@ -13,7 +13,7 @@ services:
         class: Codefog\TagsBundle\Finder\SourceFinder
         arguments:
             - "@database_connection"
-            - "@database_connection"
+            - "@Codefog\HasteBundle\DcaRelationsManager"
 
     codefog_tags.manager_registry:
         class: Codefog\TagsBundle\ManagerRegistry
