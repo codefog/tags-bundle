@@ -12,8 +12,8 @@ services:
     codefog_tags.source_finder:
         class: Codefog\TagsBundle\Finder\SourceFinder
         arguments:
-            - "@database_connection"
-            - "@Codefog\HasteBundle\DcaRelationsManager"
+            - '@database_connection'
+            - '@Codefog\HasteBundle\DcaRelationsManager'
 
     codefog_tags.manager_registry:
         class: Codefog\TagsBundle\ManagerRegistry
