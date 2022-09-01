@@ -2,6 +2,7 @@
 
 namespace Codefog\TagsBundle\Test\ContaoManager;
 
+use Codefog\HasteBundle\CodefogHasteBundle;
 use Codefog\TagsBundle\CodefogTagsBundle;
 use Codefog\TagsBundle\ContaoManager\Plugin;
 use Contao\CoreBundle\ContaoCoreBundle;
@@ -22,6 +23,6 @@ class PluginTest extends TestCase
         $this->assertCount(1, $bundles);
         $this->assertInstanceOf(BundleConfig::class, $config);
         $this->assertEquals(CodefogTagsBundle::class, $config->getName());
-        $this->assertEquals([ContaoCoreBundle::class, 'haste'], $config->getLoadAfter());
+        $this->assertEquals([ContaoCoreBundle::class, CodefogHasteBundle::class], $config->getLoadAfter());
     }
 }
