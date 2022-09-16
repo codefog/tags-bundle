@@ -271,7 +271,8 @@ class TagListener
         // Generate alias if there is none
         if (!$value) {
             $autoAlias = true;
-            $value = StringUtil::generateAlias($dc->activeRecord->name);
+            $aliasOptions = \Contao\PageModel::findBytype('root')->id ?? [];
+            $value = System::getContainer()->get('contao.slug')->generate($dc->activeRecord->name, $aliasOptions);
         }
 
         $existingAliases = $this->db->fetchOne("SELECT COUNT(*) FROM {$dc->table} WHERE alias=? AND source=?", [$value, $dc->activeRecord->source]);

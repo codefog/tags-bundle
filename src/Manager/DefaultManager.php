@@ -20,6 +20,7 @@ use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
 use Contao\DataContainer;
 use Contao\StringUtil;
+use Contao\System;
 
 class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsAwareInterface
 {
@@ -299,7 +300,8 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
      */
     protected function generateAlias(TagModel $model, string $source = null): void
     {
-        $alias = StringUtil::generateAlias($model->name);
+        $aliasOptions = \Contao\PageModel::findBytype('root')->id ?? [];
+        $alias = System::getContainer()->get('contao.slug')->generate($model->name, $aliasOptions);
 
         // Add ID to alias if it already exists
         if (null !== ($existingTag = $this->tagFinder->findSingle($this->createTagCriteria($source)->setAlias($alias)))) {
