@@ -35,6 +35,16 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     protected $sources;
 
     /**
+     * @var string
+     */
+    protected $locale;
+
+    /**
+     * @var string
+     */
+    protected $validChars;
+
+    /**
      * @var TagFinder
      */
     protected $tagFinder;
@@ -47,10 +57,12 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * DefaultManager constructor.
      */
-    public function __construct(string $name, array $sources)
+    public function __construct(string $name, array $sources, string $locale, string $validChars)
     {
         $this->name = $name;
         $this->sources = $sources;
+        $this->locale = $locale;
+        $this->validChars = $validChars;
     }
 
     /**
@@ -274,6 +286,23 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     }
 
     /**
+     * Get locale.
+     */
+    public function getLocale(): string
+    {
+        return $this->locale;
+    }
+
+    /**
+     * Get validChars.
+     */
+    public function getValidChars(): string
+    {
+        return $this->validChars;
+    }
+
+
+    /**
      * Create the source criteria.
      */
     public function createSourceCriteria(string $source = null): SourceCriteria
@@ -300,7 +329,10 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
      */
     protected function generateAlias(TagModel $model, string $source = null): void
     {
-        $aliasOptions = \Contao\PageModel::findBytype('root')->id ?? [];
+        $aliasOptions = [
+            'locale' => $this->locale,
+            'validChars' => $this->validChars
+        ];
         $alias = System::getContainer()->get('contao.slug')->generate($model->name, $aliasOptions);
 
         // Add ID to alias if it already exists

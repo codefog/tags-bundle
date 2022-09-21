@@ -271,7 +271,11 @@ class TagListener
         // Generate alias if there is none
         if (!$value) {
             $autoAlias = true;
-            $aliasOptions = \Contao\PageModel::findBytype('root')->id ?? [];
+            $manager = $this->registry->get($dc->activeRecord->source);
+            $aliasOptions = [
+                'locale' => $manager->getLocale(),
+                'validChars' => $manager->getValidChars()
+            ];
             $value = System::getContainer()->get('contao.slug')->generate($dc->activeRecord->name, $aliasOptions);
         }
 
