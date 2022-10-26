@@ -12,23 +12,17 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\Finder;
 
+use Codefog\HasteBundle\DcaRelationsManager;
+use Codefog\HasteBundle\Model\DcaRelationsModel;
 use Doctrine\DBAL\Connection;
-use Haste\Model\Model;
-use Haste\Model\Relations;
 
 class SourceFinder
 {
-    /**
-     * @var Connection
-     */
-    private $db;
-
-    /**
-     * DefaultFinder constructor.
-     */
-    public function __construct(Connection $db)
+    public function __construct(
+        private Connection $connection,
+        private DcaRelationsManager $dcaRelationsManager,
+    )
     {
-        $this->db = $db;
     }
 
     /**
@@ -51,7 +45,7 @@ class SourceFinder
             $ids[] = $tag->getValue();
         }
 
-        $values = Model::getReferenceValues($criteria->getSourceTable(), $criteria->getSourceField(), $ids);
+        $values = DcaRelationsModel::getReferenceValues($criteria->getSourceTable(), $criteria->getSourceField(), $ids);
         $values = array_values(array_unique($values));
 
         return array_map('intval', $values);
@@ -68,11 +62,11 @@ class SourceFinder
             throw new \RuntimeException('No IDs have been provided');
         }
 
-        if (false === ($relation = Relations::getRelation($criteria->getSourceTable(), $criteria->getSourceField()))) {
+        if (false === ($relation = $this->dcaRelationsManager->getRelation($criteria->getSourceTable(), $criteria->getSourceField()))) {
             throw new \RuntimeException(sprintf('The field %s.%s is not related', $criteria->getSourceTable(), $criteria->getSourceField()));
         }
 
-        $tagIds = Model::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getIds());
+        $tagIds = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getIds());
         $tagIds = array_values(array_unique($tagIds));
         $tagIds = array_map('intval', $tagIds);
 
@@ -97,7 +91,7 @@ class SourceFinder
         }
 
         $related = [];
-        $records = $this->db->fetchAllAssociative($query);
+        $records = $this->connection->fetchAllAssociative($query);
 
         // Generate the related records
         foreach ($records as $record) {
