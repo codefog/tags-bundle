@@ -24,10 +24,8 @@ use Contao\StringUtil;
 use Contao\System;
 use Contao\Versions;
 use Doctrine\DBAL\Connection;
-use PDO;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class TagListener
 {
@@ -47,19 +45,13 @@ class TagListener
     private $requestStack;
 
     /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
      * TagListener constructor.
      */
-    public function __construct(Connection $db, ManagerRegistry $registry, RequestStack $requestStack, SessionInterface $session)
+    public function __construct(Connection $db, ManagerRegistry $registry, RequestStack $requestStack)
     {
         $this->db = $db;
         $this->registry = $registry;
         $this->requestStack = $requestStack;
-        $this->session = $session;
     }
 
     /**
@@ -95,7 +87,7 @@ class TagListener
         }
 
         /** @var AttributeBagInterface $bag */
-        $bag = $this->session->getBag('contao_backend');
+        $bag = $this->requestStack->getSession()->getBag('contao_backend');
         $session = $bag->all();
 
         // Handle the sorting selection
@@ -127,7 +119,7 @@ class TagListener
     public function onPanelCallback(DataContainer $dc): string
     {
         /** @var AttributeBagInterface $bag */
-        $bag = $this->session->getBag('contao_backend');
+        $bag = $this->requestStack->getSession()->getBag('contao_backend');
         $session = $bag->all();
 
         $sorting = ['_default', 'total_asc', 'total_desc'];
@@ -197,7 +189,7 @@ class TagListener
 
         // Generate the aliases
         if ('tl_select' === $request->request->get('FORM_SUBMIT') && $request->request->has('alias')) {
-            $ids = $this->session->all()['CURRENT']['IDS'];
+            $ids = $this->requestStack->getSession()->all()['CURRENT']['IDS'];
 
             // Handle each model individually
             if (null !== ($tagModels = TagModel::findMultipleByIds($ids))) {

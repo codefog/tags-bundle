@@ -23,6 +23,7 @@ class PluginTest extends TestCase
         $this->assertCount(1, $bundles);
         $this->assertInstanceOf(BundleConfig::class, $config);
         $this->assertEquals(CodefogTagsBundle::class, $config->getName());
-        $this->assertEquals([ContaoCoreBundle::class, CodefogHasteBundle::class], $config->getLoadAfter());
+        $this->assertContains(ContaoCoreBundle::class, $config->getLoadAfter());
+        $this->assertContains(CodefogHasteBundle::class, $config->getLoadAfter());
     }
 }
