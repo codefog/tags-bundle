@@ -14,7 +14,9 @@ namespace Codefog\TagsBundle\EventListener;
 
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
 use Codefog\TagsBundle\ManagerRegistry;
+use Contao\CoreBundle\Routing\ScopeMatcher;
 use Contao\DataContainer;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class TagManagerListener
 {
@@ -24,11 +26,20 @@ class TagManagerListener
     private $registry;
 
     /**
-     * TagContainer constructor.
+     * @var RequestStack
      */
-    public function __construct(ManagerRegistry $registry)
+    private $requestStack;
+
+    /**
+     * @var ScopeMatcher
+     */
+    private $scopeMatcher;
+
+    public function __construct(ManagerRegistry $registry, RequestStack $requestStack, ScopeMatcher $scopeMatcher)
     {
         $this->registry = $registry;
+        $this->requestStack = $requestStack;
+        $this->scopeMatcher = $scopeMatcher;
     }
 
     /**
@@ -56,7 +67,7 @@ class TagManagerListener
         }
 
         // Add assets for backend
-        if (\defined('TL_MODE') && TL_MODE === 'BE' && $hasTagsFields) {
+        if ($hasTagsFields && ($request = $this->requestStack->getCurrentRequest()) && $this->scopeMatcher->isBackendRequest($request)) {
             $this->addAssets();
         }
     }

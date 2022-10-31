@@ -10,6 +10,8 @@ services:
         public: true
         arguments:
             - "@codefog_tags.manager_registry"
+            - "@request_stack"
+            - "@contao.routing.scope_matcher"
 
     codefog_tags.listener.data_container.tag:
         class: Codefog\TagsBundle\EventListener\DataContainer\TagListener

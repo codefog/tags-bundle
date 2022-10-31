@@ -6,8 +6,11 @@ use Codefog\TagsBundle\EventListener\TagManagerListener;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Test\Fixtures\DummyManager;
+use Contao\CoreBundle\Routing\ScopeMatcher;
 use Contao\DataContainer;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class TagManagerListenerTest extends TestCase
 {
@@ -23,7 +26,6 @@ class TagManagerListenerTest extends TestCase
             ],
         ];
 
-        define('TL_MODE', 'BE');
         $GLOBALS['TL_CSS'] = [];
         $GLOBALS['TL_JAVASCRIPT'] = [];
         $GLOBALS['TL_CONFIG']['debugMode'] = false;
@@ -56,7 +58,15 @@ class TagManagerListenerTest extends TestCase
         $registry = $this->createMock(ManagerRegistry::class);
         $registry->method('get')->willReturn(new DummyManager());
 
-        $listener = new TagManagerListener($registry);
+        $requestStack = $this->createConfiguredMock(RequestStack::class, [
+            'getCurrentRequest' => new Request(),
+        ]);
+
+        $scopeMatcher = $this->createConfiguredMock(ScopeMatcher::class, [
+            'isBackendRequest' => true,
+        ]);
+
+        $listener = new TagManagerListener($registry, $requestStack, $scopeMatcher);
         $listener->onLoadDataContainer('tl_table');
 
         $this->assertEquals([], $GLOBALS['TL_DCA']['tl_table']);
@@ -149,9 +159,17 @@ class TagManagerListenerTest extends TestCase
     private function mockListener($manager = null): TagManagerListener
     {
         $registry = $this->createConfiguredMock(ManagerRegistry::class, [
-            'get' => $manager ?? new DummyManager()
+            'get' => $manager ?? new DummyManager(),
         ]);
 
-        return new TagManagerListener($registry);
+        $requestStack = $this->createConfiguredMock(RequestStack::class, [
+            'getCurrentRequest' => new Request(),
+        ]);
+
+        $scopeMatcher = $this->createConfiguredMock(ScopeMatcher::class, [
+            'isBackendRequest' => true,
+        ]);
+
+        return new TagManagerListener($registry, $requestStack, $scopeMatcher);
     }
 }
