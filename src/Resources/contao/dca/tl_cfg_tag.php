@@ -13,7 +13,7 @@ declare(strict_types=1);
 $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
     // Config
     'config' => [
-        'dataContainer' => 'Tags',
+        'dataContainer' => \Codefog\TagsBundle\Driver::class,
         'enableVersioning' => true,
         'notCopyable' => true,
         'onload_callback' => [
