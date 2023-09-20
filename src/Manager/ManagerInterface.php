@@ -23,4 +23,14 @@ interface ManagerInterface
      * Get tags optionally filtered by values.
      */
     public function getFilteredTags(array $values, string $source = null): array;
+
+    /**
+     * Get locale.
+     */
+    public function getLocale(): string;
+
+    /**
+     * Get validChars.
+     */
+    public function getValidChars(): string;
 }

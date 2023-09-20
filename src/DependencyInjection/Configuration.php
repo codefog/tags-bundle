@@ -49,6 +49,8 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                         ->scalarNode('service')->defaultValue('codefog_tags.default_manager')->end()
+                        ->scalarNode('locale')->defaultValue('en')->end()
+                        ->scalarNode('validChars')->defaultValue('0-9a-z')->end()
                         ->scalarNode('alias')->defaultNull()->end()
                     ->end()
                 ->end()
