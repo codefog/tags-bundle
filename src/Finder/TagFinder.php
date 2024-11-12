@@ -178,7 +178,7 @@ class TagFinder
                 $columns[] = 'alias=?';
                 $values[] = $aliases[0];
             } else {
-                $columns[] = "alias IN ('".implode("','", $aliases)."')'";
+                $columns[] = "alias IN ('".implode("','", $aliases)."')";
             }
         }
 
