@@ -22,6 +22,8 @@ codefog_tags:
         my_manager:
             source: 'tl_table.tags' # in format <table>.<field>, or an array of such
             service: '' # optional, manager service to use (defaults to "codefog_tags.default_manager")
+            locale: '' # optional, locale to use for alias generation (defaults to "en")
+            validChars: '' # optional, validChars to use for alias generation (defaults to "0-9a-z")
             alias: '' # optional, alias of the newly created service
 ```
 
