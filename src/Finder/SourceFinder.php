@@ -56,7 +56,7 @@ class SourceFinder
      *
      * @throws \RuntimeException
      */
-    public function findRelatedSourceRecords(SourceCriteria $criteria, int $limit = null): array
+    public function findRelatedSourceRecords(SourceCriteria $criteria, ?int $limit = null): array
     {
         if (0 === \count($criteria->getIds())) {
             throw new \RuntimeException('No IDs have been provided');

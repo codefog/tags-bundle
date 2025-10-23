@@ -17,10 +17,10 @@ interface ManagerInterface
     /**
      * Get all tags.
      */
-    public function getAllTags(string $source = null): array;
+    public function getAllTags(?string $source = null): array;
 
     /**
      * Get tags optionally filtered by values.
      */
-    public function getFilteredTags(array $values, string $source = null): array;
+    public function getFilteredTags(array $values, ?string $source = null): array;
 }

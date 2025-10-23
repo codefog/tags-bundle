@@ -71,7 +71,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * {@inheritdoc}
      */
-    public function getAllTags(string $source = null): array
+    public function getAllTags(?string $source = null): array
     {
         return $this->tagFinder->findMultiple($this->createTagCriteria($source));
     }
@@ -79,7 +79,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * {@inheritdoc}
      */
-    public function getFilteredTags(array $values, string $source = null): array
+    public function getFilteredTags(array $values, ?string $source = null): array
     {
         $criteria = $this->createTagCriteria($source);
         $criteria->setValues(\count($values) ? $values : [0]);
@@ -203,7 +203,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * {@inheritdoc}
      */
-    public function getTopTagIds(string $source = null): array
+    public function getTopTagIds(?string $source = null): array
     {
         $ids = [];
         $sources = (null !== $source) ? [$source] : $this->sources;
@@ -259,7 +259,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Create the tag criteria.
      */
-    public function createTagCriteria(string $source = null): TagCriteria
+    public function createTagCriteria(?string $source = null): TagCriteria
     {
         return new TagCriteria($this->name, $this->getSource($source));
     }
@@ -275,7 +275,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Create the source criteria.
      */
-    public function createSourceCriteria(string $source = null): SourceCriteria
+    public function createSourceCriteria(?string $source = null): SourceCriteria
     {
         return new SourceCriteria($this->name, $this->getSource($source));
     }
@@ -283,7 +283,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Get the source.
      */
-    protected function getSource(string $source = null): string
+    protected function getSource(?string $source = null): string
     {
         if (null === $source) {
             $source = $this->sources[0];
@@ -297,7 +297,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Generate the tag alias.
      */
-    protected function generateAlias(TagModel $model, string $source = null): void
+    protected function generateAlias(TagModel $model, ?string $source = null): void
     {
         $alias = StringUtil::generateAlias($model->name);
 

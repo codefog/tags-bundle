@@ -89,7 +89,7 @@ class TagFinder
     /**
      * Get the top tags. The tag count will be part of tag's data ($tag->getData()['count']).
      */
-    public function getTopTags(TagCriteria $criteria, int $limit = null, bool $withCount = false): array
+    public function getTopTags(TagCriteria $criteria, ?int $limit = null, bool $withCount = false): array
     {
         if (0 === \count($tagIds = $this->getTopTagIds($criteria, $limit, $withCount))) {
             return [];
@@ -111,7 +111,7 @@ class TagFinder
     /**
      * Get the top tag IDs.
      */
-    public function getTopTagIds(TagCriteria $criteria, int $limit = null, bool $withCount = false): array
+    public function getTopTagIds(TagCriteria $criteria, ?int $limit = null, bool $withCount = false): array
     {
         // No array_unique() here!
         $tagIds = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getSourceIds());

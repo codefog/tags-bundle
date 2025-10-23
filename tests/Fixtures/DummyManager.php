@@ -44,7 +44,7 @@ class DummyManager implements ManagerInterface, DcaAwareInterface
     /**
      * @inheritDoc
      */
-    public function getAllTags(string $source = null): array
+    public function getAllTags(?string $source = null): array
     {
         return [];
     }
@@ -52,7 +52,7 @@ class DummyManager implements ManagerInterface, DcaAwareInterface
     /**
      * @inheritDoc
      */
-    public function getFilteredTags(array $values, string $source = null): array
+    public function getFilteredTags(array $values, ?string $source = null): array
     {
         return [];
     }
