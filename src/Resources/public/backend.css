@@ -4,6 +4,10 @@
     z-index: 1;
 }
 
+.cfg-tags:has(.selectize-input.input-active.dropdown-active) {
+    z-index: 2;
+}
+
 .cfg-tags-all {
     padding: 5px 0 5px 0;
 }
