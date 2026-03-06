@@ -24,9 +24,6 @@ class CodefogTagsExtension extends ConfigurableExtension
         }
     }
 
-    /**
-     * Create the manager.
-     */
     private function createManager(string $name, array $config, ContainerBuilder $container): void
     {
         $id = \sprintf('codefog_tags.manager.%s', $name);

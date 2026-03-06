@@ -18,18 +18,15 @@ use Contao\CoreBundle\Routing\ScopeMatcher;
 use Contao\DataContainer;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class TagManagerListener
+readonly class TagManagerListener
 {
     public function __construct(
-        private readonly ManagerRegistry $registry,
-        private readonly RequestStack $requestStack,
-        private readonly ScopeMatcher $scopeMatcher,
+        private ManagerRegistry $registry,
+        private RequestStack $requestStack,
+        private ScopeMatcher $scopeMatcher,
     ) {
     }
 
-    /**
-     * On load the data container.
-     */
     public function onLoadDataContainer(string $table): void
     {
         if (!isset($GLOBALS['TL_DCA'][$table]['fields']) || !\is_array($GLOBALS['TL_DCA'][$table]['fields'])) {
@@ -57,9 +54,6 @@ class TagManagerListener
         }
     }
 
-    /**
-     * On the field save.
-     */
     public function onFieldSaveCallback(string $value, DataContainer $dc): string
     {
         if (null !== ($manager = $this->getManagerFromDca($dc))) {
@@ -69,9 +63,6 @@ class TagManagerListener
         return $value;
     }
 
-    /**
-     * On options callback.
-     */
     public function onOptionsCallback(DataContainer $dc): array
     {
         $value = [];
@@ -83,9 +74,6 @@ class TagManagerListener
         return $value;
     }
 
-    /**
-     * Get the manager from DCA.
-     */
     private function getManagerFromDca(DataContainer $dc): DcaAwareInterface|null
     {
         if (!isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager'])) {
@@ -101,9 +89,6 @@ class TagManagerListener
         return null;
     }
 
-    /**
-     * Add the widget assets.
-     */
     private function addAssets(): void
     {
         $GLOBALS['TL_CSS'][] = 'bundles/codefogtags/selectize.min.css';

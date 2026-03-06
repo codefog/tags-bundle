@@ -6,48 +6,20 @@ namespace Codefog\TagsBundle\Finder;
 
 class TagCriteria
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected array $aliases = [];
 
-    /**
-     * @var string
-     */
-    protected $source;
+    protected array $sourceIds = [];
 
-    /**
-     * @var array
-     */
-    protected $aliases = [];
+    protected bool $usedOnly = false;
 
-    /**
-     * @var array
-     */
-    protected $sourceIds = [];
+    protected array $values = [];
 
-    /**
-     * @var bool
-     */
-    protected $usedOnly = false;
+    protected string $order = 'name';
 
-    /**
-     * @var array
-     */
-    protected $values = [];
-
-    /**
-     * @var string
-     */
-    protected $order = 'name';
-
-    /**
-     * Criteria constructor.
-     */
-    public function __construct(string $name, string $source)
-    {
-        $this->name = $name;
-        $this->source = $source;
+    public function __construct(
+        protected string $name,
+        protected string $source,
+    ) {
     }
 
     public function getName(): string

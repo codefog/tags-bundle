@@ -8,38 +8,19 @@ use Codefog\TagsBundle\Tag;
 
 class SourceCriteria
 {
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $source;
-
-    /**
-     * @var array
-     */
-    protected $ids = [];
+    protected array $ids = [];
 
     /**
      * @var array<Tag>
      */
-    protected $tags = [];
+    protected array $tags = [];
 
-    /**
-     * @var array
-     */
-    protected $tagValues = [];
+    protected array $tagValues = [];
 
-    /**
-     * Criteria constructor.
-     */
-    public function __construct(string $name, string $source)
-    {
-        $this->name = $name;
-        $this->source = $source;
+    public function __construct(
+        protected readonly string $name,
+        protected readonly string $source,
+    ) {
     }
 
     public function getName(): string

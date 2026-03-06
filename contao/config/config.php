@@ -17,19 +17,13 @@ $GLOBALS['BE_MOD']['content']['cfg_tags'] = [
     'tables' => ['tl_cfg_tag'],
 ];
 
-/*
- * Backend widgets
- */
+// Backend widgets
 $GLOBALS['BE_FFL']['cfgTags'] = TagsWidget::class;
 
-/*
- * Models
- */
+// Models
 $GLOBALS['TL_MODELS']['tl_cfg_tag'] = TagModel::class;
 
-/*
- * Hooks
- */
+// Hooks
 $GLOBALS['TL_HOOKS']['replaceInsertTags'][] = ['codefog_tags.listener.insert_tags', 'onReplaceInsertTags'];
 
 if (is_array($GLOBALS['TL_HOOKS']['loadDataContainer'] ?? null)) {

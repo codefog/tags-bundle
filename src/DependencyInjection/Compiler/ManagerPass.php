@@ -8,16 +8,11 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-class ManagerPass implements CompilerPassInterface
+readonly class ManagerPass implements CompilerPassInterface
 {
-    public const TAG_NAME = 'codefog_tags.manager';
+    public const string TAG_NAME = 'codefog_tags.manager';
 
-    /**
-     * ManagerPass constructor.
-     *
-     * @param string $registryName
-     */
-    public function __construct(private $registryName)
+    public function __construct(private string $registryName)
     {
     }
 

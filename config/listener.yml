@@ -20,3 +20,4 @@ services:
             - "@database_connection"
             - "@codefog_tags.manager_registry"
             - "@request_stack"
+            - "@contao.slug"

@@ -16,11 +16,11 @@ use Codefog\HasteBundle\DcaRelationsManager;
 use Codefog\HasteBundle\Model\DcaRelationsModel;
 use Doctrine\DBAL\Connection;
 
-class SourceFinder
+readonly class SourceFinder
 {
     public function __construct(
-        private readonly Connection $connection,
-        private readonly DcaRelationsManager $dcaRelationsManager,
+        private Connection $connection,
+        private DcaRelationsManager $dcaRelationsManager,
     ) {
     }
 

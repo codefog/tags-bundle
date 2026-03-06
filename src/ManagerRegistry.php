@@ -8,26 +8,13 @@ use Codefog\TagsBundle\Manager\ManagerInterface;
 
 class ManagerRegistry
 {
-    /**
-     * Managers.
-     *
-     * @var array
-     */
-    private $managers = [];
+    private array $managers = [];
 
-    /**
-     * Add the manager.
-     */
     public function add(ManagerInterface $manager, string $name): void
     {
         $this->managers[$name] = $manager;
     }
 
-    /**
-     * Get the manager.
-     *
-     * @throws \InvalidArgumentException
-     */
     public function get(string $name): ManagerInterface
     {
         if (!\array_key_exists($name, $this->managers)) {
@@ -37,9 +24,6 @@ class ManagerRegistry
         return $this->managers[$name];
     }
 
-    /**
-     * Get all managers.
-     */
     public function all(): array
     {
         return $this->managers;

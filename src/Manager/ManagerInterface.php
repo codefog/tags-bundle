@@ -14,13 +14,7 @@ namespace Codefog\TagsBundle\Manager;
 
 interface ManagerInterface
 {
-    /**
-     * Get all tags.
-     */
     public function getAllTags(string|null $source = null): array;
 
-    /**
-     * Get tags optionally filtered by values.
-     */
     public function getFilteredTags(array $values, string|null $source = null): array;
 }

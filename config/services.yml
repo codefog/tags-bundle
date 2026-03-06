@@ -4,7 +4,7 @@ services:
         abstract: true
         calls:
             - [setTagFinder, ["@codefog_tags.tag_finder"]]
-            - [setSourcefinder, ["@codefog_tags.source_finder"]]
+            - [setSourceFinder, ["@codefog_tags.source_finder"]]
 
     codefog_tags.tag_finder:
         class: Codefog\TagsBundle\Finder\TagFinder

@@ -23,46 +23,21 @@ use Contao\StringUtil;
 
 class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsAwareInterface
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected TagFinder $tagFinder;
 
-    /**
-     * @var array
-     */
-    protected $sources;
+    protected SourceFinder $sourceFinder;
 
-    /**
-     * @var TagFinder
-     */
-    protected $tagFinder;
-
-    /**
-     * @var SourceFinder
-     */
-    protected $sourceFinder;
-
-    /**
-     * DefaultManager constructor.
-     */
-    public function __construct(string $name, array $sources)
-    {
-        $this->name = $name;
-        $this->sources = $sources;
+    public function __construct(
+        protected readonly string $name,
+        protected readonly array $sources,
+    ) {
     }
 
-    /**
-     * Set the tag finder.
-     */
     public function setTagFinder(TagFinder $tagFinder): void
     {
         $this->tagFinder = $tagFinder;
     }
 
-    /**
-     * Set the source finder.
-     */
     public function setSourceFinder(SourceFinder $sourceFinder): void
     {
         $this->sourceFinder = $sourceFinder;
@@ -224,41 +199,26 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return isset($data[$property]) ? (string) $data[$property] : '';
     }
 
-    /**
-     * Get the tag finder.
-     */
     public function getTagFinder(): TagFinder
     {
         return $this->tagFinder;
     }
 
-    /**
-     * Create the tag criteria.
-     */
     public function createTagCriteria(string|null $source = null): TagCriteria
     {
         return new TagCriteria($this->name, $this->getSource($source));
     }
 
-    /**
-     * Get the source finder.
-     */
     public function getSourceFinder(): SourceFinder
     {
         return $this->sourceFinder;
     }
 
-    /**
-     * Create the source criteria.
-     */
     public function createSourceCriteria(string|null $source = null): SourceCriteria
     {
         return new SourceCriteria($this->name, $this->getSource($source));
     }
 
-    /**
-     * Get the source.
-     */
     protected function getSource(string|null $source = null): string
     {
         if (null === $source) {
@@ -270,9 +230,6 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return $source;
     }
 
-    /**
-     * Generate the tag alias.
-     */
     protected function generateAlias(TagModel $model, string|null $source = null): void
     {
         $alias = StringUtil::generateAlias($model->name);

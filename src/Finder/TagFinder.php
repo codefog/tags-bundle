@@ -17,7 +17,7 @@ use Codefog\TagsBundle\Exception\NoTagsException;
 use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
 
-class TagFinder
+readonly class TagFinder
 {
     /**
      * Count tags by criteria.
