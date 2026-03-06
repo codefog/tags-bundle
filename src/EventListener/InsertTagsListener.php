@@ -10,16 +10,10 @@ use Codefog\TagsBundle\ManagerRegistry;
 class InsertTagsListener
 {
     /**
-     * @var ManagerRegistry
-     */
-    private $registry;
-
-    /**
      * TagContainer constructor.
      */
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private readonly ManagerRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     /**

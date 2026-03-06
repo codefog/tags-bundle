@@ -20,26 +20,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class TagManagerListener
 {
-    /**
-     * @var ManagerRegistry
-     */
-    private $registry;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
-     * @var ScopeMatcher
-     */
-    private $scopeMatcher;
-
-    public function __construct(ManagerRegistry $registry, RequestStack $requestStack, ScopeMatcher $scopeMatcher)
-    {
-        $this->registry = $registry;
-        $this->requestStack = $requestStack;
-        $this->scopeMatcher = $scopeMatcher;
+    public function __construct(
+        private readonly ManagerRegistry $registry,
+        private readonly RequestStack $requestStack,
+        private readonly ScopeMatcher $scopeMatcher,
+    ) {
     }
 
     /**

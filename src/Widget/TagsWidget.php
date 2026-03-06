@@ -44,6 +44,7 @@ class TagsWidget extends Widget
      */
     protected $tagsManager;
 
+    #[\Override]
     public function addAttributes($attributes = null): void
     {
         if (\is_array($attributes)) {
@@ -57,6 +58,7 @@ class TagsWidget extends Widget
         parent::addAttributes($attributes);
     }
 
+    #[\Override]
     public function validate(): void
     {
         $value = $this->validator($this->getPost($this->strName));
@@ -86,6 +88,7 @@ class TagsWidget extends Widget
         return $template->parse();
     }
 
+    #[\Override]
     protected function getPost($key)
     {
         return array_filter(StringUtil::trimsplit(',', parent::getPost($key)));
@@ -99,7 +102,7 @@ class TagsWidget extends Widget
         $config = [
             'addLabel' => $GLOBALS['TL_LANG']['MSC']['cfg_tags.add'],
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
-            'sortable' => isset($this->tagsSortable) ? (bool) $this->tagsSortable : false,
+            'sortable' => isset($this->tagsSortable) && (bool) $this->tagsSortable,
         ];
 
         // Maximum number of items
@@ -139,11 +142,7 @@ class TagsWidget extends Widget
                     $aIndex = array_search($aTag->getValue(), $values, true);
                     $bIndex = array_search($bTag->getValue(), $values, true);
 
-                    if ($aIndex === $bIndex) {
-                        return 0;
-                    }
-
-                    return $aIndex < $bIndex ? -1 : 1;
+                    return $aIndex <=> $bIndex;
                 },
             );
         }

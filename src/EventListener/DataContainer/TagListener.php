@@ -22,28 +22,13 @@ use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 class TagListener
 {
     /**
-     * @var Connection
-     */
-    private $db;
-
-    /**
-     * @var ManagerRegistry
-     */
-    private $registry;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
      * TagListener constructor.
      */
-    public function __construct(Connection $db, ManagerRegistry $registry, RequestStack $requestStack)
-    {
-        $this->db = $db;
-        $this->registry = $registry;
-        $this->requestStack = $requestStack;
+    public function __construct(
+        private readonly Connection $db,
+        private readonly ManagerRegistry $registry,
+        private readonly RequestStack $requestStack,
+    ) {
     }
 
     /**

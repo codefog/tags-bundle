@@ -17,7 +17,7 @@ class Configuration implements ConfigurationInterface
             $rootNode = $treeBuilder->getRootNode();
         } else {
             // BC layer for symfony/config 4.1 and older
-            $rootNode = $treeBuilder->root('codefog_tags');
+            $rootNode = $treeBuilder->getRootNode();
         }
 
         $rootNode

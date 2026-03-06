@@ -83,7 +83,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
 
     public function updateDcaField(string $table, string $field, array &$config): void
     {
-        $config['eval']['tagsCreate'] = $config['eval']['tagsCreate'] ?? true;
+        $config['eval']['tagsCreate'] ??= true;
 
         // Set the relation
         if (!isset($config['sql'])) {

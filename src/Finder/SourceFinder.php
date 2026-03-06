@@ -19,8 +19,8 @@ use Doctrine\DBAL\Connection;
 class SourceFinder
 {
     public function __construct(
-        private Connection $connection,
-        private DcaRelationsManager $dcaRelationsManager,
+        private readonly Connection $connection,
+        private readonly DcaRelationsManager $dcaRelationsManager,
     ) {
     }
 
@@ -47,7 +47,7 @@ class SourceFinder
         $values = DcaRelationsModel::getReferenceValues($criteria->getSourceTable(), $criteria->getSourceField(), $ids);
         $values = array_values(array_unique($values));
 
-        return array_map('intval', $values);
+        return array_map(intval(...), $values);
     }
 
     /**
@@ -67,7 +67,7 @@ class SourceFinder
 
         $tagIds = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getIds());
         $tagIds = array_values(array_unique($tagIds));
-        $tagIds = array_map('intval', $tagIds);
+        $tagIds = array_map(intval(...), $tagIds);
 
         if (0 === \count($tagIds)) {
             return [];

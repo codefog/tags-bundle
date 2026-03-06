@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Codefog\TagsBundle\Driver;
+use Contao\DataContainer;
 
 /*
  * Tags Bundle for Contao Open Source CMS.
@@ -33,9 +34,9 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
     // List
     'list' => [
         'sorting' => [
-            'mode' => 1,
+            'mode' => DataContainer::MODE_SORTED,
             'fields' => ['name'],
-            'flag' => 1,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'panelLayout' => 'filter;cfg_sort,search,limit',
             'panel_callback' => [
                 'cfg_sort' => ['codefog_tags.listener.data_container.tag', 'onPanelCallback'],

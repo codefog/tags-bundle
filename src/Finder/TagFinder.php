@@ -26,7 +26,7 @@ class TagFinder
     {
         try {
             [$columns, $values, $options] = $this->parseCriteria($criteria);
-        } catch (NoTagsException $e) {
+        } catch (NoTagsException) {
             return 0;
         }
 
@@ -44,7 +44,7 @@ class TagFinder
     {
         try {
             [$columns, $values, $options] = $this->parseCriteria($criteria);
-        } catch (NoTagsException $e) {
+        } catch (NoTagsException) {
             return null;
         }
 
@@ -62,7 +62,7 @@ class TagFinder
     {
         try {
             [$columns, $values, $options] = $this->parseCriteria($criteria);
-        } catch (NoTagsException $e) {
+        } catch (NoTagsException) {
             return [];
         }
 
@@ -115,7 +115,7 @@ class TagFinder
     {
         // No array_unique() here!
         $tagIds = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getSourceIds());
-        $tagIds = array_map('intval', $tagIds);
+        $tagIds = array_map(intval(...), $tagIds);
 
         if (0 === \count($tagIds)) {
             return [];
@@ -168,7 +168,7 @@ class TagFinder
                 $columns[] = 'id=?';
                 $values[] = (int) $ids[0];
             } else {
-                $columns[] = 'id IN ('.implode(',', array_map('intval', $ids)).')';
+                $columns[] = 'id IN ('.implode(',', array_map(intval(...), $ids)).')';
             }
         }
 
@@ -186,7 +186,7 @@ class TagFinder
         if (\count($sourceIds = $criteria->getSourceIds()) > 0) {
             $ids = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $sourceIds);
             $ids = array_values(array_unique($ids));
-            $ids = array_map('intval', $ids);
+            $ids = array_map(intval(...), $ids);
 
             if (0 === \count($ids)) {
                 throw new NoTagsException();
@@ -202,7 +202,7 @@ class TagFinder
         if ($criteria->isUsedOnly()) {
             $ids = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField());
             $ids = array_values(array_unique($ids));
-            $ids = array_map('intval', $ids);
+            $ids = array_map(intval(...), $ids);
 
             if (0 === \count($ids)) {
                 throw new NoTagsException();

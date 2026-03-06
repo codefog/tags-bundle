@@ -13,18 +13,12 @@ class ManagerPass implements CompilerPassInterface
     public const TAG_NAME = 'codefog_tags.manager';
 
     /**
-     * @var string
-     */
-    private $registryName;
-
-    /**
      * ManagerPass constructor.
      *
      * @param string $registryName
      */
-    public function __construct($registryName)
+    public function __construct(private $registryName)
     {
-        $this->registryName = $registryName;
     }
 
     public function process(ContainerBuilder $container): void

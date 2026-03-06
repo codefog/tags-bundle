@@ -7,34 +7,22 @@ namespace Codefog\TagsBundle;
 class Tag
 {
     /**
-     * Tag ID.
-     *
-     * @var string
-     */
-    private $value;
-
-    /**
-     * Tag name.
-     *
-     * @var string
-     */
-    private $name;
-
-    /**
-     * Data.
-     *
-     * @var array
-     */
-    private $data;
-
-    /**
      * Tag constructor.
      */
-    public function __construct(string $value, string $name, array $data = [])
-    {
-        $this->value = $value;
-        $this->name = $name;
-        $this->data = $data;
+    public function __construct(
+        /**
+         * Tag ID.
+         */
+        private string $value,
+        /**
+         * Tag name.
+         */
+        private string $name,
+        /**
+         * Data.
+         */
+        private array $data = [],
+    ) {
     }
 
     public function getValue(): string

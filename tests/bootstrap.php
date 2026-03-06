@@ -24,19 +24,19 @@ $fixtureLoader = function ($class): void {
         return;
     }
 
-    if (str_contains($class, '\\') && 0 !== strncmp($class, 'Contao\\', 7) && 0 !== strncmp($class, 'Codefog\TagsBundle\\', 19)) {
+    if (str_contains($class, '\\') && !str_starts_with($class, 'Contao\\') && !str_starts_with($class, 'Codefog\TagsBundle\\')) {
         return;
     }
 
     $isContaoClass = false;
     $isBundleClass = false;
 
-    if (0 === strncmp($class, 'Contao\\', 7)) {
+    if (str_starts_with($class, 'Contao\\')) {
         $class = substr($class, 7);
         $isContaoClass = true;
     }
 
-    if (0 === strncmp($class, 'Codefog\TagsBundle\\', 19)) {
+    if (str_starts_with($class, 'Codefog\TagsBundle\\')) {
         $class = substr($class, 19);
         $isBundleClass = true;
     }
