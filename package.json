@@ -1,25 +1,22 @@
 {
-    "config": {
-        "targetFolder": "src/Resources/public",
-        "styles": [
-            "src/Resources/public/backend.css",
-            "src/Resources/public/selectize.css"
-        ],
-        "scripts": [
-            "src/Resources/public/backend.js",
-            "src/Resources/public/widget.js"
-        ],
-        "vendors": [
-            "node_modules/selectize/dist/css/selectize.css",
-            "node_modules/selectize/dist/js/standalone/selectize.js",
-            "node_modules/selectize/dist/js/standalone/selectize.min.js"
-        ]
+    "name": "@terminal42/contao-dcawizard",
+    "description": "DCAWizard for Contao Open Source CMS",
+    "author": "terminal42 gmbh <info@terminal42.ch>",
+    "license": "LGPL-3.0-or-later",
+    "scripts": {
+        "dev-server": "encore dev-server",
+        "dev": "encore dev",
+        "watch": "encore dev --watch",
+        "build": "encore production --progress"
     },
+    "devDependencies": {
+        "@terminal42/contao-build-tools": "./vendor/terminal42/contao-build-tools/webpack"
+    },
+    "browserslist": [
+        "defaults"
+    ],
+    "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610",
     "dependencies": {
-        "gulp": "^4.0.2",
-        "gulp-clean-css": "^3.0.3",
-        "gulp-rename": "^1.2.2",
-        "gulp-uglify": "^2.1.0",
-        "selectize": "^0.12.4"
+        "@hotwired/stimulus": "^3.2.2"
     }
 }
