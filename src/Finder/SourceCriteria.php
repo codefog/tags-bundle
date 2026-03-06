@@ -8,6 +8,9 @@ use Codefog\TagsBundle\Tag;
 
 class SourceCriteria
 {
+    /**
+     * @var array<int>
+     */
     protected array $ids = [];
 
     /**
@@ -15,6 +18,9 @@ class SourceCriteria
      */
     protected array $tags = [];
 
+    /**
+     * @var array<string>
+     */
     protected array $tagValues = [];
 
     public function __construct(
@@ -43,11 +49,17 @@ class SourceCriteria
         return explode('.', $this->source, 2)[1];
     }
 
+    /**
+     * @return array<int>
+     */
     public function getIds(): array
     {
         return $this->ids;
     }
 
+    /**
+     * @param array<int> $ids
+     */
     public function setIds(array $ids): self
     {
         $this->ids = $ids;
@@ -80,11 +92,17 @@ class SourceCriteria
         return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getTagValues(): array
     {
         return $this->tagValues;
     }
 
+    /**
+     * @param array<string> $tagValues
+     */
     public function setTagValues(array $tagValues): self
     {
         $this->tagValues = $tagValues;

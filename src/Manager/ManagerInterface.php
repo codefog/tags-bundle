@@ -12,9 +12,19 @@ declare(strict_types=1);
 
 namespace Codefog\TagsBundle\Manager;
 
+use Codefog\TagsBundle\Tag;
+
 interface ManagerInterface
 {
+    /**
+     * @return array<Tag>
+     */
     public function getAllTags(string|null $source = null): array;
 
+    /**
+     * @param array<string, mixed> $values
+     *
+     * @return array<Tag>
+     */
     public function getFilteredTags(array $values, string|null $source = null): array;
 }

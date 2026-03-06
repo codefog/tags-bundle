@@ -6,12 +6,21 @@ namespace Codefog\TagsBundle\Finder;
 
 class TagCriteria
 {
+    /**
+     * @var array<string>
+     */
     protected array $aliases = [];
 
+    /**
+     * @var array<int>
+     */
     protected array $sourceIds = [];
 
     protected bool $usedOnly = false;
 
+    /**
+     * @var array<int|string>
+     */
     protected array $values = [];
 
     protected string $order = 'name';
@@ -42,11 +51,17 @@ class TagCriteria
         return explode('.', $this->source, 2)[1];
     }
 
+    /**
+     * @return array<string>
+     */
     public function getAliases(): array
     {
         return $this->aliases;
     }
 
+    /**
+     * @param array<string> $aliases
+     */
     public function setAliases(array $aliases): self
     {
         $this->aliases = array_values(array_unique($aliases));
@@ -61,11 +76,17 @@ class TagCriteria
         return $this;
     }
 
+    /**
+     * @return array<int>
+     */
     public function getSourceIds(): array
     {
         return $this->sourceIds;
     }
 
+    /**
+     * @param array<int> $sourceIds
+     */
     public function setSourceIds(array $sourceIds): self
     {
         $this->sourceIds = array_values(array_unique($sourceIds));
@@ -85,11 +106,17 @@ class TagCriteria
         return $this;
     }
 
+    /**
+     * @return array<int|string>
+     */
     public function getValues(): array
     {
         return $this->values;
     }
 
+    /**
+     * @param array<int|string> $values
+     */
     public function setValues(array $values): self
     {
         $this->values = array_values(array_unique($values));

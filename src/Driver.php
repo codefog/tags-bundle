@@ -11,6 +11,9 @@ use Contao\DC_Table;
  */
 class Driver extends DC_Table
 {
+    /**
+     * @param array<string> $orderBy
+     */
     public function setOrderBy(array $orderBy): void
     {
         $this->orderBy = $orderBy;

@@ -27,6 +27,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
 
     protected SourceFinder $sourceFinder;
 
+    /**
+     * @param array<string> $sources
+     */
     public function __construct(
         protected readonly string $name,
         protected readonly array $sources,
@@ -56,6 +59,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return $this->tagFinder->findMultiple($criteria);
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function updateDcaField(string $table, string $field, array &$config): void
     {
         $config['eval']['tagsCreate'] ??= true;
@@ -94,7 +100,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         $source = $GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource'] ?? null;
         $criteria = $this->createTagCriteria($source);
 
-        /** @var array $value */
+        /** @var array<int|string> $value */
         foreach ($value as $k => $v) {
             // Do not create tags that already exist
             if (null !== $this->tagFinder->findSingle($criteria->setValue((string) $v))) {
@@ -116,6 +122,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return serialize($value);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getFilterOptions(DataContainer $dc): array
     {
         $options = [];
@@ -136,6 +145,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return $options;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function getSourceRecordsCount(array $data, DataContainer $dc): int
     {
         if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource'])) {
@@ -157,6 +169,9 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return $total;
     }
 
+    /**
+     * @return array<int, int>
+     */
     public function getTopTagIds(string|null $source = null): array
     {
         $ids = [];

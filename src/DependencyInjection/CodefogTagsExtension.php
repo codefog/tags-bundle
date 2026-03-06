@@ -13,6 +13,9 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
 class CodefogTagsExtension extends ConfigurableExtension
 {
+    /**
+     * @param array<string, mixed> $mergedConfig
+     */
     protected function loadInternal(array $mergedConfig, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
@@ -24,6 +27,9 @@ class CodefogTagsExtension extends ConfigurableExtension
         }
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     private function createManager(string $name, array $config, ContainerBuilder $container): void
     {
         $id = \sprintf('codefog_tags.manager.%s', $name);

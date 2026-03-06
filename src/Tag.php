@@ -6,6 +6,9 @@ namespace Codefog\TagsBundle;
 
 class Tag
 {
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(
         private string $value,
         private string $name,
@@ -33,11 +36,17 @@ class Tag
         $this->name = $name;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getData(): array
     {
         return $this->data;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function setData(array $data): void
     {
         $this->data = $data;

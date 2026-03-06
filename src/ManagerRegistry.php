@@ -8,6 +8,9 @@ use Codefog\TagsBundle\Manager\ManagerInterface;
 
 class ManagerRegistry
 {
+    /**
+     * @var array<ManagerInterface>
+     */
     private array $managers = [];
 
     public function add(ManagerInterface $manager, string $name): void
@@ -24,6 +27,9 @@ class ManagerRegistry
         return $this->managers[$name];
     }
 
+    /**
+     * @return array<ManagerInterface>
+     */
     public function all(): array
     {
         return $this->managers;

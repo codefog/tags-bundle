@@ -33,7 +33,7 @@ readonly class TagResolver implements InsertTagResolverNestedResolvedInterface
         $manager = $this->registry->get($source);
 
         if ($manager instanceof InsertTagsAwareInterface) {
-            return $manager->getInsertTagValue($value, $property, $parameters->all());
+            return new InsertTagResult($manager->getInsertTagValue($value, $property, $parameters->all()));
         }
 
         return new InsertTagResult('');

@@ -19,9 +19,6 @@ use Codefog\TagsBundle\Tag;
 
 readonly class TagFinder
 {
-    /**
-     * Count tags by criteria.
-     */
     public function count(TagCriteria $criteria): int
     {
         try {
@@ -37,9 +34,6 @@ readonly class TagFinder
         return TagModel::countBy($columns, $values, $options);
     }
 
-    /**
-     * Find a single tag by criteria.
-     */
     public function findSingle(TagCriteria $criteria): Tag|null
     {
         try {
@@ -56,7 +50,7 @@ readonly class TagFinder
     }
 
     /**
-     * Find multiple tags by criteria.
+     * @return array<Tag>
      */
     public function findMultiple(TagCriteria $criteria): array
     {
@@ -88,6 +82,8 @@ readonly class TagFinder
 
     /**
      * Get the top tags. The tag count will be part of tag's data ($tag->getData()['count']).
+     *
+     * @return array<Tag>
      */
     public function getTopTags(TagCriteria $criteria, int|null $limit = null, bool $withCount = false): array
     {
@@ -110,6 +106,8 @@ readonly class TagFinder
 
     /**
      * Get the top tag IDs.
+     *
+     * @return array<int, int>
      */
     public function getTopTagIds(TagCriteria $criteria, int|null $limit = null, bool $withCount = false): array
     {
@@ -143,16 +141,17 @@ readonly class TagFinder
         return \array_slice($helper, 0, $limit, $withCount);
     }
 
-    /**
-     * Create tag from model.
-     */
     public function createTagFromModel(TagModel $model): Tag
     {
         return new Tag((string) $model->id, (string) $model->name, $model->row());
     }
 
     /**
-     * Parse the criteria to object.
+     * @return array{
+     *     array<string>,
+     *     array<string>,
+     *     array<string, string>,
+     * }
      *
      * @throws NoTagsException
      */

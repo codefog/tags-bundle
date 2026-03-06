@@ -34,6 +34,8 @@ readonly class SourceFinder
 
     /**
      * Find multiple source record IDs by criteria.
+     *
+     * @return array<int>
      */
     public function findMultiple(SourceCriteria $criteria): array
     {
@@ -53,6 +55,8 @@ readonly class SourceFinder
     /**
      * Find the related source records.
      *
+     * @return array<string, mixed>
+     *
      * @throws \RuntimeException
      */
     public function findRelatedSourceRecords(SourceCriteria $criteria, int|null $limit = null): array
@@ -61,7 +65,7 @@ readonly class SourceFinder
             throw new \RuntimeException('No IDs have been provided');
         }
 
-        if (false === ($relation = $this->dcaRelationsManager->getRelation($criteria->getSourceTable(), $criteria->getSourceField()))) {
+        if (null === ($relation = $this->dcaRelationsManager->getRelation($criteria->getSourceTable(), $criteria->getSourceField()))) {
             throw new \RuntimeException(\sprintf('The field %s.%s is not related', $criteria->getSourceTable(), $criteria->getSourceField()));
         }
 

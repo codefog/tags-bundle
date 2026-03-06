@@ -134,6 +134,12 @@ readonly class TagListener
 </div>';
     }
 
+    /**
+     * @param array<string, mixed> $row
+     * @param array<int, mixed>    $args
+     *
+     * @return array<int, mixed>
+     */
     #[AsCallback('tl_cfg_tag', 'list.label.label')]
     public function onLabelCallback(array $row, string $label, DataContainer $dc, array $args): array
     {
@@ -148,6 +154,11 @@ readonly class TagListener
         return $args;
     }
 
+    /**
+     * @param array<string, string> $buttons
+     *
+     * @return array<string, string>
+     */
     #[AsCallback('tl_cfg_tag', 'select.buttons')]
     public function onButtonsCallback(array $buttons, DataContainer $dc): array
     {
@@ -201,6 +212,9 @@ readonly class TagListener
         return $buttons;
     }
 
+    /**
+     * @return array<string>
+     */
     #[AsCallback('tl_cfg_tag', 'fields.source.options')]
     public function onSourceOptionsCallback(): array
     {

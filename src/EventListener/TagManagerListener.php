@@ -63,6 +63,9 @@ readonly class TagManagerListener
         return $value;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function onOptionsCallback(DataContainer $dc): array
     {
         $value = [];
