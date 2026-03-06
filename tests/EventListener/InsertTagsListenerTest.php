@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Codefog\TagsBundle\Test\EventListener;
 
 use Codefog\TagsBundle\EventListener\InsertTagsListener;
@@ -10,26 +12,26 @@ use PHPUnit\Framework\TestCase;
 
 class InsertTagsListenerTest extends TestCase
 {
-    public function testOnReplaceInsertTagsNotSupported()
+    public function testOnReplaceInsertTagsNotSupported(): void
     {
         $manager = $this->createMock(ManagerInterface::class);
         $listener = $this->mockListener($manager);
 
-        $this->assertEquals('', $listener->onReplaceInsertTags('tag::foo::bar::name'));
+        $this->assertSame('', $listener->onReplaceInsertTags('tag::foo::bar::name'));
     }
 
     /**
      * @dataProvider insertTagsDataProvider
      */
-    public function testOnReplaceInsertTags($insertTag, $value, $expected)
+    public function testOnReplaceInsertTags($insertTag, $value, $expected): void
     {
         $manager = $this->createConfiguredMock(DefaultManager::class, ['getInsertTagValue' => $value]);
         $listener = $this->mockListener($manager);
 
-        $this->assertEquals($expected, $listener->onReplaceInsertTags($insertTag));
+        $this->assertSame($expected, $listener->onReplaceInsertTags($insertTag));
     }
 
-    public function insertTagsDataProvider()
+    public static function insertTagsDataProvider(): iterable
     {
         return [
             'Unsupported tag' => ['foobar', '', false],

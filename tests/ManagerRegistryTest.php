@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Codefog\TagsBundle\Test;
 
 use Codefog\TagsBundle\Manager\DefaultManager;
@@ -9,17 +11,17 @@ use PHPUnit\Framework\TestCase;
 
 class ManagerRegistryTest extends TestCase
 {
-    public function testAddManager()
+    public function testAddManager(): void
     {
         $managerMock = $this->createMock(ManagerInterface::class);
 
         $registry = $this->mockRegistry();
         $registry->add($managerMock, 'foobar');
 
-        $this->assertEquals($managerMock, $registry->get('foobar'));
+        $this->assertSame($managerMock, $registry->get('foobar'));
     }
 
-    public function testManagerNotExists()
+    public function testManagerNotExists(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
@@ -27,7 +29,7 @@ class ManagerRegistryTest extends TestCase
         $registry->get('foobar');
     }
 
-    public function testGetAliases()
+    public function testGetAliases(): void
     {
         $manager1Mock = $this->createMock(ManagerInterface::class);
         $manager2Mock = $this->createMock(DefaultManager::class);

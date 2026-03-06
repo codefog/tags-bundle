@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Codefog\TagsBundle\Model\TagModel;
+use Codefog\TagsBundle\Widget\TagsWidget;
+
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
@@ -17,12 +20,12 @@ $GLOBALS['BE_MOD']['content']['cfg_tags'] = [
 /*
  * Backend widgets
  */
-$GLOBALS['BE_FFL']['cfgTags'] = Codefog\TagsBundle\Widget\TagsWidget::class;
+$GLOBALS['BE_FFL']['cfgTags'] = TagsWidget::class;
 
 /*
  * Models
  */
-$GLOBALS['TL_MODELS']['tl_cfg_tag'] = \Codefog\TagsBundle\Model\TagModel::class;
+$GLOBALS['TL_MODELS']['tl_cfg_tag'] = TagModel::class;
 
 /*
  * Hooks

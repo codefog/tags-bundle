@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -17,9 +9,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('codefog_tags');
@@ -42,9 +31,7 @@ class Configuration implements ConfigurationInterface
                             ->validate()
                                 ->ifString()
                                 ->then(
-                                    static function (string $value): array {
-                                        return [$value];
-                                    }
+                                    static fn (string $value): array => [$value],
                                 )
                             ->end()
                         ->end()

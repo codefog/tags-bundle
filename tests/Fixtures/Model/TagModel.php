@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Codefog\TagsBundle\Test\Fixtures\Model;
 
 class TagModel
@@ -23,7 +25,7 @@ class TagModel
 
     public static function findByPk($varValue, array $arrOptions = [])
     {
-        return static::$mapper['findByPk'] ?? null;
+        return static::$mapper['findById'] ?? null;
     }
 
     public static function findByCriteria()

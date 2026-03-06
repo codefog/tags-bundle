@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\Widget;
 
 use Codefog\TagsBundle\Manager\ManagerInterface;
@@ -52,10 +44,7 @@ class TagsWidget extends Widget
      */
     protected $tagsManager;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function addAttributes($attributes = null)
+    public function addAttributes($attributes = null): void
     {
         if (\is_array($attributes)) {
             if ($attributes['tagsManager']) {
@@ -68,24 +57,18 @@ class TagsWidget extends Widget
         parent::addAttributes($attributes);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function validate(): void
     {
         $value = $this->validator($this->getPost($this->strName));
 
         // Validate the maximum number of items
         if (\is_array($value) && isset($this->maxItems) && \count($value) > $this->maxItems) {
-            $this->addError(sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
+            $this->addError(\sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
         }
 
         parent::validate();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function generate()
     {
         if (null === $this->tagsManager) {
@@ -103,9 +86,6 @@ class TagsWidget extends Widget
         return $template->parse();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getPost($key)
     {
         return array_filter(StringUtil::trimsplit(',', parent::getPost($key)));
@@ -145,24 +125,27 @@ class TagsWidget extends Widget
     {
         $values = \is_array($this->varValue) ? $this->varValue : [];
 
-        if (count($values) === 0) {
+        if (0 === \count($values)) {
             return [];
         }
 
         $tags = $this->tagsManager->getFilteredTags($values, $this->tagsSource);
 
         // Respect the tags order
-        if ($this->tagsSortable && count($tags) > 0) {
-            usort($tags, function (Tag $aTag, Tag $bTag) use ($values) {
-                $aIndex = array_search($aTag->getValue(), $values, true);
-                $bIndex = array_search($bTag->getValue(), $values, true);
+        if ($this->tagsSortable && \count($tags) > 0) {
+            usort(
+                $tags,
+                static function (Tag $aTag, Tag $bTag) use ($values) {
+                    $aIndex = array_search($aTag->getValue(), $values, true);
+                    $bIndex = array_search($bTag->getValue(), $values, true);
 
-                if ($aIndex === $bIndex) {
-                    return 0;
-                }
+                    if ($aIndex === $bIndex) {
+                        return 0;
+                    }
 
-                return ($aIndex < $bIndex) ? -1 : 1;
-            });
+                    return $aIndex < $bIndex ? -1 : 1;
+                },
+            );
         }
 
         return $tags;

@@ -68,18 +68,12 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         $this->sourceFinder = $sourceFinder;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAllTags(?string $source = null): array
+    public function getAllTags(string|null $source = null): array
     {
         return $this->tagFinder->findMultiple($this->createTagCriteria($source));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getFilteredTags(array $values, ?string $source = null): array
+    public function getFilteredTags(array $values, string|null $source = null): array
     {
         $criteria = $this->createTagCriteria($source);
         $criteria->setValues(\count($values) ? $values : [0]);
@@ -87,9 +81,6 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return $this->tagFinder->findMultiple($criteria);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function updateDcaField(string $table, string $field, array &$config): void
     {
         $config['eval']['tagsCreate'] = $config['eval']['tagsCreate'] ?? true;
@@ -97,8 +88,8 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         // Set the relation
         if (!isset($config['sql'])) {
             $config['relation'] = array_merge(
-                (isset($config['relation']) && \is_array($config['relation'])) ? $config['relation'] : [],
-                ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag']
+                isset($config['relation']) && \is_array($config['relation']) ? $config['relation'] : [],
+                ['type' => 'haste-ManyToMany', 'load' => 'lazy', 'table' => 'tl_cfg_tag'],
             );
         }
 
@@ -122,9 +113,6 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function saveDcaField(string $value, DataContainer $dc): string
     {
         $value = StringUtil::deserialize($value, true);
@@ -153,9 +141,6 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return serialize($value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getFilterOptions(DataContainer $dc): array
     {
         $options = [];
@@ -176,9 +161,6 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return $options;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSourceRecordsCount(array $data, DataContainer $dc): int
     {
         if (isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsSource'])) {
@@ -200,13 +182,10 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return $total;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTopTagIds(?string $source = null): array
+    public function getTopTagIds(string|null $source = null): array
     {
         $ids = [];
-        $sources = (null !== $source) ? [$source] : $this->sources;
+        $sources = null !== $source ? [$source] : $this->sources;
 
         foreach ($sources as $source) {
             foreach ($this->getTagFinder()->getTopTagIds($this->createTagCriteria($source), null, true) as $id => $count) {
@@ -221,9 +200,6 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
         return $ids;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getInsertTagValue(string $value, string $property, array $elements): string
     {
         $tag = null;
@@ -259,7 +235,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Create the tag criteria.
      */
-    public function createTagCriteria(?string $source = null): TagCriteria
+    public function createTagCriteria(string|null $source = null): TagCriteria
     {
         return new TagCriteria($this->name, $this->getSource($source));
     }
@@ -275,7 +251,7 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Create the source criteria.
      */
-    public function createSourceCriteria(?string $source = null): SourceCriteria
+    public function createSourceCriteria(string|null $source = null): SourceCriteria
     {
         return new SourceCriteria($this->name, $this->getSource($source));
     }
@@ -283,12 +259,12 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Get the source.
      */
-    protected function getSource(?string $source = null): string
+    protected function getSource(string|null $source = null): string
     {
         if (null === $source) {
             $source = $this->sources[0];
         } elseif (!\in_array($source, $this->sources, true)) {
-            throw new \InvalidArgumentException(sprintf('Invalid source "%s"!', $source));
+            throw new \InvalidArgumentException(\sprintf('Invalid source "%s"!', $source));
         }
 
         return $source;
@@ -297,12 +273,12 @@ class DefaultManager implements ManagerInterface, DcaAwareInterface, InsertTagsA
     /**
      * Generate the tag alias.
      */
-    protected function generateAlias(TagModel $model, ?string $source = null): void
+    protected function generateAlias(TagModel $model, string|null $source = null): void
     {
         $alias = StringUtil::generateAlias($model->name);
 
         // Add ID to alias if it already exists
-        if (null !== ($existingTag = $this->tagFinder->findSingle($this->createTagCriteria($source)->setAlias($alias)))) {
+        if (null !== $this->tagFinder->findSingle($this->createTagCriteria($source)->setAlias($alias))) {
             $alias .= '-'.$model->id;
         }
 

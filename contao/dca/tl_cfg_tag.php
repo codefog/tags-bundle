@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Codefog\TagsBundle\Driver;
+
 /*
  * Tags Bundle for Contao Open Source CMS.
  *
@@ -13,7 +15,7 @@ declare(strict_types=1);
 $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
     // Config
     'config' => [
-        'dataContainer' => \Codefog\TagsBundle\Driver::class,
+        'dataContainer' => Driver::class,
         'enableVersioning' => true,
         'notCopyable' => true,
         'onload_callback' => [

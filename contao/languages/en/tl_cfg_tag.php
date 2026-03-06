@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 $GLOBALS['TL_LANG']['tl_cfg_tag']['name'] = ['Name', 'Please enter the tag name.'];
 $GLOBALS['TL_LANG']['tl_cfg_tag']['alias'] = ['Alias', 'The alias is a unique reference which can be called instead of its numeric ID.'];
 $GLOBALS['TL_LANG']['tl_cfg_tag']['source'] = ['Source', 'Please choose the tag source.'];

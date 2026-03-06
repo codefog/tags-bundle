@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Codefog\TagsBundle\Test\EventListener;
 
 use Codefog\TagsBundle\EventListener\TagManagerListener;
@@ -14,7 +16,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class TagManagerListenerTest extends TestCase
 {
-    public function testOnLoadDataContainer()
+    public function testOnLoadDataContainer(): void
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field1' => [
@@ -32,16 +34,19 @@ class TagManagerListenerTest extends TestCase
 
         $this->mockListener()->onLoadDataContainer('tl_table');
 
-        $this->assertEquals([
-            'field1' => [
-                'inputType' => 'cfgTags',
-                'eval' => ['tagsManager' => 'foobar', 'tagsSource' => 'tl_table.field1'],
-                'dummy' => true,
+        $this->assertSame(
+            [
+                'field1' => [
+                    'inputType' => 'cfgTags',
+                    'eval' => ['tagsManager' => 'foobar', 'tagsSource' => 'tl_table.field1'],
+                    'dummy' => true,
+                ],
+                'field2' => [
+                    'inputType' => 'text',
+                ],
             ],
-            'field2' => [
-                'inputType' => 'text',
-            ],
-        ], $GLOBALS['TL_DCA']['tl_table']['fields']);
+            $GLOBALS['TL_DCA']['tl_table']['fields'],
+        );
 
         $this->assertContains('bundles/codefogtags/selectize.min.css', $GLOBALS['TL_CSS']);
         $this->assertContains('bundles/codefogtags/backend.min.css', $GLOBALS['TL_CSS']);
@@ -51,12 +56,15 @@ class TagManagerListenerTest extends TestCase
         $this->assertContains('bundles/codefogtags/backend.min.js', $GLOBALS['TL_JAVASCRIPT']);
     }
 
-    public function testOnLoadDataContainerNoFields()
+    public function testOnLoadDataContainerNoFields(): void
     {
         $GLOBALS['TL_DCA']['tl_table'] = [];
 
         $registry = $this->createMock(ManagerRegistry::class);
-        $registry->method('get')->willReturn(new DummyManager());
+        $registry
+            ->method('get')
+            ->willReturn(new DummyManager())
+        ;
 
         $requestStack = $this->createConfiguredMock(RequestStack::class, [
             'getCurrentRequest' => new Request(),
@@ -69,14 +77,14 @@ class TagManagerListenerTest extends TestCase
         $listener = new TagManagerListener($registry, $requestStack, $scopeMatcher);
         $listener->onLoadDataContainer('tl_table');
 
-        $this->assertEquals([], $GLOBALS['TL_DCA']['tl_table']);
+        $this->assertSame([], $GLOBALS['TL_DCA']['tl_table']);
     }
 
-    public function testOnFieldSaveCallback()
+    public function testOnFieldSaveCallback(): void
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
-                'eval' => ['tagsManager' => 'foobar']
+                'eval' => ['tagsManager' => 'foobar'],
             ],
         ];
 
@@ -89,56 +97,14 @@ class TagManagerListenerTest extends TestCase
             ])
         ;
 
-        $this->assertEquals('FOOBAR', $this->mockListener()->onFieldSaveCallback('foobar', $dataContainer));
+        $this->assertSame('FOOBAR', $this->mockListener()->onFieldSaveCallback('foobar', $dataContainer));
     }
 
-    public function testOnFieldSaveCallbackManagerUnsupported()
+    public function testOnFieldSaveCallbackManagerUnsupported(): void
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
-                'eval' => ['tagsManager' => 'foobar']
-            ],
-        ];
-
-        $dataContainer = $this->createMock(DataContainer::class);
-        $dataContainer
-            ->method('__get')
-            ->willReturnMap([
-                ['table', 'tl_table'],
-                ['field', 'field'],
-            ])
-        ;
-
-        $listener = $this->mockListener($this->createMock(ManagerInterface::class));
-
-        $this->assertEquals('foobar', $listener->onFieldSaveCallback('foobar', $dataContainer));
-    }
-
-    public function testOnOptionsCallback()
-    {
-        $GLOBALS['TL_DCA']['tl_table']['fields'] = [
-            'field' => [
-                'eval' => ['tagsManager' => 'foobar']
-            ],
-        ];
-
-        $dataContainer = $this->createMock(DataContainer::class);
-        $dataContainer
-            ->method('__get')
-            ->willReturnMap([
-                ['table', 'tl_table'],
-                ['field', 'field'],
-            ])
-        ;
-
-        $this->assertEquals(['foo', 'bar'], $this->mockListener()->onOptionsCallback($dataContainer));
-    }
-
-    public function testOnOptionsCallbackManagerUnsupported()
-    {
-        $GLOBALS['TL_DCA']['tl_table']['fields'] = [
-            'field' => [
-                'eval' => ['tagsManager' => 'foobar']
+                'eval' => ['tagsManager' => 'foobar'],
             ],
         ];
 
@@ -153,7 +119,49 @@ class TagManagerListenerTest extends TestCase
 
         $listener = $this->mockListener($this->createMock(ManagerInterface::class));
 
-        $this->assertEquals([], $listener->onOptionsCallback($dataContainer));
+        $this->assertSame('foobar', $listener->onFieldSaveCallback('foobar', $dataContainer));
+    }
+
+    public function testOnOptionsCallback(): void
+    {
+        $GLOBALS['TL_DCA']['tl_table']['fields'] = [
+            'field' => [
+                'eval' => ['tagsManager' => 'foobar'],
+            ],
+        ];
+
+        $dataContainer = $this->createMock(DataContainer::class);
+        $dataContainer
+            ->method('__get')
+            ->willReturnMap([
+                ['table', 'tl_table'],
+                ['field', 'field'],
+            ])
+        ;
+
+        $this->assertSame(['foo', 'bar'], $this->mockListener()->onOptionsCallback($dataContainer));
+    }
+
+    public function testOnOptionsCallbackManagerUnsupported(): void
+    {
+        $GLOBALS['TL_DCA']['tl_table']['fields'] = [
+            'field' => [
+                'eval' => ['tagsManager' => 'foobar'],
+            ],
+        ];
+
+        $dataContainer = $this->createMock(DataContainer::class);
+        $dataContainer
+            ->method('__get')
+            ->willReturnMap([
+                ['table', 'tl_table'],
+                ['field', 'field'],
+            ])
+        ;
+
+        $listener = $this->mockListener($this->createMock(ManagerInterface::class));
+
+        $this->assertSame([], $listener->onOptionsCallback($dataContainer));
     }
 
     private function mockListener($manager = null): TagManagerListener

@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\Finder;
 
 use Codefog\TagsBundle\Tag;
@@ -32,7 +24,7 @@ class SourceCriteria
     protected $ids = [];
 
     /**
-     * @var Tag[]
+     * @var array<Tag>
      */
     protected $tags = [];
 
@@ -83,7 +75,7 @@ class SourceCriteria
     }
 
     /**
-     * @return Tag[]
+     * @return array<Tag>
      */
     public function getTags(): array
     {
@@ -91,7 +83,7 @@ class SourceCriteria
     }
 
     /**
-     * @param Tag[] $tags
+     * @param array<Tag> $tags
      */
     public function setTags(array $tags): self
     {

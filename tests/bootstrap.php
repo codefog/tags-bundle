@@ -2,19 +2,9 @@
 
 declare(strict_types=1);
 
-/*
- * This file is part of Contao.
- *
- * (c) Leo Feyer
- *
- * @license LGPL-3.0-or-later
- */
-
 error_reporting(E_ALL);
 
-$include = function ($file) {
-    return file_exists($file) ? include $file : false;
-};
+$include = fn ($file) => file_exists($file) ? include $file : false;
 
 if (
     false === ($loader = $include(__DIR__.'/../vendor/autoload.php'))
@@ -34,7 +24,7 @@ $fixtureLoader = function ($class): void {
         return;
     }
 
-    if (false !== strpos($class, '\\') && 0 !== strncmp($class, 'Contao\\', 7) && 0 !== strncmp($class, 'Codefog\TagsBundle\\', 19)) {
+    if (str_contains($class, '\\') && 0 !== strncmp($class, 'Contao\\', 7) && 0 !== strncmp($class, 'Codefog\TagsBundle\\', 19)) {
         return;
     }
 

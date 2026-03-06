@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\EventListener\DataContainer;
 
 use Codefog\TagsBundle\Driver;
@@ -142,11 +134,11 @@ class TagListener
 
         // Generate the markup options
         foreach ($sorting as $option) {
-            $options[] = sprintf(
+            $options[] = \sprintf(
                 '<option value="%s"%s>%s</option>',
                 StringUtil::specialchars($option),
-                ($session['sorting'][$dc->table] === $option) ? ' selected="selected"' : '',
-                ('_default' === $option) ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$GLOBALS['TL_DCA'][$dc->table]['list']['sorting']['fields'][0]]['label'][0] : $GLOBALS['TL_LANG'][$dc->table]['sortRef'][$option]
+                $session['sorting'][$dc->table] === $option ? ' selected="selected"' : '',
+                '_default' === $option ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$GLOBALS['TL_DCA'][$dc->table]['list']['sorting']['fields'][0]]['label'][0] : $GLOBALS['TL_LANG'][$dc->table]['sortRef'][$option],
             );
         }
 
@@ -230,7 +222,7 @@ class TagListener
         }
 
         // Add the button
-        $buttons['alias'] = sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
+        $buttons['alias'] = \sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
 
         return $buttons;
     }
@@ -270,7 +262,7 @@ class TagListener
 
         // Check whether the record alias exists
         if ($existingAliases > 1 && !$autoAlias) {
-            throw new \RuntimeException(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
+            throw new \RuntimeException(\sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
         }
 
         // Add ID to alias

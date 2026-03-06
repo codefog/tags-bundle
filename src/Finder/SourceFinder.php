@@ -21,8 +21,7 @@ class SourceFinder
     public function __construct(
         private Connection $connection,
         private DcaRelationsManager $dcaRelationsManager,
-    )
-    {
+    ) {
     }
 
     /**
@@ -56,14 +55,14 @@ class SourceFinder
      *
      * @throws \RuntimeException
      */
-    public function findRelatedSourceRecords(SourceCriteria $criteria, ?int $limit = null): array
+    public function findRelatedSourceRecords(SourceCriteria $criteria, int|null $limit = null): array
     {
         if (0 === \count($criteria->getIds())) {
             throw new \RuntimeException('No IDs have been provided');
         }
 
         if (false === ($relation = $this->dcaRelationsManager->getRelation($criteria->getSourceTable(), $criteria->getSourceField()))) {
-            throw new \RuntimeException(sprintf('The field %s.%s is not related', $criteria->getSourceTable(), $criteria->getSourceField()));
+            throw new \RuntimeException(\sprintf('The field %s.%s is not related', $criteria->getSourceTable(), $criteria->getSourceField()));
         }
 
         $tagIds = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getIds());
@@ -74,7 +73,7 @@ class SourceFinder
             return [];
         }
 
-        $query = sprintf(
+        $query = \sprintf(
             'SELECT %s, COUNT(*) AS relevance FROM %s WHERE %s IN (%s) AND %s NOT IN (%s) GROUP BY %s ORDER BY relevance DESC',
             $relation['reference_field'],
             $relation['table'],
@@ -82,12 +81,12 @@ class SourceFinder
             implode(',', $tagIds),
             $relation['reference_field'],
             implode(',', $criteria->getIds()),
-            $relation['reference_field']
+            $relation['reference_field'],
         );
 
         // Set the limit
         if ($limit > 0) {
-            $query .= sprintf(' LIMIT %s', $limit);
+            $query .= \sprintf(' LIMIT %s', $limit);
         }
 
         $related = [];
@@ -98,7 +97,7 @@ class SourceFinder
             $related[$record[$relation['reference_field']]] = [
                 'total' => \count($tagIds),
                 'found' => $record['relevance'],
-                'prcnt' => ($record['relevance'] / \count($tagIds)) * 100,
+                'prcnt' => $record['relevance'] / \count($tagIds) * 100,
             ];
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Codefog\TagsBundle\Test;
 
 use Codefog\TagsBundle\CodefogTagsBundle;
@@ -9,12 +11,12 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class CodefogTagsBundleTest extends TestCase
 {
-    public function testInstantiation()
+    public function testInstantiation(): void
     {
         $this->assertInstanceOf(CodefogTagsBundle::class, new CodefogTagsBundle());
     }
 
-    public function testRegisterCompilerPass()
+    public function testRegisterCompilerPass(): void
     {
         $container = new ContainerBuilder();
         $bundle = new CodefogTagsBundle();

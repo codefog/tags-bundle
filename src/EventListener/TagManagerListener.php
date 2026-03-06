@@ -101,7 +101,7 @@ class TagManagerListener
     /**
      * Get the manager from DCA.
      */
-    private function getManagerFromDca(DataContainer $dc): ?DcaAwareInterface
+    private function getManagerFromDca(DataContainer $dc): DcaAwareInterface|null
     {
         if (!isset($GLOBALS['TL_DCA'][$dc->table]['fields'][$dc->field]['eval']['tagsManager'])) {
             return null;
@@ -125,7 +125,7 @@ class TagManagerListener
         $GLOBALS['TL_CSS'][] = 'bundles/codefogtags/backend.min.css';
 
         // Add the jQuery
-        if (!isset($GLOBALS['TL_JAVASCRIPT']) || !preg_grep("/^assets\/jquery\/js\/jquery(\.min)?\.js$/", $GLOBALS['TL_JAVASCRIPT'])) {
+        if (!isset($GLOBALS['TL_JAVASCRIPT']) || !preg_grep('/^assets\\/jquery\\/js\\/jquery(\\.min)?\\.js$/', $GLOBALS['TL_JAVASCRIPT'])) {
             $GLOBALS['TL_JAVASCRIPT'][] = 'assets/jquery/js/jquery.min.js';
         }
 
