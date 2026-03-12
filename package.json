@@ -1,8 +1,8 @@
 {
-    "name": "@terminal42/contao-dcawizard",
-    "description": "DCAWizard for Contao Open Source CMS",
-    "author": "terminal42 gmbh <info@terminal42.ch>",
-    "license": "LGPL-3.0-or-later",
+    "name": "@codefog/contao-tags-bundle",
+    "description": "Tags bundle for Contao Open Source CMS",
+    "author": "Codefog <info@codefog.pl>",
+    "license": "MIT",
     "scripts": {
         "dev-server": "encore dev-server",
         "dev": "encore dev",
@@ -17,6 +17,7 @@
     ],
     "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610",
     "dependencies": {
-        "@hotwired/stimulus": "^3.2.2"
+        "@hotwired/stimulus": "^3.2.2",
+        "tom-select": "^2.5.2"
     }
 }

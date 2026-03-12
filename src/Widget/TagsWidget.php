@@ -45,17 +45,17 @@ class TagsWidget extends Widget
     protected $tagsManager;
 
     #[\Override]
-    public function addAttributes($attributes = null): void
+    public function addAttributes($arrAttributes = null): void
     {
-        if (\is_array($attributes)) {
-            if ($attributes['tagsManager']) {
-                $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get($attributes['tagsManager']);
+        if (\is_array($arrAttributes)) {
+            if ($arrAttributes['tagsManager']) {
+                $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get($arrAttributes['tagsManager']);
             }
 
-            unset($attributes['tagsManager']);
+            unset($arrAttributes['tagsManager']);
         }
 
-        parent::addAttributes($attributes);
+        parent::addAttributes($arrAttributes);
     }
 
     #[\Override]
@@ -77,35 +77,34 @@ class TagsWidget extends Widget
             return '';
         }
 
-        $template = new BackendTemplate('be_cfg_tags_widget');
-        $template->name = $this->strName;
-        $template->id = $this->strId;
-        $template->hideList = $this->hideList ? true : false;
-        $template->valueTags = $this->generateValueTags($this->getValueTags());
-        $template->allTags = $this->generateAllTags($this->getAllTags());
-        $template->config = $this->generateConfig();
+        $templateData = [
+            'id' => $this->strId,
+            'name' => $this->strName,
+            'css_class' => $this->strClass,
+            'hide_list' => (bool)$this->hideList,
+            'all_tags' => $this->generateAllTags($this->getAllTags()),
+            'js_config' => $this->generateConfig(),
+        ];
 
-        return $template->parse();
+        return System::getContainer()->get('twig')->render(\sprintf('@Contao/%s.html.twig', $this->customTpl ?: 'backend/widget/tags'), $templateData);
     }
 
     #[\Override]
-    protected function getPost($key)
+    protected function getPost($strKey)
     {
-        return array_filter(StringUtil::trimsplit(',', parent::getPost($key)));
+        return array_filter(StringUtil::trimsplit(',', parent::getPost($strKey)));
     }
 
-    /**
-     * Generate the widget configuration.
-     */
     protected function generateConfig(): array
     {
         $config = [
             'addLabel' => $GLOBALS['TL_LANG']['MSC']['cfg_tags.add'],
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
             'sortable' => isset($this->tagsSortable) && (bool) $this->tagsSortable,
+            'allTags' => $this->generateAllTags($this->getAllTags()),
+            'valueTags' => $this->generateValueTags($this->getValueTags()),
         ];
 
-        // Maximum number of items
         if (isset($this->maxItems)) {
             $config['maxItems'] = (int) $this->maxItems;
         }
@@ -113,17 +112,11 @@ class TagsWidget extends Widget
         return $config;
     }
 
-    /**
-     * Get all tags.
-     */
     protected function getAllTags(): array
     {
         return $this->tagsManager->getAllTags($this->tagsSource);
     }
 
-    /**
-     * Get the value tags.
-     */
     protected function getValueTags(): array
     {
         $values = \is_array($this->varValue) ? $this->varValue : [];
@@ -150,9 +143,6 @@ class TagsWidget extends Widget
         return $tags;
     }
 
-    /**
-     * Generate the value tags.
-     */
     private function generateValueTags(array $tags): array
     {
         $return = [];
@@ -165,9 +155,6 @@ class TagsWidget extends Widget
         return $return;
     }
 
-    /**
-     * Generate all tags.
-     */
     private function generateAllTags(array $tags): array
     {
         $return = [];

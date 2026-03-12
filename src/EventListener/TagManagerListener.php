@@ -14,17 +14,11 @@ namespace Codefog\TagsBundle\EventListener;
 
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
 use Codefog\TagsBundle\ManagerRegistry;
-use Contao\CoreBundle\Routing\ScopeMatcher;
 use Contao\DataContainer;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 readonly class TagManagerListener
 {
-    public function __construct(
-        private ManagerRegistry $registry,
-        private RequestStack $requestStack,
-        private ScopeMatcher $scopeMatcher,
-    ) {
+    public function __construct(private ManagerRegistry $registry) {
     }
 
     public function onLoadDataContainer(string $table): void
@@ -33,24 +27,16 @@ readonly class TagManagerListener
             return;
         }
 
-        $hasTagsFields = false;
-
         foreach ($GLOBALS['TL_DCA'][$table]['fields'] as $field => &$config) {
             if (!isset($config['inputType']) || 'cfgTags' !== $config['inputType']) {
                 continue;
             }
 
-            $hasTagsFields = true;
             $manager = $this->registry->get($config['eval']['tagsManager']);
 
             if ($manager instanceof DcaAwareInterface) {
                 $manager->updateDcaField($table, $field, $config);
             }
-        }
-
-        // Add assets for backend
-        if ($hasTagsFields && ($request = $this->requestStack->getCurrentRequest()) && $this->scopeMatcher->isBackendRequest($request)) {
-            $this->addAssets();
         }
     }
 
@@ -90,25 +76,5 @@ readonly class TagManagerListener
         }
 
         return null;
-    }
-
-    private function addAssets(): void
-    {
-        $GLOBALS['TL_CSS'][] = 'bundles/codefogtags/selectize.min.css';
-        $GLOBALS['TL_CSS'][] = 'bundles/codefogtags/backend.min.css';
-
-        // Add the jQuery
-        if (!isset($GLOBALS['TL_JAVASCRIPT']) || !preg_grep('/^assets\\/jquery\\/js\\/jquery(\\.min)?\\.js$/', $GLOBALS['TL_JAVASCRIPT'])) {
-            $GLOBALS['TL_JAVASCRIPT'][] = 'assets/jquery/js/jquery.min.js';
-        }
-
-        // Add jQuery UI to make the widget sortable if needed
-        // @see https://jqueryui.com/download/#!version=1.12.1&themeParams=none&components=101000000100000010000000010000000000000000000000
-        $GLOBALS['TL_CSS'][] = 'bundles/codefogtags/jquery-ui.min.css';
-        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/codefogtags/jquery-ui.min.js';
-
-        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/codefogtags/selectize.min.js';
-        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/codefogtags/widget.min.js';
-        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/codefogtags/backend.min.js';
     }
 }

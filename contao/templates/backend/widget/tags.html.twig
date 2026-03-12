@@ -1,0 +1,21 @@
+{% set widget_attributes = attrs()
+    .addClass(['cfg-tags-widget', css_class])
+    .set('data-controller', 'codefog--tags-widget')
+    .set('data-codefog--tags-widget-config-value', js_config|json_encode)
+%}
+
+{% block widget %}
+    <div{{ widget_attributes }}>
+        {% block widget_inner %}
+            {% if all_tags and not hide_list %}
+                <div class="cfg-tags-widget-all">
+                    {% for tag in all_tags %}
+                        <button type="button" value="{{ tag.value }}" data-action="click->codefog--tags-widget#select:prevent">{{ tag.text }}</button>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <input type="text" name="{{ name }}" id="ctrl_{{ id }}" data-codefog--tags-widget-target="input">
+        {% endblock %}
+    </div>
+{% endblock %}

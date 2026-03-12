@@ -1,18 +1,18 @@
-.cfg-tags {
+.cfg-tags-widget {
     padding-top: 5px;
     position: relative;
     z-index: 1;
 }
 
-.cfg-tags:has(.selectize-input.input-active.dropdown-active) {
+.cfg-tags-widget:has(.selectize-input.input-active.dropdown-active) {
     z-index: 2;
 }
 
-.cfg-tags-all {
+.cfg-tags-widget-all {
     padding: 5px 0 5px 0;
 }
 
-.cfg-tags-all span {
+.cfg-tags-widget-all span {
     display: inline-block;
     margin: 0 4px 5px 0;
     padding: 5px 10px;
@@ -22,12 +22,12 @@
     white-space: nowrap;
 }
 
-.cfg-tags-all span:hover {
+.cfg-tags-widget-all span:hover {
     background: #589b0e !important;
     color: #fff;
 }
 
-.cfg-tags .selectize-control.multi .selectize-input > div {
+.cfg-tags-widget .selectize-control.multi .selectize-input > div {
     margin-right: 7px;
     padding: 5px 10px;
     background: #eaeaea;
@@ -35,13 +35,13 @@
     line-height: 1;
 }
 
-.cfg-tags .selectize-control.multi .selectize-input > div:hover {
+.cfg-tags-widget .selectize-control.multi .selectize-input > div:hover {
     background: #c33 !important;
     color: #fff;
 }
 
 /* Dark scheme */
-html[data-color-scheme="dark"] .cfg-tags-all span,
+html[data-color-scheme="dark"] .cfg-tags-widget-all span,
 html[data-color-scheme="dark"] .selectize-dropdown-header,
 html[data-color-scheme="dark"] .selectize-control.single .selectize-input.input-active {
     background: #292c32;
@@ -68,7 +68,7 @@ html[data-color-scheme="dark"] .selectize-dropdown .active {
     color: #fff;
 }
 
-html[data-color-scheme="dark"] .cfg-tags .selectize-control.multi .selectize-input > div {
+html[data-color-scheme="dark"] .cfg-tags-widget .selectize-control.multi .selectize-input > div {
     background: #292c32;
     color: var(--text);
 }
