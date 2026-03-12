@@ -2,10 +2,10 @@
   "entrypoints": {
     "tags-widget": {
       "css": [
-        "/bundles/codefogtags/tags-widget.d74a7ab5.css"
+        "/bundles/codefogtags/tags-widget.c2ea0e46.css"
       ],
       "js": [
-        "/bundles/codefogtags/tags-widget.1b1a476c.js"
+        "/bundles/codefogtags/tags-widget.70907cda.js"
       ]
     }
   }

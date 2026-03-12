@@ -99,6 +99,8 @@ class TagsWidget extends Widget
     {
         $config = [
             'addLabel' => $GLOBALS['TL_LANG']['MSC']['cfg_tags.add'],
+            'removeLabel' => $GLOBALS['TL_LANG']['MSC']['removeItem'],
+            'noResultsLabel' => $GLOBALS['TL_LANG']['MSC']['noResults'],
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
             'sortable' => isset($this->tagsSortable) && (bool) $this->tagsSortable,
             'allTags' => $this->generateAllTags($this->getAllTags()),

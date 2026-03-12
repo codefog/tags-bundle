@@ -1,9 +1,13 @@
 services:
-    codefog_tags.listener.insert_tags:
-        class: Codefog\TagsBundle\EventListener\InsertTagsListener
-        public: true
+    _defaults:
+        autoconfigure: true
+
+    codefog_tags.listener.add_assets:
+        class: Codefog\TagsBundle\EventListener\AddAssetsListener
         arguments:
-            - "@codefog_tags.manager_registry"
+            - "@assets.packages"
+            - "@request_stack"
+            - "@contao.routing.scope_matcher"
 
     codefog_tags.listener.tag_manager:
         class: Codefog\TagsBundle\EventListener\TagManagerListener
@@ -13,7 +17,6 @@ services:
 
     codefog_tags.listener.data_container.tag:
         class: Codefog\TagsBundle\EventListener\DataContainer\TagListener
-        public: true
         arguments:
             - "@database_connection"
             - "@codefog_tags.manager_registry"

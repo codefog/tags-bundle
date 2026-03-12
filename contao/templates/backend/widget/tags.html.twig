@@ -8,9 +8,9 @@
     <div{{ widget_attributes }}>
         {% block widget_inner %}
             {% if all_tags and not hide_list %}
-                <div class="cfg-tags-widget-all">
+                <div class="cfg-tags-widget__all">
                     {% for tag in all_tags %}
-                        <button type="button" value="{{ tag.value }}" data-action="click->codefog--tags-widget#select:prevent">{{ tag.text }}</button>
+                        <button type="button" value="{{ tag.value }}" class="cfg-tags-widget__tag" data-action="click->codefog--tags-widget#add:prevent">{{ tag.text }}</button>
                     {% endfor %}
                 </div>
             {% endif %}

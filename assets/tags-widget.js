@@ -17,28 +17,22 @@ application.register('codefog--tags-widget', class extends Controller {
 
     connect() {
         this.tomSelect = new TomSelect(this.inputTarget, this.#getOptions())
-
-        // TODO: remove items on click
     }
 
     disconnect() {
         this.tomSelect.destroy()
     }
 
-    select(event) {
+    add(event) {
         this.tomSelect.addItem(event.target.value)
     }
 
+    remove(event) {
+        this.tomSelect.removeItem(event.target.value)
+    }
+
     #getOptions() {
-        let config = {};
-
-        try {
-            config = JSON.parse(this.configValue);
-        } catch {
-            console.error(`Could not parse JSON options for Tags widget: ${this.configValue}`);
-
-            return {};
-        }
+        const config = this.configValue;
 
         const options = {
             delimiter: ',',
@@ -47,6 +41,8 @@ application.register('codefog--tags-widget', class extends Controller {
             persist: false,
             render: {
                 option_create: (data, escape) => `<div class="create">${config.addLabel} <strong>${escape(data.input)}</strong>&hellip;</div>`,
+                item: (data, escape) => `<div>${escape(data.text)}<button type="button" class="cfg-tags-widget__remove" value="${data.value}" aria-label="${config.removeLabel} ${escape(data.text)}" data-action="click->codefog--tags-widget#remove:prevent">${config.removeLabel}</button></div>`,
+                no_results: (data,escape) => `<div class="no-results">${config.noResultsLabel}</div>`,
             }
         };
 
