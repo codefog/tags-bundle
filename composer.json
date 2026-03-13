@@ -54,6 +54,6 @@
         }
     },
     "scripts": {
-        "unit-tests": "@php vendor/bin/phpunit"
+        "unit-tests": "@php vendor/bin/phpunit --no-coverage"
     }
 }
