@@ -6,9 +6,6 @@ namespace Codefog\TagsBundle;
 
 use Contao\DC_Table;
 
-/**
- * @codeCoverageIgnore
- */
 class Driver extends DC_Table
 {
     /**

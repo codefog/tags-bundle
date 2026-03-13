@@ -10,9 +10,6 @@ use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
 
-/**
- * @codeCoverageIgnore
- */
 class TagsWidget extends Widget
 {
     /**

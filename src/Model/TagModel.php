@@ -6,9 +6,6 @@ namespace Codefog\TagsBundle\Model;
 
 use Contao\Model;
 
-/**
- * @codeCoverageIgnore
- */
 class TagModel extends Model
 {
     /**
