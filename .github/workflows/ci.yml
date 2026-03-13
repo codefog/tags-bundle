@@ -34,5 +34,4 @@ jobs:
               run: COMPOSER_MEMORY_LIMIT=-1 composer install --dev --no-interaction
 
             - name: Run tests
-              run: |
-                  php vendor/bin/phpunit
+              run: composer run unit-tests
