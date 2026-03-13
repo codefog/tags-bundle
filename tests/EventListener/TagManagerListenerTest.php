@@ -8,11 +8,8 @@ use Codefog\TagsBundle\EventListener\TagManagerListener;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Test\Fixtures\DummyManager;
-use Contao\CoreBundle\Routing\ScopeMatcher;
 use Contao\DataContainer;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 final class TagManagerListenerTest extends TestCase
 {
@@ -28,8 +25,6 @@ final class TagManagerListenerTest extends TestCase
             ],
         ];
 
-        $GLOBALS['TL_CSS'] = [];
-        $GLOBALS['TL_JAVASCRIPT'] = [];
         $GLOBALS['TL_CONFIG']['debugMode'] = false;
 
         $this->mockListener()->onLoadDataContainer('tl_table');
@@ -47,13 +42,6 @@ final class TagManagerListenerTest extends TestCase
             ],
             $GLOBALS['TL_DCA']['tl_table']['fields'],
         );
-
-        $this->assertContains('bundles/codefogtags/selectize.min.css', $GLOBALS['TL_CSS']);
-        $this->assertContains('bundles/codefogtags/backend.min.css', $GLOBALS['TL_CSS']);
-        $this->assertContains('assets/jquery/js/jquery.min.js', $GLOBALS['TL_JAVASCRIPT']);
-        $this->assertContains('bundles/codefogtags/selectize.min.js', $GLOBALS['TL_JAVASCRIPT']);
-        $this->assertContains('bundles/codefogtags/widget.min.js', $GLOBALS['TL_JAVASCRIPT']);
-        $this->assertContains('bundles/codefogtags/backend.min.js', $GLOBALS['TL_JAVASCRIPT']);
     }
 
     public function testOnLoadDataContainerNoFields(): void
@@ -66,15 +54,7 @@ final class TagManagerListenerTest extends TestCase
             ->willReturn(new DummyManager())
         ;
 
-        $requestStack = $this->createConfiguredMock(RequestStack::class, [
-            'getCurrentRequest' => new Request(),
-        ]);
-
-        $scopeMatcher = $this->createConfiguredMock(ScopeMatcher::class, [
-            'isBackendRequest' => true,
-        ]);
-
-        $listener = new TagManagerListener($registry, $requestStack, $scopeMatcher);
+        $listener = new TagManagerListener($registry);
         $listener->onLoadDataContainer('tl_table');
 
         $this->assertSame([], $GLOBALS['TL_DCA']['tl_table']);
@@ -90,7 +70,6 @@ final class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
-            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -111,7 +90,6 @@ final class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
-            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -134,7 +112,6 @@ final class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
-            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -155,7 +132,6 @@ final class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
-            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -174,14 +150,6 @@ final class TagManagerListenerTest extends TestCase
             'get' => $manager ?? new DummyManager(),
         ]);
 
-        $requestStack = $this->createConfiguredMock(RequestStack::class, [
-            'getCurrentRequest' => new Request(),
-        ]);
-
-        $scopeMatcher = $this->createConfiguredMock(ScopeMatcher::class, [
-            'isBackendRequest' => true,
-        ]);
-
-        return new TagManagerListener($registry, $requestStack, $scopeMatcher);
+        return new TagManagerListener($registry);
     }
 }

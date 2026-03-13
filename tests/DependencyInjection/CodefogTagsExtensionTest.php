@@ -39,7 +39,6 @@ final class CodefogTagsExtensionTest extends TestCase
         );
 
         // Listeners
-        $this->assertTrue($container->hasDefinition('codefog_tags.listener.insert_tags'));
         $this->assertTrue($container->hasDefinition('codefog_tags.listener.tag_manager'));
         $this->assertTrue($container->hasDefinition('codefog_tags.listener.data_container.tag'));
 

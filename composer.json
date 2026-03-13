@@ -52,5 +52,8 @@
             "php-http/discovery": true,
             "terminal42/contao-build-tools": true
         }
+    },
+    "scripts": {
+        "unit-tests": "@php vendor/bin/phpunit"
     }
 }
