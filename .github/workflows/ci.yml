@@ -9,3 +9,36 @@ permissions: read-all
 jobs:
     ci:
         uses: 'terminal42/contao-build-tools/.github/workflows/build-tools.yml@main'
+
+    php:
+        name: PHP ${{ matrix.php-version }}
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                php-version:
+                    - '8.3'
+                    - '8.4'
+                    - '8.5'
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  coverage: xdebug
+
+            - name: Install dependencies
+              run: COMPOSER_MEMORY_LIMIT=-1 composer install --dev --no-interaction
+
+            - name: Run tests
+              run: |
+                  mkdir -p build/logs
+                  php vendor/bin/phpunit -c phpunit.xml.dist
+
+            - name: Upload coverage
+              run: php vendor/bin/php-coveralls
+              continue-on-error: true
