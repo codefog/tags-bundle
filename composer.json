@@ -16,13 +16,17 @@
         "codefog/contao-haste": "^5.3",
         "doctrine/dbal": "^3.7 || ^4.3",
         "symfony/asset": "^7.4 || ^8.0",
+        "symfony/dependency-injection": "^7.4 || ^8.0",
+        "symfony/http-foundation": "^7.4 || ^8.0",
+        "symfony/http-kernel": "^7.4 || ^8.0",
         "symfony/config": "^7.4 || ^8.0"
     },
     "require-dev": {
         "contao/manager-plugin": "^2.0",
         "contao/test-case": "^5.7",
         "php-coveralls/php-coveralls": "^2.9",
-        "terminal42/contao-build-tools": "dev-main"
+        "terminal42/contao-build-tools": "dev-main",
+        "phpunit/phpunit": "^12.5"
     },
     "conflict": {
         "contao/manager-plugin": "<2.0 || >=3.0"
