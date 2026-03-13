@@ -40,5 +40,7 @@ jobs:
                   php vendor/bin/phpunit -c phpunit.xml.dist
 
             - name: Upload coverage
-              run: php vendor/bin/php-coveralls
+              run: |
+                  composer global require php-coveralls/php-coveralls
+                  php-coveralls --coverage_clover=build/logs/clover.xml
               continue-on-error: true

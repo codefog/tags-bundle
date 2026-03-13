@@ -24,7 +24,6 @@
     "require-dev": {
         "contao/manager-plugin": "^2.0",
         "contao/test-case": "^5.7",
-        "php-coveralls/php-coveralls": "^2.9",
         "terminal42/contao-build-tools": "dev-main",
         "phpunit/phpunit": "^12.5"
     },
