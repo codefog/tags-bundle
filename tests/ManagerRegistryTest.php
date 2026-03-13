@@ -9,11 +9,11 @@ use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 
-class ManagerRegistryTest extends TestCase
+final class ManagerRegistryTest extends TestCase
 {
     public function testAddManager(): void
     {
-        $managerMock = $this->createMock(ManagerInterface::class);
+        $managerMock = $this->createStub(ManagerInterface::class);
 
         $registry = $this->mockRegistry();
         $registry->add($managerMock, 'foobar');
@@ -31,8 +31,8 @@ class ManagerRegistryTest extends TestCase
 
     public function testGetAliases(): void
     {
-        $manager1Mock = $this->createMock(ManagerInterface::class);
-        $manager2Mock = $this->createMock(DefaultManager::class);
+        $manager1Mock = $this->createStub(ManagerInterface::class);
+        $manager2Mock = $this->createStub(DefaultManager::class);
 
         $registry = $this->mockRegistry();
         $registry->add($manager1Mock, 'foobar');

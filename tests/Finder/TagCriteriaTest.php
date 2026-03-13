@@ -7,7 +7,7 @@ namespace Codefog\TagsBundle\Test\Finder;
 use Codefog\TagsBundle\Finder\TagCriteria;
 use PHPUnit\Framework\TestCase;
 
-class TagCriteriaTest extends TestCase
+final class TagCriteriaTest extends TestCase
 {
     public function testAll(): void
     {

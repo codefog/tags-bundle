@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-class ManagerPassTest extends TestCase
+final class ManagerPassTest extends TestCase
 {
     public function testProcess(): void
     {

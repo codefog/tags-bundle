@@ -7,7 +7,7 @@ namespace Codefog\TagsBundle\Test;
 use Codefog\TagsBundle\Tag;
 use PHPUnit\Framework\TestCase;
 
-class TagTest extends TestCase
+final class TagTest extends TestCase
 {
     public function test(): void
     {

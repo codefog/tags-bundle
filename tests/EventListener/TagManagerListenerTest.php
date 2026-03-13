@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class TagManagerListenerTest extends TestCase
+final class TagManagerListenerTest extends TestCase
 {
     public function testOnLoadDataContainer(): void
     {
@@ -90,6 +90,7 @@ class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
+            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -110,6 +111,7 @@ class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
+            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -117,7 +119,7 @@ class TagManagerListenerTest extends TestCase
             ])
         ;
 
-        $listener = $this->mockListener($this->createMock(ManagerInterface::class));
+        $listener = $this->mockListener($this->createStub(ManagerInterface::class));
 
         $this->assertSame('foobar', $listener->onFieldSaveCallback('foobar', $dataContainer));
     }
@@ -132,6 +134,7 @@ class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
+            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -152,6 +155,7 @@ class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
+            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -159,7 +163,7 @@ class TagManagerListenerTest extends TestCase
             ])
         ;
 
-        $listener = $this->mockListener($this->createMock(ManagerInterface::class));
+        $listener = $this->mockListener($this->createStub(ManagerInterface::class));
 
         $this->assertSame([], $listener->onOptionsCallback($dataContainer));
     }

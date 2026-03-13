@@ -12,12 +12,12 @@ use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
 use PHPUnit\Framework\TestCase;
 
-class PluginTest extends TestCase
+final class PluginTest extends TestCase
 {
     public function testGetBundles(): void
     {
         $plugin = new Plugin();
-        $bundles = $plugin->getBundles($this->createMock(ParserInterface::class));
+        $bundles = $plugin->getBundles($this->createStub(ParserInterface::class));
 
         /** @var BundleConfig $config */
         $config = $bundles[0];

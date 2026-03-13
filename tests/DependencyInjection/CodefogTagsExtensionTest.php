@@ -9,7 +9,7 @@ use Codefog\TagsBundle\DependencyInjection\Compiler\ManagerPass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class CodefogTagsExtensionTest extends TestCase
+final class CodefogTagsExtensionTest extends TestCase
 {
     public function testLoad(): void
     {

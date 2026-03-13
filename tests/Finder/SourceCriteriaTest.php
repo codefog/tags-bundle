@@ -8,7 +8,7 @@ use Codefog\TagsBundle\Finder\SourceCriteria;
 use Codefog\TagsBundle\Tag;
 use PHPUnit\Framework\TestCase;
 
-class SourceCriteriaTest extends TestCase
+final class SourceCriteriaTest extends TestCase
 {
     public function testAll(): void
     {

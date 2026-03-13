@@ -14,7 +14,7 @@ use Contao\DataContainer;
 use Contao\StringUtil;
 use Contao\TestCase\ContaoTestCase;
 
-class DefaultManagerTest extends ContaoTestCase
+final class DefaultManagerTest extends ContaoTestCase
 {
     public function testGetAllTags(): void
     {
@@ -104,7 +104,7 @@ class DefaultManagerTest extends ContaoTestCase
         $tag = new Tag('bar', 'foo');
         $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null, 'createTagFromModel' => $tag]);
 
-        $value = $manager->saveDcaField(serialize(['new-tag']), $this->createMock(DataContainer::class));
+        $value = $manager->saveDcaField(serialize(['new-tag']), $this->createStub(DataContainer::class));
         $value = StringUtil::deserialize($value, true);
 
         $this->assertCount(1, $value);
@@ -116,7 +116,7 @@ class DefaultManagerTest extends ContaoTestCase
         $tag = new Tag('bar', 'foo');
         $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => $tag]);
 
-        $value = $manager->saveDcaField(serialize(['existing-tag']), $this->createMock(DataContainer::class));
+        $value = $manager->saveDcaField(serialize(['existing-tag']), $this->createStub(DataContainer::class));
         $value = StringUtil::deserialize($value, true);
 
         $this->assertCount(1, $value);
@@ -128,7 +128,7 @@ class DefaultManagerTest extends ContaoTestCase
         $tag1 = new Tag('tag1', 'foo');
         $tag2 = new Tag('tag2', 'bar');
 
-        $options = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getFilterOptions($this->createMock(DataContainer::class));
+        $options = $this->mockManager(['tl_table.tags'], ['findMultiple' => [$tag1, $tag2]])->getFilterOptions($this->createStub(DataContainer::class));
 
         $this->assertSame(['tag1' => 'foo', 'tag2' => 'bar'], $options);
     }
@@ -142,6 +142,7 @@ class DefaultManagerTest extends ContaoTestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
+            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -158,7 +159,7 @@ class DefaultManagerTest extends ContaoTestCase
     {
         $manager = $this->mockManager(['tl_table.tags'], ['findSingle' => null]);
 
-        $count = $manager->getSourceRecordsCount(['id' => 1], $this->createMock(DataContainer::class));
+        $count = $manager->getSourceRecordsCount(['id' => 1], $this->createStub(DataContainer::class));
 
         $this->assertSame(0, $count);
     }
@@ -168,7 +169,7 @@ class DefaultManagerTest extends ContaoTestCase
         $tag = new Tag('bar', 'foo');
         $manager = $this->mockManager(['tl_table.tags', 'tl_table_2.tags'], ['findSingle' => $tag], ['count' => 3]);
 
-        $count = $manager->getSourceRecordsCount(['id' => 1], $this->createMock(DataContainer::class));
+        $count = $manager->getSourceRecordsCount(['id' => 1], $this->createStub(DataContainer::class));
 
         $this->assertSame(6, $count);
     }
@@ -182,6 +183,7 @@ class DefaultManagerTest extends ContaoTestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
+            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
