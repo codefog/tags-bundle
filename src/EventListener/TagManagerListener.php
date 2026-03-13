@@ -18,7 +18,8 @@ use Contao\DataContainer;
 
 readonly class TagManagerListener
 {
-    public function __construct(private ManagerRegistry $registry) {
+    public function __construct(private ManagerRegistry $registry)
+    {
     }
 
     public function onLoadDataContainer(string $table): void

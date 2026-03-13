@@ -6,7 +6,6 @@ namespace Codefog\TagsBundle\Widget;
 
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
-use Contao\BackendTemplate;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
@@ -81,7 +80,7 @@ class TagsWidget extends Widget
             'id' => $this->strId,
             'name' => $this->strName,
             'css_class' => $this->strClass,
-            'hide_list' => (bool)$this->hideList,
+            'hide_list' => (bool) $this->hideList,
             'all_tags' => $this->generateAllTags($this->getAllTags()),
             'js_config' => $this->generateConfig(),
         ];
