@@ -29,7 +29,7 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-version }}
-                  coverage: xdebug
+                  coverage: pcov
 
             - name: Install dependencies
               run: COMPOSER_MEMORY_LIMIT=-1 composer install --dev --no-interaction
@@ -37,7 +37,7 @@ jobs:
             - name: Run tests
               run: |
                   mkdir -p build/logs
-                  php vendor/bin/phpunit -c phpunit.xml.dist
+                  php vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover build/logs/clover.xml
 
             - name: Upload coverage
               run: |

@@ -70,7 +70,6 @@ final class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
-            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -91,7 +90,6 @@ final class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
-            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -114,7 +112,6 @@ final class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
-            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
@@ -135,7 +132,6 @@ final class TagManagerListenerTest extends TestCase
 
         $dataContainer = $this->createMock(DataContainer::class);
         $dataContainer
-            ->expects($this->exactly(2))
             ->method('__get')
             ->willReturnMap([
                 ['table', 'tl_table'],
