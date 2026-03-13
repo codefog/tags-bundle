@@ -29,9 +29,7 @@ final class AddAssetsListenerTest extends TestCase
         $packages = $this->createMock(Packages::class);
         $packages
             ->method('getUrl')
-            ->willReturnCallback(static function (string $path, string $packageName) {
-                return sprintf('bundles/%s/%s', $packageName, $path);
-            })
+            ->willReturnCallback(static fn (string $path, string $packageName): string => \sprintf('bundles/%s/%s', $packageName, $path))
         ;
 
         $requestStack = $this->createConfiguredMock(RequestStack::class, [
