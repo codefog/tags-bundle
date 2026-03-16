@@ -14,8 +14,10 @@ namespace Codefog\TagsBundle\EventListener;
 
 use Codefog\TagsBundle\Manager\DcaAwareInterface;
 use Codefog\TagsBundle\ManagerRegistry;
+use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;
 use Contao\DataContainer;
 
+#[AsHook('loadDataContainer', priority: 10)]
 readonly class TagManagerListener
 {
     public function __construct(private ManagerRegistry $registry)

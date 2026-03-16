@@ -22,12 +22,3 @@ $GLOBALS['BE_FFL']['cfgTags'] = TagsWidget::class;
 
 // Models
 $GLOBALS['TL_MODELS']['tl_cfg_tag'] = TagModel::class;
-
-// Hooks
-$GLOBALS['TL_HOOKS']['replaceInsertTags'][] = ['codefog_tags.listener.insert_tags', 'onReplaceInsertTags'];
-
-if (is_array($GLOBALS['TL_HOOKS']['loadDataContainer'] ?? null)) {
-    array_unshift($GLOBALS['TL_HOOKS']['loadDataContainer'], ['codefog_tags.listener.tag_manager', 'onLoadDataContainer']);
-} else {
-    $GLOBALS['TL_HOOKS']['loadDataContainer'][] = ['codefog_tags.listener.tag_manager', 'onLoadDataContainer'];
-}
