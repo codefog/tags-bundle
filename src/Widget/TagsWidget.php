@@ -33,12 +33,7 @@ class TagsWidget extends Widget
      */
     protected $strTemplate = 'be_widget';
 
-    /**
-     * Tags manager.
-     *
-     * @var ManagerInterface
-     */
-    protected $tagsManager;
+    protected ManagerInterface $tagsManager;
 
     #[\Override]
     public function addAttributes($arrAttributes = null): void
@@ -98,7 +93,7 @@ class TagsWidget extends Widget
             'removeLabel' => $GLOBALS['TL_LANG']['MSC']['removeItem'],
             'noResultsLabel' => $GLOBALS['TL_LANG']['MSC']['noResults'],
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
-            'sortable' => isset($this->tagsSortable) && (bool) $this->tagsSortable,
+            'sortable' => (bool) $this->isSortable,
             'allTags' => $this->generateAllTags($this->getAllTags()),
             'valueTags' => $this->generateValueTags($this->getValueTags()),
         ];
@@ -126,7 +121,7 @@ class TagsWidget extends Widget
         $tags = $this->tagsManager->getFilteredTags($values, $this->tagsSource);
 
         // Respect the tags order
-        if ($this->tagsSortable && \count($tags) > 0) {
+        if ($this->isSortable && \count($tags) > 0) {
             usort(
                 $tags,
                 static function (Tag $aTag, Tag $bTag) use ($values) {
