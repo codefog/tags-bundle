@@ -1,3 +1,5 @@
+{% trans_default_domain 'contao_default' %}
+
 {% set widget_attributes = attrs()
     .addClass(['cfg-tags-widget', css_class])
     .set('data-controller', 'codefog--tags-widget')
@@ -7,15 +9,18 @@
 {% block widget %}
     <div{{ widget_attributes }}>
         {% block widget_inner %}
+            <input type="text" name="{{ name }}" id="ctrl_{{ id }}" placeholder="{{ 'MSC.cfg_tags_search'|trans }}" data-codefog--tags-widget-target="input">
+
             {% if all_tags and not hide_list %}
                 <div class="cfg-tags-widget__all">
-                    {% for tag in all_tags %}
-                        <button type="button" value="{{ tag.value }}" class="cfg-tags-widget__tag" data-action="click->codefog--tags-widget#add:prevent">{{ tag.text }}</button>
-                    {% endfor %}
+                    <div class="cfg-tags-widget__all-headline">{{ 'MSC.cfg_tags_suggestions'|trans }}</div>
+                    <div class="cfg-tags-widget__all-items">
+                        {% for tag in all_tags %}
+                            <button type="button" value="{{ tag.value }}" class="cfg-tags-widget__tag" title="{{ 'MSC.cfg_tags_add'|trans }}" data-action="click->codefog--tags-widget#add:prevent">{{ tag.text }}</button>
+                        {% endfor %}
+                    </div>
                 </div>
             {% endif %}
-
-            <input type="text" name="{{ name }}" id="ctrl_{{ id }}" data-codefog--tags-widget-target="input">
         {% endblock %}
     </div>
 {% endblock %}

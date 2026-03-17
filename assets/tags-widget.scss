@@ -20,16 +20,25 @@ $select-padding-y: 5px;
     margin-bottom: 3px;
 
     &__all {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 3px;
-        margin-bottom: 3px;
+        margin-top: 3px;
+
+        &-headline {
+            margin-bottom: 5px;
+            margin-top: 5px;
+            font-size: .75rem;
+        }
+
+        &-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
     }
 
     &__tag {
         display: block;
         padding: 5px 10px 5px 25px;
-        background: var(--form-button) url('./add.svg') no-repeat 6px center;
+        background: transparent url('./add.svg') no-repeat 6px center;
         border: 1px solid var(--form-border);
         border-radius: var(--border-radius);
         box-sizing: border-box;
