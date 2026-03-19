@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\Finder;
 
 use Codefog\TagsBundle\Tag;
@@ -17,37 +9,24 @@ use Codefog\TagsBundle\Tag;
 class SourceCriteria
 {
     /**
-     * @var string
+     * @var array<int>
      */
-    protected $name;
+    protected array $ids = [];
 
     /**
-     * @var string
+     * @var array<Tag>
      */
-    protected $source;
+    protected array $tags = [];
 
     /**
-     * @var array
+     * @var array<string>
      */
-    protected $ids = [];
+    protected array $tagValues = [];
 
-    /**
-     * @var Tag[]
-     */
-    protected $tags = [];
-
-    /**
-     * @var array
-     */
-    protected $tagValues = [];
-
-    /**
-     * Criteria constructor.
-     */
-    public function __construct(string $name, string $source)
-    {
-        $this->name = $name;
-        $this->source = $source;
+    public function __construct(
+        protected readonly string $name,
+        protected readonly string $source,
+    ) {
     }
 
     public function getName(): string
@@ -70,11 +49,17 @@ class SourceCriteria
         return explode('.', $this->source, 2)[1];
     }
 
+    /**
+     * @return array<int>
+     */
     public function getIds(): array
     {
         return $this->ids;
     }
 
+    /**
+     * @param array<int> $ids
+     */
     public function setIds(array $ids): self
     {
         $this->ids = $ids;
@@ -83,7 +68,7 @@ class SourceCriteria
     }
 
     /**
-     * @return Tag[]
+     * @return array<Tag>
      */
     public function getTags(): array
     {
@@ -91,7 +76,7 @@ class SourceCriteria
     }
 
     /**
-     * @param Tag[] $tags
+     * @param array<Tag> $tags
      */
     public function setTags(array $tags): self
     {
@@ -107,11 +92,17 @@ class SourceCriteria
         return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getTagValues(): array
     {
         return $this->tagValues;
     }
 
+    /**
+     * @param array<string> $tagValues
+     */
     public function setTagValues(array $tagValues): self
     {
         $this->tagValues = $tagValues;

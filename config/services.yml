@@ -1,0 +1,20 @@
+services:
+    codefog_tags.default_manager:
+        class: Codefog\TagsBundle\Manager\DefaultManager
+        abstract: true
+        calls:
+            - [setTagFinder, ["@codefog_tags.tag_finder"]]
+            - [setSourceFinder, ["@codefog_tags.source_finder"]]
+
+    codefog_tags.tag_finder:
+        class: Codefog\TagsBundle\Finder\TagFinder
+
+    codefog_tags.source_finder:
+        class: Codefog\TagsBundle\Finder\SourceFinder
+        arguments:
+            - '@database_connection'
+            - '@Codefog\HasteBundle\DcaRelationsManager'
+
+    codefog_tags.manager_registry:
+        class: Codefog\TagsBundle\ManagerRegistry
+        public: true

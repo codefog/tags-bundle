@@ -3,13 +3,11 @@
 [![Version](https://img.shields.io/packagist/v/codefog/tags-bundle)](https://packagist.org/packages/codefog/tags-bundle)
 [![License](https://img.shields.io/github/license/codefog/tags-bundle)](https://github.com/codefog/tags-bundle/blob/master/LICENSE.txt)
 [![Downloads](https://img.shields.io/packagist/dm/codefog/tags-bundle)](https://packagist.org/packages/codefog/tags-bundle)
-[![Build Status](https://travis-ci.org/codefog/tags-bundle.svg?branch=master)](https://travis-ci.org/codefog/tags-bundle)
-[![Coverage Status](https://coveralls.io/repos/github/codefog/tags-bundle/badge.svg?branch=master)](https://coveralls.io/github/codefog/tags-bundle?branch=master)
 
 Tags Bundle is an extension for the [Contao Open Source CMS](https://contao.org).
 
 The extension provides the tagging functionality in Contao. Backend widget is powered up by the excellent
-UI widget [selectize.js](https://github.com/selectize/selectize.js) that allows to easily manage tags.
+UI widget [Tom Select](https://tom-select.js.org/) that allows to easily manage tags.
 
 > **IMPORTANT NOTE:** This project is aimed at the developers and it does not provide tagging 
   to any of standard Contao features by default!

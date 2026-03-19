@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Codefog\TagsBundle\Test\DependencyInjection\Compiler;
 
@@ -9,9 +10,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-class ManagerPassTest extends TestCase
+final class ManagerPassTest extends TestCase
 {
-    public function testProcess()
+    public function testProcess(): void
     {
         $registryDefinition = new Definition();
 
@@ -32,13 +33,13 @@ class ManagerPassTest extends TestCase
 
         $calls = $registryDefinition->getMethodCalls();
 
-        $this->assertEquals('add', $calls[0][0]);
+        $this->assertSame('add', $calls[0][0]);
         $this->assertInstanceOf(Reference::class, $calls[0][1][0]);
-        $this->assertEquals('foo', $calls[0][1][1]);
-        $this->assertEquals('bar', $calls[1][1][1]);
+        $this->assertSame('foo', $calls[0][1][1]);
+        $this->assertSame('bar', $calls[1][1][1]);
     }
 
-    public function testRegistryNotExists()
+    public function testRegistryNotExists(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->mockCompilerPass()->process(new ContainerBuilder());

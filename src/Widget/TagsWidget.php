@@ -2,26 +2,14 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\Widget;
 
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\Tag;
-use Contao\BackendTemplate;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
 
-/**
- * @codeCoverageIgnore
- */
 class TagsWidget extends Widget
 {
     /**
@@ -45,84 +33,71 @@ class TagsWidget extends Widget
      */
     protected $strTemplate = 'be_widget';
 
-    /**
-     * Tags manager.
-     *
-     * @var ManagerInterface
-     */
-    protected $tagsManager;
+    protected ManagerInterface $tagsManager;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function addAttributes($attributes = null)
+    #[\Override]
+    public function addAttributes($arrAttributes = null): void
     {
-        if (\is_array($attributes)) {
-            if ($attributes['tagsManager']) {
-                $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get($attributes['tagsManager']);
+        if (\is_array($arrAttributes)) {
+            if ($arrAttributes['tagsManager']) {
+                $this->tagsManager = System::getContainer()->get('codefog_tags.manager_registry')->get($arrAttributes['tagsManager']);
             }
 
-            unset($attributes['tagsManager']);
+            unset($arrAttributes['tagsManager']);
         }
 
-        parent::addAttributes($attributes);
+        parent::addAttributes($arrAttributes);
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    #[\Override]
     public function validate(): void
     {
         $value = $this->validator($this->getPost($this->strName));
 
         // Validate the maximum number of items
         if (\is_array($value) && isset($this->maxItems) && \count($value) > $this->maxItems) {
-            $this->addError(sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
+            $this->addError(\sprintf($GLOBALS['TL_LANG']['ERR']['maxval'], $this->strLabel, $this->maxItems));
         }
 
         parent::validate();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function generate()
     {
         if (null === $this->tagsManager) {
             return '';
         }
 
-        $template = new BackendTemplate('be_cfg_tags_widget');
-        $template->name = $this->strName;
-        $template->id = $this->strId;
-        $template->hideList = $this->hideList ? true : false;
-        $template->valueTags = $this->generateValueTags($this->getValueTags());
-        $template->allTags = $this->generateAllTags($this->getAllTags());
-        $template->config = $this->generateConfig();
+        $templateData = [
+            'id' => $this->strId,
+            'name' => $this->strName,
+            'css_class' => $this->strClass,
+            'hide_list' => (bool) $this->hideList,
+            'all_tags' => $this->generateAllTags($this->getAllTags()),
+            'js_config' => $this->generateConfig(),
+        ];
 
-        return $template->parse();
+        return System::getContainer()->get('twig')->render(\sprintf('@Contao/%s.html.twig', $this->customTpl ?: 'backend/widget/tags'), $templateData);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getPost($key)
+    #[\Override]
+    protected function getPost($strKey)
     {
-        return array_filter(StringUtil::trimsplit(',', parent::getPost($key)));
+        return array_filter(StringUtil::trimsplit(',', parent::getPost($strKey)));
     }
 
-    /**
-     * Generate the widget configuration.
-     */
     protected function generateConfig(): array
     {
         $config = [
-            'addLabel' => $GLOBALS['TL_LANG']['MSC']['cfg_tags.add'],
+            'addLabel' => $GLOBALS['TL_LANG']['MSC']['cfg_tags_add'],
+            'removeLabel' => $GLOBALS['TL_LANG']['MSC']['removeItem'],
+            'noResultsLabel' => $GLOBALS['TL_LANG']['MSC']['noResults'],
             'allowCreate' => isset($this->tagsCreate) ? (bool) $this->tagsCreate : true,
-            'sortable' => isset($this->tagsSortable) ? (bool) $this->tagsSortable : false,
+            'sortable' => (bool) $this->isSortable,
+            'allTags' => $this->generateAllTags($this->getAllTags()),
+            'valueTags' => $this->generateValueTags($this->getValueTags()),
         ];
 
-        // Maximum number of items
         if (isset($this->maxItems)) {
             $config['maxItems'] = (int) $this->maxItems;
         }
@@ -130,47 +105,37 @@ class TagsWidget extends Widget
         return $config;
     }
 
-    /**
-     * Get all tags.
-     */
     protected function getAllTags(): array
     {
         return $this->tagsManager->getAllTags($this->tagsSource);
     }
 
-    /**
-     * Get the value tags.
-     */
     protected function getValueTags(): array
     {
         $values = \is_array($this->varValue) ? $this->varValue : [];
 
-        if (count($values) === 0) {
+        if (0 === \count($values)) {
             return [];
         }
 
         $tags = $this->tagsManager->getFilteredTags($values, $this->tagsSource);
 
         // Respect the tags order
-        if ($this->tagsSortable && count($tags) > 0) {
-            usort($tags, function (Tag $aTag, Tag $bTag) use ($values) {
-                $aIndex = array_search($aTag->getValue(), $values, true);
-                $bIndex = array_search($bTag->getValue(), $values, true);
+        if ($this->isSortable && \count($tags) > 0) {
+            usort(
+                $tags,
+                static function (Tag $aTag, Tag $bTag) use ($values) {
+                    $aIndex = array_search($aTag->getValue(), $values, true);
+                    $bIndex = array_search($bTag->getValue(), $values, true);
 
-                if ($aIndex === $bIndex) {
-                    return 0;
-                }
-
-                return ($aIndex < $bIndex) ? -1 : 1;
-            });
+                    return $aIndex <=> $bIndex;
+                },
+            );
         }
 
         return $tags;
     }
 
-    /**
-     * Generate the value tags.
-     */
     private function generateValueTags(array $tags): array
     {
         $return = [];
@@ -183,9 +148,6 @@ class TagsWidget extends Widget
         return $return;
     }
 
-    /**
-     * Generate all tags.
-     */
     private function generateAllTags(array $tags): array
     {
         $return = [];

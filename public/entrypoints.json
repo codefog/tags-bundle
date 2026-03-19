@@ -1,0 +1,12 @@
+{
+  "entrypoints": {
+    "tags-widget": {
+      "css": [
+        "/bundles/codefogtags/tags-widget.f1a58ca1.css"
+      ],
+      "js": [
+        "/bundles/codefogtags/tags-widget.92015867.js"
+      ]
+    }
+  }
+}

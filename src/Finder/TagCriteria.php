@@ -2,60 +2,33 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\Finder;
 
 class TagCriteria
 {
     /**
-     * @var string
+     * @var array<string>
      */
-    protected $name;
+    protected array $aliases = [];
 
     /**
-     * @var string
+     * @var array<int>
      */
-    protected $source;
+    protected array $sourceIds = [];
+
+    protected bool $usedOnly = false;
 
     /**
-     * @var array
+     * @var array<int|string>
      */
-    protected $aliases = [];
+    protected array $values = [];
 
-    /**
-     * @var array
-     */
-    protected $sourceIds = [];
+    protected string $order = 'name';
 
-    /**
-     * @var bool
-     */
-    protected $usedOnly = false;
-
-    /**
-     * @var array
-     */
-    protected $values = [];
-
-    /**
-     * @var string
-     */
-    protected $order = 'name';
-
-    /**
-     * Criteria constructor.
-     */
-    public function __construct(string $name, string $source)
-    {
-        $this->name = $name;
-        $this->source = $source;
+    public function __construct(
+        protected string $name,
+        protected string $source,
+    ) {
     }
 
     public function getName(): string
@@ -78,11 +51,17 @@ class TagCriteria
         return explode('.', $this->source, 2)[1];
     }
 
+    /**
+     * @return array<string>
+     */
     public function getAliases(): array
     {
         return $this->aliases;
     }
 
+    /**
+     * @param array<string> $aliases
+     */
     public function setAliases(array $aliases): self
     {
         $this->aliases = array_values(array_unique($aliases));
@@ -97,11 +76,17 @@ class TagCriteria
         return $this;
     }
 
+    /**
+     * @return array<int>
+     */
     public function getSourceIds(): array
     {
         return $this->sourceIds;
     }
 
+    /**
+     * @param array<int> $sourceIds
+     */
     public function setSourceIds(array $sourceIds): self
     {
         $this->sourceIds = array_values(array_unique($sourceIds));
@@ -121,11 +106,17 @@ class TagCriteria
         return $this;
     }
 
+    /**
+     * @return array<int|string>
+     */
     public function getValues(): array
     {
         return $this->values;
     }
 
+    /**
+     * @param array<int|string> $values
+     */
     public function setValues(array $values): self
     {
         $this->values = array_values(array_unique($values));

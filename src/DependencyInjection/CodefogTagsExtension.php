@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\DependencyInjection;
 
 use Codefog\TagsBundle\DependencyInjection\Compiler\ManagerPass;
@@ -22,11 +14,11 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 class CodefogTagsExtension extends ConfigurableExtension
 {
     /**
-     * {@inheritdoc}
+     * @param array<string, mixed> $mergedConfig
      */
     protected function loadInternal(array $mergedConfig, ContainerBuilder $container): void
     {
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
         $loader->load('listener.yml');
         $loader->load('services.yml');
 
@@ -36,11 +28,11 @@ class CodefogTagsExtension extends ConfigurableExtension
     }
 
     /**
-     * Create the manager.
+     * @param array<string, mixed> $config
      */
     private function createManager(string $name, array $config, ContainerBuilder $container): void
     {
-        $id = sprintf('codefog_tags.manager.%s', $name);
+        $id = \sprintf('codefog_tags.manager.%s', $name);
 
         $container
             ->setDefinition($id, new ChildDefinition($config['service']))

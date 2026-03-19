@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\Manager;
 
 use Contao\DataContainer;
@@ -17,27 +9,24 @@ use Contao\DataContainer;
 interface DcaAwareInterface
 {
     /**
-     * Update the DCA field.
+     * @param array<string, mixed> $config
      */
     public function updateDcaField(string $table, string $field, array &$config): void;
 
-    /**
-     * Save the DCA field.
-     */
     public function saveDcaField(string $value, DataContainer $dc): string;
 
     /**
-     * Get the filter options.
+     * @return array<string, string>
      */
     public function getFilterOptions(DataContainer $dc): array;
 
     /**
-     * Get the source records count.
+     * @param array<string, mixed> $data
      */
     public function getSourceRecordsCount(array $data, DataContainer $dc): int;
 
     /**
-     * Get the top tag IDs with count.
+     * @return array<int, int>
      */
     public function getTopTagIds(): array;
 }

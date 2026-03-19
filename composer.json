@@ -11,19 +11,21 @@
         }
     ],
     "require": {
-        "php": "^8.0",
-        "ext-pdo": "*",
-        "contao/core-bundle": "^4.13 || ^5.0",
-        "codefog/contao-haste": "^5.0",
-        "doctrine/dbal": "^2.12 || ^3.0",
-        "symfony/config": "^5.4 || ^6.4 || ^7.0"
+        "php": "^8.3",
+        "contao/core-bundle": "^5.7",
+        "codefog/contao-haste": "^5.3",
+        "doctrine/dbal": "^3.7 || ^4.3",
+        "symfony/asset": "^7.4 || ^8.0",
+        "symfony/dependency-injection": "^7.4 || ^8.0",
+        "symfony/http-foundation": "^7.4 || ^8.0",
+        "symfony/http-kernel": "^7.4 || ^8.0",
+        "symfony/config": "^7.4 || ^8.0"
     },
     "require-dev": {
         "contao/manager-plugin": "^2.0",
-        "contao/easy-coding-standard": "^5.3",
-        "phpunit/phpunit": "^7.0 || ^9.3",
-        "contao/test-case": "^4.13",
-        "php-coveralls/php-coveralls": "^2.2"
+        "contao/test-case": "^5.7",
+        "terminal42/contao-build-tools": "dev-main",
+        "phpunit/phpunit": "^12.5"
     },
     "conflict": {
         "contao/manager-plugin": "<2.0 || >=3.0"
@@ -43,10 +45,15 @@
     },
     "config": {
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "contao-components/installer": false,
+            "contao/manager-plugin": false,
+            "contao-community-alliance/composer-plugin": false,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "php-http/discovery": true,
+            "terminal42/contao-build-tools": true
         }
     },
     "scripts": {
-        "cs-fixer": "vendor/bin/ecs check src tests --fix --ansi"
+        "unit-tests": "@php vendor/bin/phpunit"
     }
 }

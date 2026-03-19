@@ -1,20 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Codefog\TagsBundle\Test\EventListener;
 
 use Codefog\TagsBundle\EventListener\TagManagerListener;
 use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Test\Fixtures\DummyManager;
-use Contao\CoreBundle\Routing\ScopeMatcher;
 use Contao\DataContainer;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
-class TagManagerListenerTest extends TestCase
+final class TagManagerListenerTest extends TestCase
 {
-    public function testOnLoadDataContainer()
+    public function testOnLoadDataContainer(): void
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field1' => [
@@ -26,57 +25,46 @@ class TagManagerListenerTest extends TestCase
             ],
         ];
 
-        $GLOBALS['TL_CSS'] = [];
-        $GLOBALS['TL_JAVASCRIPT'] = [];
         $GLOBALS['TL_CONFIG']['debugMode'] = false;
 
         $this->mockListener()->onLoadDataContainer('tl_table');
 
-        $this->assertEquals([
-            'field1' => [
-                'inputType' => 'cfgTags',
-                'eval' => ['tagsManager' => 'foobar', 'tagsSource' => 'tl_table.field1'],
-                'dummy' => true,
+        $this->assertSame(
+            [
+                'field1' => [
+                    'inputType' => 'cfgTags',
+                    'eval' => ['tagsManager' => 'foobar', 'tagsSource' => 'tl_table.field1'],
+                    'dummy' => true,
+                ],
+                'field2' => [
+                    'inputType' => 'text',
+                ],
             ],
-            'field2' => [
-                'inputType' => 'text',
-            ],
-        ], $GLOBALS['TL_DCA']['tl_table']['fields']);
-
-        $this->assertContains('bundles/codefogtags/selectize.min.css', $GLOBALS['TL_CSS']);
-        $this->assertContains('bundles/codefogtags/backend.min.css', $GLOBALS['TL_CSS']);
-        $this->assertContains('assets/jquery/js/jquery.min.js', $GLOBALS['TL_JAVASCRIPT']);
-        $this->assertContains('bundles/codefogtags/selectize.min.js', $GLOBALS['TL_JAVASCRIPT']);
-        $this->assertContains('bundles/codefogtags/widget.min.js', $GLOBALS['TL_JAVASCRIPT']);
-        $this->assertContains('bundles/codefogtags/backend.min.js', $GLOBALS['TL_JAVASCRIPT']);
+            $GLOBALS['TL_DCA']['tl_table']['fields'],
+        );
     }
 
-    public function testOnLoadDataContainerNoFields()
+    public function testOnLoadDataContainerNoFields(): void
     {
         $GLOBALS['TL_DCA']['tl_table'] = [];
 
         $registry = $this->createMock(ManagerRegistry::class);
-        $registry->method('get')->willReturn(new DummyManager());
+        $registry
+            ->method('get')
+            ->willReturn(new DummyManager())
+        ;
 
-        $requestStack = $this->createConfiguredMock(RequestStack::class, [
-            'getCurrentRequest' => new Request(),
-        ]);
-
-        $scopeMatcher = $this->createConfiguredMock(ScopeMatcher::class, [
-            'isBackendRequest' => true,
-        ]);
-
-        $listener = new TagManagerListener($registry, $requestStack, $scopeMatcher);
+        $listener = new TagManagerListener($registry);
         $listener->onLoadDataContainer('tl_table');
 
-        $this->assertEquals([], $GLOBALS['TL_DCA']['tl_table']);
+        $this->assertSame([], $GLOBALS['TL_DCA']['tl_table']);
     }
 
-    public function testOnFieldSaveCallback()
+    public function testOnFieldSaveCallback(): void
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
-                'eval' => ['tagsManager' => 'foobar']
+                'eval' => ['tagsManager' => 'foobar'],
             ],
         ];
 
@@ -89,14 +77,14 @@ class TagManagerListenerTest extends TestCase
             ])
         ;
 
-        $this->assertEquals('FOOBAR', $this->mockListener()->onFieldSaveCallback('foobar', $dataContainer));
+        $this->assertSame('FOOBAR', $this->mockListener()->onFieldSaveCallback('foobar', $dataContainer));
     }
 
-    public function testOnFieldSaveCallbackManagerUnsupported()
+    public function testOnFieldSaveCallbackManagerUnsupported(): void
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
-                'eval' => ['tagsManager' => 'foobar']
+                'eval' => ['tagsManager' => 'foobar'],
             ],
         ];
 
@@ -109,16 +97,16 @@ class TagManagerListenerTest extends TestCase
             ])
         ;
 
-        $listener = $this->mockListener($this->createMock(ManagerInterface::class));
+        $listener = $this->mockListener($this->createStub(ManagerInterface::class));
 
-        $this->assertEquals('foobar', $listener->onFieldSaveCallback('foobar', $dataContainer));
+        $this->assertSame('foobar', $listener->onFieldSaveCallback('foobar', $dataContainer));
     }
 
-    public function testOnOptionsCallback()
+    public function testOnOptionsCallback(): void
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
-                'eval' => ['tagsManager' => 'foobar']
+                'eval' => ['tagsManager' => 'foobar'],
             ],
         ];
 
@@ -131,14 +119,14 @@ class TagManagerListenerTest extends TestCase
             ])
         ;
 
-        $this->assertEquals(['foo', 'bar'], $this->mockListener()->onOptionsCallback($dataContainer));
+        $this->assertSame(['foo', 'bar'], $this->mockListener()->onOptionsCallback($dataContainer));
     }
 
-    public function testOnOptionsCallbackManagerUnsupported()
+    public function testOnOptionsCallbackManagerUnsupported(): void
     {
         $GLOBALS['TL_DCA']['tl_table']['fields'] = [
             'field' => [
-                'eval' => ['tagsManager' => 'foobar']
+                'eval' => ['tagsManager' => 'foobar'],
             ],
         ];
 
@@ -151,9 +139,9 @@ class TagManagerListenerTest extends TestCase
             ])
         ;
 
-        $listener = $this->mockListener($this->createMock(ManagerInterface::class));
+        $listener = $this->mockListener($this->createStub(ManagerInterface::class));
 
-        $this->assertEquals([], $listener->onOptionsCallback($dataContainer));
+        $this->assertSame([], $listener->onOptionsCallback($dataContainer));
     }
 
     private function mockListener($manager = null): TagManagerListener
@@ -162,14 +150,6 @@ class TagManagerListenerTest extends TestCase
             'get' => $manager ?? new DummyManager(),
         ]);
 
-        $requestStack = $this->createConfiguredMock(RequestStack::class, [
-            'getCurrentRequest' => new Request(),
-        ]);
-
-        $scopeMatcher = $this->createConfiguredMock(ScopeMatcher::class, [
-            'isBackendRequest' => true,
-        ]);
-
-        return new TagManagerListener($registry, $requestStack, $scopeMatcher);
+        return new TagManagerListener($registry);
     }
 }

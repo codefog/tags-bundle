@@ -1,45 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Codefog\TagsBundle\Test\Finder;
 
 use Codefog\TagsBundle\Finder\TagCriteria;
 use PHPUnit\Framework\TestCase;
 
-class TagCriteriaTest extends TestCase
+final class TagCriteriaTest extends TestCase
 {
-    public function testAll()
+    public function testAll(): void
     {
         $criteria = new TagCriteria('my_manager', 'tl_table.tags');
 
-        $this->assertEquals('my_manager', $criteria->getName());
-        $this->assertEquals('tl_table.tags', $criteria->getSource());
-        $this->assertEquals('tl_table', $criteria->getSourceTable());
-        $this->assertEquals('tags', $criteria->getSourceField());
-        $this->assertEquals('name', $criteria->getOrder());
-        $this->assertEquals([], $criteria->getAliases());
-        $this->assertEquals([], $criteria->getSourceIds());
-        $this->assertEquals([], $criteria->getValues());
+        $this->assertSame('my_manager', $criteria->getName());
+        $this->assertSame('tl_table.tags', $criteria->getSource());
+        $this->assertSame('tl_table', $criteria->getSourceTable());
+        $this->assertSame('tags', $criteria->getSourceField());
+        $this->assertSame('name', $criteria->getOrder());
+        $this->assertSame([], $criteria->getAliases());
+        $this->assertSame([], $criteria->getSourceIds());
+        $this->assertSame([], $criteria->getValues());
         $this->assertFalse($criteria->isUsedOnly());
 
         $criteria->setAliases(['foo', 'foo', 'bar']);
-        $this->assertEquals(['foo', 'bar'], $criteria->getAliases());
+        $this->assertSame(['foo', 'bar'], $criteria->getAliases());
 
         $criteria->setAlias('foo');
-        $this->assertEquals(['foo'], $criteria->getAliases());
+        $this->assertSame(['foo'], $criteria->getAliases());
 
         $criteria->setSourceIds([1, 1, 2, 3]);
-        $this->assertEquals([1, 2, 3], $criteria->getSourceIds());
+        $this->assertSame([1, 2, 3], $criteria->getSourceIds());
 
         $criteria->setValues(['foo', 'foo', 'bar', 'baz']);
-        $this->assertEquals(['foo', 'bar', 'baz'], $criteria->getValues());
+        $this->assertSame(['foo', 'bar', 'baz'], $criteria->getValues());
 
         $criteria->setValue('foobar');
-        $this->assertEquals(['foobar'], $criteria->getValues());
+        $this->assertSame(['foobar'], $criteria->getValues());
 
         $criteria->setUsedOnly(true);
         $this->assertTrue($criteria->isUsedOnly());
 
         $criteria->setOrder('alias');
-        $this->assertEquals('alias', $criteria->getOrder());
+        $this->assertSame('alias', $criteria->getOrder());
     }
 }

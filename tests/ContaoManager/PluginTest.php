@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Codefog\TagsBundle\Test\ContaoManager;
 
 use Codefog\HasteBundle\CodefogHasteBundle;
@@ -10,19 +12,19 @@ use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
 use PHPUnit\Framework\TestCase;
 
-class PluginTest extends TestCase
+final class PluginTest extends TestCase
 {
-    public function testGetBundles()
+    public function testGetBundles(): void
     {
         $plugin = new Plugin();
-        $bundles = $plugin->getBundles($this->createMock(ParserInterface::class));
+        $bundles = $plugin->getBundles($this->createStub(ParserInterface::class));
 
         /** @var BundleConfig $config */
         $config = $bundles[0];
 
         $this->assertCount(1, $bundles);
         $this->assertInstanceOf(BundleConfig::class, $config);
-        $this->assertEquals(CodefogTagsBundle::class, $config->getName());
+        $this->assertSame(CodefogTagsBundle::class, $config->getName());
         $this->assertContains(ContaoCoreBundle::class, $config->getLoadAfter());
         $this->assertContains(CodefogHasteBundle::class, $config->getLoadAfter());
     }

@@ -17,16 +17,13 @@ use Codefog\TagsBundle\Exception\NoTagsException;
 use Codefog\TagsBundle\Model\TagModel;
 use Codefog\TagsBundle\Tag;
 
-class TagFinder
+readonly class TagFinder
 {
-    /**
-     * Count tags by criteria.
-     */
     public function count(TagCriteria $criteria): int
     {
         try {
             [$columns, $values, $options] = $this->parseCriteria($criteria);
-        } catch (NoTagsException $e) {
+        } catch (NoTagsException) {
             return 0;
         }
 
@@ -37,14 +34,11 @@ class TagFinder
         return TagModel::countBy($columns, $values, $options);
     }
 
-    /**
-     * Find a single tag by criteria.
-     */
-    public function findSingle(TagCriteria $criteria): ?Tag
+    public function findSingle(TagCriteria $criteria): Tag|null
     {
         try {
             [$columns, $values, $options] = $this->parseCriteria($criteria);
-        } catch (NoTagsException $e) {
+        } catch (NoTagsException) {
             return null;
         }
 
@@ -56,13 +50,13 @@ class TagFinder
     }
 
     /**
-     * Find multiple tags by criteria.
+     * @return array<Tag>
      */
     public function findMultiple(TagCriteria $criteria): array
     {
         try {
             [$columns, $values, $options] = $this->parseCriteria($criteria);
-        } catch (NoTagsException $e) {
+        } catch (NoTagsException) {
             return [];
         }
 
@@ -88,8 +82,10 @@ class TagFinder
 
     /**
      * Get the top tags. The tag count will be part of tag's data ($tag->getData()['count']).
+     *
+     * @return array<Tag>
      */
-    public function getTopTags(TagCriteria $criteria, ?int $limit = null, bool $withCount = false): array
+    public function getTopTags(TagCriteria $criteria, int|null $limit = null, bool $withCount = false): array
     {
         if (0 === \count($tagIds = $this->getTopTagIds($criteria, $limit, $withCount))) {
             return [];
@@ -110,12 +106,14 @@ class TagFinder
 
     /**
      * Get the top tag IDs.
+     *
+     * @return array<int, int>
      */
-    public function getTopTagIds(TagCriteria $criteria, ?int $limit = null, bool $withCount = false): array
+    public function getTopTagIds(TagCriteria $criteria, int|null $limit = null, bool $withCount = false): array
     {
         // No array_unique() here!
         $tagIds = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $criteria->getSourceIds());
-        $tagIds = array_map('intval', $tagIds);
+        $tagIds = array_map(intval(...), $tagIds);
 
         if (0 === \count($tagIds)) {
             return [];
@@ -143,16 +141,17 @@ class TagFinder
         return \array_slice($helper, 0, $limit, $withCount);
     }
 
-    /**
-     * Create tag from model.
-     */
     public function createTagFromModel(TagModel $model): Tag
     {
         return new Tag((string) $model->id, (string) $model->name, $model->row());
     }
 
     /**
-     * Parse the criteria to object.
+     * @return array{
+     *     array<string>,
+     *     array<string>,
+     *     array<string, string>,
+     * }
      *
      * @throws NoTagsException
      */
@@ -168,7 +167,7 @@ class TagFinder
                 $columns[] = 'id=?';
                 $values[] = (int) $ids[0];
             } else {
-                $columns[] = 'id IN ('.implode(',', array_map('intval', $ids)).')';
+                $columns[] = 'id IN ('.implode(',', array_map(intval(...), $ids)).')';
             }
         }
 
@@ -186,7 +185,7 @@ class TagFinder
         if (\count($sourceIds = $criteria->getSourceIds()) > 0) {
             $ids = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField(), $sourceIds);
             $ids = array_values(array_unique($ids));
-            $ids = array_map('intval', $ids);
+            $ids = array_map(intval(...), $ids);
 
             if (0 === \count($ids)) {
                 throw new NoTagsException();
@@ -202,7 +201,7 @@ class TagFinder
         if ($criteria->isUsedOnly()) {
             $ids = DcaRelationsModel::getRelatedValues($criteria->getSourceTable(), $criteria->getSourceField());
             $ids = array_values(array_unique($ids));
-            $ids = array_map('intval', $ids);
+            $ids = array_map(intval(...), $ids);
 
             if (0 === \count($ids)) {
                 throw new NoTagsException();

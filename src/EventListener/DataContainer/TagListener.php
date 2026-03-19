@@ -2,14 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Tags Bundle for Contao Open Source CMS.
- *
- * @copyright  Copyright (c) 2020, Codefog
- * @author     Codefog <https://codefog.pl>
- * @license    MIT
- */
-
 namespace Codefog\TagsBundle\EventListener\DataContainer;
 
 use Codefog\TagsBundle\Driver;
@@ -18,8 +10,11 @@ use Codefog\TagsBundle\Manager\ManagerInterface;
 use Codefog\TagsBundle\ManagerRegistry;
 use Codefog\TagsBundle\Model\TagModel;
 use Contao\Controller;
+use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
+use Contao\CoreBundle\Slug\Slug;
 use Contao\Database;
 use Contao\DataContainer;
+use Contao\DC_Table;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Versions;
@@ -27,36 +22,17 @@ use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 
-class TagListener
+readonly class TagListener
 {
-    /**
-     * @var Connection
-     */
-    private $db;
-
-    /**
-     * @var ManagerRegistry
-     */
-    private $registry;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
-     * TagListener constructor.
-     */
-    public function __construct(Connection $db, ManagerRegistry $registry, RequestStack $requestStack)
-    {
-        $this->db = $db;
-        $this->registry = $registry;
-        $this->requestStack = $requestStack;
+    public function __construct(
+        private Connection $connection,
+        private ManagerRegistry $registry,
+        private RequestStack $requestStack,
+        private Slug $slug,
+    ) {
     }
 
-    /**
-     * On load callback.
-     */
+    #[AsCallback('tl_cfg_tag', 'config.onload')]
     public function onLoadCallback(DataContainer $dc): void
     {
         if (!($dc instanceof Driver)) {
@@ -80,7 +56,7 @@ class TagListener
         }
 
         // Append all other tags
-        foreach ($this->db->query("SELECT id FROM {$dc->table}")->fetchFirstColumn() as $id) {
+        foreach ($this->connection->fetchFirstColumn("SELECT id FROM {$dc->table}") as $id) {
             if (!\array_key_exists($id, $ids)) {
                 $ids[$id] = 0;
             }
@@ -113,9 +89,7 @@ class TagListener
         $dc->setFirstOrderBy('name');
     }
 
-    /**
-     * On generate panel callback.
-     */
+    #[AsCallback('tl_cfg_tag', 'list.sorting.panel_callback.cfg_sort')]
     public function onPanelCallback(DataContainer $dc): string
     {
         /** @var AttributeBagInterface $bag */
@@ -142,11 +116,11 @@ class TagListener
 
         // Generate the markup options
         foreach ($sorting as $option) {
-            $options[] = sprintf(
+            $options[] = \sprintf(
                 '<option value="%s"%s>%s</option>',
                 StringUtil::specialchars($option),
-                ($session['sorting'][$dc->table] === $option) ? ' selected="selected"' : '',
-                ('_default' === $option) ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$GLOBALS['TL_DCA'][$dc->table]['list']['sorting']['fields'][0]]['label'][0] : $GLOBALS['TL_LANG'][$dc->table]['sortRef'][$option]
+                $session['sorting'][$dc->table] === $option ? ' selected="selected"' : '',
+                '_default' === $option ? $GLOBALS['TL_DCA'][$dc->table]['fields'][$GLOBALS['TL_DCA'][$dc->table]['list']['sorting']['fields'][0]]['label'][0] : $GLOBALS['TL_LANG'][$dc->table]['sortRef'][$option],
             );
         }
 
@@ -161,11 +135,13 @@ class TagListener
     }
 
     /**
-     * On label callback.
+     * @param array<string, mixed> $row
+     * @param array<int, mixed>    $args
      *
-     * @param string $label
+     * @return array<int, mixed>
      */
-    public function onLabelCallback(array $row, $label, DataContainer $dc, array $args): array
+    #[AsCallback('tl_cfg_tag', 'list.label.label')]
+    public function onLabelCallback(array $row, string $label, DataContainer $dc, array $args): array
     {
         if ($row['source']) {
             $manager = $this->registry->get($row['source']);
@@ -179,11 +155,12 @@ class TagListener
     }
 
     /**
-     * On buttons callback.
+     * @param array<string, string> $buttons
      *
-     * @return array
+     * @return array<string, string>
      */
-    public function onButtonsCallback(array $buttons, DataContainer $dc)
+    #[AsCallback('tl_cfg_tag', 'select.buttons')]
+    public function onButtonsCallback(array $buttons, DataContainer $dc): array
     {
         $request = $this->requestStack->getCurrentRequest();
 
@@ -219,7 +196,7 @@ class TagListener
                     $versions->initialize();
 
                     // Store the new alias
-                    $this->db->update($dc->table, ['alias' => $alias], ['id' => $tagModel->id]);
+                    $this->connection->update($dc->table, ['alias' => $alias], ['id' => $tagModel->id]);
 
                     // Create a new version
                     $versions->create();
@@ -230,14 +207,15 @@ class TagListener
         }
 
         // Add the button
-        $buttons['alias'] = sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
+        $buttons['alias'] = \sprintf('<button type="submit" name="alias" id="alias" class="tl_submit" accesskey="a">%s</button> ', $GLOBALS['TL_LANG']['MSC']['aliasSelected']);
 
         return $buttons;
     }
 
     /**
-     * On source options callback.
+     * @return array<string>
      */
+    #[AsCallback('tl_cfg_tag', 'fields.source.options')]
     public function onSourceOptionsCallback(): array
     {
         $options = [];
@@ -251,31 +229,27 @@ class TagListener
         return $options;
     }
 
-    /**
-     * On alias save callback.
-     *
-     * @throws \RuntimeException
-     */
+    #[AsCallback('tl_cfg_tag', 'fields.alias.save')]
     public function onAliasSaveCallback(string $value, DataContainer $dc): string
     {
-        $autoAlias = false;
+        if ($dc instanceof DC_Table) {
+            $activeRecord = $dc->getActiveRecord();
+        } else {
+            $activeRecord = $dc->getCurrentRecord();
+        }
 
-        // Generate alias if there is none
+        if (null === $activeRecord) {
+            return $value;
+        }
+
+        $aliasExists = fn (string $alias) => false !== $this->connection->fetchOne("SELECT id FROM {$dc->table} WHERE id!=? AND alias=? AND source=?", [$dc->id, $value, $activeRecord['source']]);
+
         if (!$value) {
-            $autoAlias = true;
-            $value = StringUtil::generateAlias($dc->activeRecord->name);
-        }
-
-        $existingAliases = $this->db->fetchOne("SELECT COUNT(*) FROM {$dc->table} WHERE alias=? AND source=?", [$value, $dc->activeRecord->source]);
-
-        // Check whether the record alias exists
-        if ($existingAliases > 1 && !$autoAlias) {
-            throw new \RuntimeException(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
-        }
-
-        // Add ID to alias
-        if ($existingAliases > 0 && $autoAlias) {
-            $value .= '-'.$dc->id;
+            $value = $this->slug->generate($activeRecord['headline'], duplicateCheck: $aliasExists);
+        } elseif (preg_match('/^[1-9]\d*$/', $value)) {
+            throw new \Exception(\sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $value));
+        } elseif ($aliasExists($value)) {
+            throw new \Exception(\sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $value));
         }
 
         return $value;

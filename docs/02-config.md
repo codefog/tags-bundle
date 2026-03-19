@@ -78,29 +78,10 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['app_tags'] = [
         'tagsManager' => 'app',
         'tagsCreate' => false, # Do not create new tags
         'tagsSource' => 'tl_table.tags', # Set the source if you have multiple of them
-        'tagsSortable' => true, # Make the tags sortable. Works only with the tag values saved directly in the field (see below).
+        'isSortable' => true, # Make the tags sortable. Works only with the tag values saved directly in the field (see below).
         'tl_class' => 'clr',
     ],
     # Save the tag values directly in the field and do not use the Haste-ManyToMany relation
     'sql' => ['type' => 'blob', 'notnull' => false],
 ];
-```
-
-## Overriding Selectize.js settings
-
-In case you would like to override the [Selectize.js settings](https://github.com/selectize/selectize.js/blob/master/docs/usage.md) 
-directly you can always do that by passing the `selectizeConfig` property of the widget configuration, as shown on example:
-
-```php
-<script>
-    $('#cfg-tags-<?= $this->id ?>').cfgTags(
-        <?= json_encode($this->allTags) ?>, 
-        <?= json_encode($this->valueTags) ?>, 
-        $.extend(<?= json_encode($this->config) ?>, { 
-            selectizeConfig: {
-                hideSelected: true
-            }
-        })
-    );
-</script>
 ```
