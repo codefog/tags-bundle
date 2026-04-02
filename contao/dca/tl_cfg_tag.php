@@ -18,6 +18,7 @@ $GLOBALS['TL_DCA']['tl_cfg_tag'] = [
     // Config
     'config' => [
         'dataContainer' => Driver::class,
+        'backendSearchIgnore' => true,
         'enableVersioning' => true,
         'notCopyable' => true,
         'sql' => [
