@@ -245,7 +245,7 @@ readonly class TagListener
         $aliasExists = fn (string $alias) => false !== $this->connection->fetchOne("SELECT id FROM {$dc->table} WHERE id!=? AND alias=? AND source=?", [$dc->id, $value, $activeRecord['source']]);
 
         if (!$value) {
-            $value = $this->slug->generate($activeRecord['headline'], duplicateCheck: $aliasExists);
+            $value = $this->slug->generate($activeRecord['name'] ?? '', duplicateCheck: $aliasExists);
         } elseif (preg_match('/^[1-9]\d*$/', $value)) {
             throw new \Exception(\sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $value));
         } elseif ($aliasExists($value)) {
